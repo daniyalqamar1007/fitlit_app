@@ -1,5 +1,6 @@
 import 'package:fitlip_app/routes/App_routes.dart';
-import 'package:fitlip_app/view/Splash_screen/Splash_screen.dart';
+import 'package:fitlip_app/view/Screens/Splash_screen/Splash_screen.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -41,7 +42,8 @@ class MyApp extends StatelessWidget {
         if (AppRoutes.routes.containsKey(initialRoute)) {
           return [MaterialPageRoute(builder: AppRoutes.routes[initialRoute]!)];
         }
-        return [MaterialPageRoute(builder: (_) => const SplashScreen())];
+        return [
+          MaterialPageRoute(builder: (_) =>  SplashScreen())];
       },
       onGenerateRoute: (settings) {
         return MaterialPageRoute(
@@ -50,6 +52,7 @@ class MyApp extends StatelessWidget {
           ),
         );
       },
+
       routes: AppRoutes.routes,
     );
   }

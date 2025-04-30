@@ -1,3 +1,4 @@
+import 'package:fitlip_app/routes/App_routes.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -15,7 +16,7 @@ class _SplashScreenState extends State<SplashScreen> {
     super.initState();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
     Future.delayed(const Duration(seconds: 3), () {
-      Navigator.of(context).pushReplacementNamed('/home');
+      Navigator.pushReplacementNamed(context, AppRoutes.onboarding);
     });
   }
   @override
@@ -26,9 +27,9 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Colors.white,
       body: Center(
-        child: Image.asset('assets/Images/app_logo.png',scale: 2,),
+        child: Image.asset('assets/Images/splash_logo.png',scale: 4.5,),
       ),
     );
   }
