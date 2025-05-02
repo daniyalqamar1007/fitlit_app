@@ -1,4 +1,6 @@
+import 'package:fitlip_app/view/Utils/Colors.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:google_fonts/google_fonts.dart';
 class AppConstants {
   static const List<String> onboardingImageUrls = [
     'https://your-bucket.s3.amazonaws.com/onboarding1.jpg',
@@ -25,4 +27,29 @@ class AppConstants {
   static const EdgeInsets pagePadding = EdgeInsets.symmetric(horizontal: 24);
   static const double indicatorSize = 8;
   static const double indicatorSpacing = 4;
+}
+class AppDimensions {
+  static const double paddingSmall = 8.0;
+  static const double paddingMedium = 16.0;
+  static const double paddingLarge = 24.0;
+  static const double borderRadius = 14.0;
+  static const double buttonHeight = 50.0;
+}
+class AppTextStyles {
+  static TextStyle get headlineSmall => GoogleFonts.playfairDisplay(
+    fontSize: 30,
+    fontWeight: FontWeight.w700,
+    color: appcolor,
+  );
+
+  static TextStyle get bodyMedium => GoogleFonts.poppins(
+    fontSize: 12,
+    fontWeight: FontWeight.w400,
+    color: appcolor,
+  );
+
+  static TextStyle get button => GoogleFonts.poppins(
+    fontSize: 16,
+    fontWeight: FontWeight.w600,
+  );
 }

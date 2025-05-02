@@ -3,18 +3,15 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../routes/App_routes.dart';
 import '../../Utils/Colors.dart';
 import '../../Utils/Constants.dart';
-
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
 
   @override
   State<OnboardingScreen> createState() => _OnboardingScreenState();
 }
-
 class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
-
   final List<OnboardingPage> onboardingData = [
     OnboardingPage(
       title: "Fashion that speaks for itself",
@@ -41,13 +38,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       image: "assets/Images/onboard3.png", // Use your full-screen image here
     ),
   ];
-
   @override
   void dispose() {
     _pageController.dispose();
     super.dispose();
   }
-
   void _nextPage() {
     if (_currentPage < onboardingData.length - 1) {
       _pageController.nextPage(
@@ -55,10 +50,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         curve: Curves.easeInOut,
       );
     } else {
-      Navigator.pushReplacementNamed(context, AppRoutes.home);
+      Navigator.pushReplacementNamed(context, AppRoutes.signup);
     }
   }
-
   Widget _buildPageIndicator() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -80,7 +74,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       ),
     );
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -117,7 +110,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       )
     );
   }
-
   Widget _buildNextButton() {
     return GestureDetector(
       onTap: _nextPage,
@@ -141,37 +133,23 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       ),
     );
   }
-
   Widget _buildOnboardingPage(OnboardingPage page) {
     return Container(
       color: Colors.white,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Full Image (takes about 60% of the screen)
           Expanded(
-            flex: 7,
+            flex: 9,
             child: Container(
-              // margin: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-
-                // borderRadius: BorderRadius.circular(16),
                 image: DecorationImage(
                   image: AssetImage(page.image),
                   fit: BoxFit.fitWidth,
                 ),
-                // boxShadow: [
-                //   BoxShadow(
-                //     color: Colors.black.withOpacity(0.1),
-                //     blurRadius: 10,
-                //     offset: Offset(0, 4),
-                //   ),
-                // ],
               ),
             ),
           ),
-
-          // Content below image (40% of screen)
           Expanded(
             flex: 4,
             child: Padding(
@@ -206,12 +184,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       ),
     );
   }
-
   Widget _buildHighlightedTitle(OnboardingPage page) {
     // Split the title into parts based on the highlighted text
     final titleParts = page.title.split(page.highlightedText);
 
-    return RichText(
+    return
+      RichText(
       text: TextSpan(
         style: GoogleFonts.playfairDisplay(
           fontSize: 38,
@@ -235,8 +213,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
 }
-
-// Enhanced OnboardingPage model
 class OnboardingPage {
   final String title;
   final String description;
