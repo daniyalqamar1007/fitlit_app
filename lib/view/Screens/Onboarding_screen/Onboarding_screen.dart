@@ -50,7 +50,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         curve: Curves.easeInOut,
       );
     } else {
-      Navigator.pushReplacementNamed(context, AppRoutes.signup);
+      Navigator.pushReplacementNamed(context, AppRoutes.signin);
     }
   }
   Widget _buildPageIndicator() {

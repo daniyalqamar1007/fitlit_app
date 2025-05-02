@@ -1,4 +1,6 @@
+import 'package:fitlip_app/routes/App_routes.dart';
 import 'package:fitlip_app/view/Utils/Colors.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
@@ -71,9 +73,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
               color: Colors.black,
             ),
             children: [
-              const TextSpan(text: 'Welcome '),
+              const TextSpan(text: 'Let \'s'),
               TextSpan(
-                text: 'Back',
+                text: ' Start',
                 style: GoogleFonts.playfairDisplay(
                   fontWeight: FontWeight.w700,
                   fontSize: 30,
@@ -192,6 +194,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
             borderRadius: BorderRadius.circular(14),
             borderSide: BorderSide.none,
           ),
+          suffixIcon: IconButton(
+            icon: Icon(
+              _obscurePassword ? Icons.visibility_off : Icons.visibility,
+              color: appcolor,
+            ),
+            onPressed: () {
+              setState(() {
+                _obscurePassword = !_obscurePassword;
+              });
+            },
+          ),
 
         ),
         const SizedBox(height: 16),
@@ -259,6 +272,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
           children: [
             TextSpan(
               text: 'Sign In',
+
+              recognizer: TapGestureRecognizer()..onTap = () {
+                Navigator.pushReplacementNamed(context, AppRoutes.signin);
+              },
               style: GoogleFonts.poppins(
                 color: appcolor,
                 fontSize: 12,
