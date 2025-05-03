@@ -152,6 +152,7 @@ class _SignInScreenState extends State<SignInScreen> {
         child: ElevatedButton(
           onPressed: () {
             if (_formKey.currentState?.validate() ?? false) {
+              Navigator.pushReplacementNamed(context, AppRoutes.dashboard);
               // Handle sign in logic
             }
           },

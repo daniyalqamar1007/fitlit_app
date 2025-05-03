@@ -267,7 +267,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       padding: const EdgeInsets.only(top: 16),
       child: Text.rich(
         TextSpan(
-          text: 'Already have an account? ',
+          text: 'Do you have an account? ',
           style: GoogleFonts.poppins(),
           children: [
             TextSpan(
