@@ -2,10 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../../Utils/Colors.dart';
-import '../../Utils/Constants.dart';
-
-import 'bottomnavbar.dart';
-
 class WardrobeScreen extends StatefulWidget {
   const WardrobeScreen({Key? key}) : super(key: key);
 
@@ -337,17 +333,6 @@ Row(children: [
       ],
     );
   }
-  Widget _buildCalendarRow() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: List.generate(
-        weekdays.length,
-            (index) => _buildCalendarItem(weekdays[index], dates[index], index),
-      ),
-    );
-  }
-
-// Replaced Outfit Grid section with full calendar
   Widget _buildOutfitSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -414,36 +399,6 @@ Row(children: [
       ],
     );
   }
-  // Widget _buildOutfitSection() {
-  //   return Column(
-  //     crossAxisAlignment: CrossAxisAlignment.start,
-  //     children: [
-  //       const Text(
-  //         'Choose Outfit',
-  //         style: TextStyle(
-  //           fontSize: 18,
-  //           fontWeight: FontWeight.bold,
-  //         ),
-  //       ),
-  //       const SizedBox(height: 16),
-  //       GridView.builder(
-  //         shrinkWrap: true,
-  //         physics: const NeverScrollableScrollPhysics(),
-  //         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-  //           crossAxisCount: 3,
-  //           crossAxisSpacing: 12,
-  //           mainAxisSpacing: 12,
-  //           childAspectRatio: 1,
-  //         ),
-  //         itemCount: outfitItems.length,
-  //         itemBuilder: (context, index) {
-  //           return _buildOutfitItem(outfitItems[index]);
-  //         },
-  //       ),
-  //     ],
-  //   );
-  // }
-
   Widget _buildOutfitItem(OutfitItem item) {
     return Container(
       decoration: BoxDecoration(
