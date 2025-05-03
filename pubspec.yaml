@@ -37,7 +37,7 @@ dependencies:
   cached_network_image:
   google_fonts:
   image_picker:
-
+  table_calendar:
 dev_dependencies:
   flutter_test:
     sdk: flutter
