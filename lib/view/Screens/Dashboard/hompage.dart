@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:table_calendar/table_calendar.dart';
 import '../../Utils/Colors.dart';
-import '../../Utils/Constants.dart';
-
-import 'bottomnavbar.dart';
-
 class WardrobeScreen extends StatefulWidget {
   const WardrobeScreen({Key? key}) : super(key: key);
 
@@ -20,14 +17,14 @@ class _WardrobeScreenState extends State<WardrobeScreen> {
   final List<String> categories = ['Shirts', 'Pants', 'Dressess', 'Shoes'];
   int selectedCategoryIndex = 2; // Default to Dressess
 
-  final List<OutfitItem> outfitItems = [
-    OutfitItem(image: 'assets/Images/1.png'),
-    OutfitItem(image: 'assets/Images/2.png'),
-    OutfitItem(image: 'assets/Images/3.png'),
-    OutfitItem(image: 'assets/Images/4.png'),
-    OutfitItem(image: 'assets/Images/5.png'),
-    OutfitItem(image: 'assets/Images/6.png'),
-  ];
+  // final List<OutfitItem> outfitItems = [
+  //   OutfitItem(image: 'assets/Images/1.png'),
+  //   OutfitItem(image: 'assets/Images/2.png'),
+  //   OutfitItem(image: 'assets/Images/3.png'),
+  //   OutfitItem(image: 'assets/Images/4.png'),
+  //   OutfitItem(image: 'assets/Images/5.png'),
+  //   OutfitItem(image: 'assets/Images/6.png'),
+  // ];
 
   @override
   Widget build(BuildContext context) {
@@ -45,8 +42,8 @@ class _WardrobeScreenState extends State<WardrobeScreen> {
               _buildSearchBar(),
               const SizedBox(height: 24),
               _buildCategoriesSection(),
-              const SizedBox(height: 16),
-              _buildCalendarRow(),
+              // const SizedBox(height: 16),
+              // _buildCalendarRow(),
               const SizedBox(height: 24),
               _buildAvatarSection(),
               const SizedBox(height: 24),
@@ -247,16 +244,16 @@ Row(children: [
       ),
     );
   }
-
-  Widget _buildCalendarRow() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: List.generate(
-        weekdays.length,
-            (index) => _buildCalendarItem(weekdays[index], dates[index], index),
-      ),
-    );
-  }
+  //
+  // Widget _buildCalendarRow() {
+  //   return Row(
+  //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //     children: List.generate(
+  //       weekdays.length,
+  //           (index) => _buildCalendarItem(weekdays[index], dates[index], index),
+  //     ),
+  //   );
+  // }
 
   Widget _buildCalendarItem(String day, int date, int index) {
     final isSelected = index == selectedDateIndex;
@@ -336,37 +333,72 @@ Row(children: [
       ],
     );
   }
-
   Widget _buildOutfitSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'Choose Outfit',
+          'Your Calendar',
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
         ),
         const SizedBox(height: 16),
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 3,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
-            childAspectRatio: 1,
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.shade200,
+                blurRadius: 10,
+                offset: const Offset(0, 5),
+              ),
+            ],
           ),
-          itemCount: outfitItems.length,
-          itemBuilder: (context, index) {
-            return _buildOutfitItem(outfitItems[index]);
-          },
+          child: TableCalendar(
+            firstDay: DateTime.utc(2020, 1, 1),
+            lastDay: DateTime.utc(2030, 12, 31),
+            focusedDay: DateTime.now(),
+    availableGestures: AvailableGestures.none,
+            calendarStyle: CalendarStyle(
+              selectedDecoration: BoxDecoration(
+                color: appcolor,
+                shape: BoxShape.circle,
+              ),
+              todayDecoration: BoxDecoration(
+                color: appcolor,
+                shape: BoxShape.circle,
+              ),
+              weekendTextStyle: const TextStyle(color: Colors.red),
+            ),
+            headerStyle: const HeaderStyle(
+              formatButtonVisible: false,
+              titleCentered: true,
+            ),
+            onDaySelected: (selectedDay, focusedDay) {
+              showDialog(
+
+                context: context,
+                builder: (context) => AlertDialog(
+                  backgroundColor: Colors.white,
+                  title:  Text("No Outfit Set",style: GoogleFonts.poppins(color: appcolor,fontWeight: FontWeight.w600,fontSize: 21),),
+                  content: const Text("You have not set outfit collection for today."),
+                  actions: [
+                    TextButton(
+                      child:  Text("OK", style: TextStyle(color: appcolor)),
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
         ),
       ],
     );
   }
-
   Widget _buildOutfitItem(OutfitItem item) {
     return Container(
       decoration: BoxDecoration(
