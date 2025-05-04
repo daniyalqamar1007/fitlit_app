@@ -7,6 +7,16 @@ class AppConstants {
     'https://your-bucket.s3.amazonaws.com/onboarding2.jpg',
     'https://your-bucket.s3.amazonaws.com/onboarding3.jpg',
   ];
+  static const String profile = 'Profile';
+  static const String notifications = 'Notifications';
+  static const String darkMode = 'Dark Mode';
+  static const String language = 'Language';
+  static const String privacyPolicy = 'Privacy Policy';
+  static const String contactUs = 'Contact Us';
+  static const String rateApp = 'Rate this App';
+  static const String accountControl = 'Account Control';
+  static const String settings = 'Settings';
+  static const String edit = 'Edit';
   static const List<Map<String, String>> onboardingData = [
     {
       'title': 'Fashion that speaks for itself',

@@ -1,3 +1,4 @@
+import 'package:fitlip_app/routes/App_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -81,14 +82,19 @@ class _WardrobeScreenState extends State<WardrobeScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
 Row(children: [
-  Container(
-    width: 40,
-    height: 40,
-    decoration: BoxDecoration(
-      borderRadius: BorderRadius.circular(20),
-      image: const DecorationImage(
-        image: AssetImage('assets/Images/circle_image.png'),
-        fit: BoxFit.cover,
+  GestureDetector(
+    onTap: (){
+      Navigator.pushNamed(context, AppRoutes.profile);
+    },
+    child: Container(
+      width: 40,
+      height: 40,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        image: const DecorationImage(
+          image: AssetImage('assets/Images/circle_image.png'),
+          fit: BoxFit.cover,
+        ),
       ),
     ),
   ),
