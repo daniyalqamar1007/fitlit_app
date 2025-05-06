@@ -1,8 +1,13 @@
 import 'package:fitlip_app/routes/App_routes.dart';
+import 'package:fitlip_app/controllers/themecontroller.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:image_picker/image_picker.dart';
+import '../../../main.dart';
 import '../../Utils/Colors.dart';
+import 'dart:io';
+
 class WardrobeScreen extends StatefulWidget {
   const WardrobeScreen({Key? key}) : super(key: key);
 
@@ -10,499 +15,1057 @@ class WardrobeScreen extends StatefulWidget {
   State<WardrobeScreen> createState() => _WardrobeScreenState();
 }
 
-class _WardrobeScreenState extends State<WardrobeScreen> {
-  final List<String> weekdays = ['S', 'M', 'T', 'W', 'T', 'F'];
-  final List<int> dates = [23, 24, 25, 26, 27, 28];
-  int selectedDateIndex = 3; // Default to 26 (index 3 in our dates array)
+class _WardrobeScreenState extends State<WardrobeScreen> with SingleTickerProviderStateMixin {
+  DateTime _focusedDay = DateTime.now();
+  DateTime? _selectedDay;
+  CalendarFormat _calendarFormat = CalendarFormat.month;
+  final ImagePicker _picker = ImagePicker();
 
-  final List<String> categories = ['Shirts', 'Pants', 'Dressess', 'Shoes'];
-  int selectedCategoryIndex = 2; // Default to Dressess
+  // Avatar control variables
+  int _currentAvatarIndex = 0;
+  final List<String> _avatarAssets = [
+    'assets/Icons/avatar.png',
+    'assets/Icons/avatar2.png',
+    'assets/Icons/avatar.png',
+    'assets/Icons/avatar2.png',
+  ];
 
-  // final List<OutfitItem> outfitItems = [
-  //   OutfitItem(image: 'assets/Images/1.png'),
-  //   OutfitItem(image: 'assets/Images/2.png'),
-  //   OutfitItem(image: 'assets/Images/3.png'),
-  //   OutfitItem(image: 'assets/Images/4.png'),
-  //   OutfitItem(image: 'assets/Images/5.png'),
-  //   OutfitItem(image: 'assets/Images/6.png'),
-  // ];
+  // Animation controllers
+  AnimationController? _avatarAnimationController; // Changed to nullable
+  Animation<Offset>? _slideOutAnimation; // Changed to nullable
+  Animation<Offset>? _slideInAnimation; // Changed to nullable
+  bool _isLoading = false;
+  bool _isAnimatingIn = false; // Add flag to track animation direction
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedDay = _focusedDay;
+
+    // Initialize animation controller
+    _avatarAnimationController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+
+    // Slide out animation (current avatar exits)
+    _slideOutAnimation = Tween<Offset>(
+      begin: Offset.zero,
+      end: const Offset(-1.5, 0.0),
+    ).animate(CurvedAnimation(
+      parent: _avatarAnimationController!,
+      curve: Curves.easeInOut,
+    ));
+
+    // Slide in animation (new avatar enters)
+    _slideInAnimation = Tween<Offset>(
+      begin: const Offset(1.5, 0.0),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _avatarAnimationController!,
+      curve: Curves.easeInOut,
+    ));
+  }
+
+  @override
+  void dispose() {
+    _avatarAnimationController?.dispose(); // Safe dispose with null check
+    super.dispose();
+  }
+
+  // Method to handle avatar swipe
+  // void _handleAvatarSwipe(DragEndDetails details, bool isLeft) {
+  //   if (_isLoading || _avatarAnimationController == null) return; // Added null check
+  //
+  //   setState(() {
+  //     _isLoading = true;
+  //     _isAnimatingIn = false; // Start with slide out animation
+  //   });
+  //
+  //   // Start slide out animation
+  //   _avatarAnimationController!.forward().then((_) {
+  //     // Show loading for 2 seconds
+  //     Future.delayed(const Duration(seconds: 2), () {
+  //       // Update avatar index
+  //       setState(() {
+  //         if (isLeft) {
+  //           _currentAvatarIndex = (_currentAvatarIndex - 1) % _avatarAssets.length;
+  //           if (_currentAvatarIndex < 0) _currentAvatarIndex = _avatarAssets.length - 1;
+  //         } else {
+  //           _currentAvatarIndex = (_currentAvatarIndex + 1) % _avatarAssets.length;
+  //         }
+  //
+  //         // Reset animation controller for slide in
+  //         _avatarAnimationController!.reset();
+  //         _isAnimatingIn = true; // Now we'll do slide in animation
+  //         _isLoading = false;
+  //       });
+  //
+  //       // Run the slide-in animation
+  //       _avatarAnimationController!.forward().then((_) {
+  //         setState(() {
+  //           _isAnimatingIn = false; // Animation complete
+  //           _avatarAnimationController!.reset();
+  //         });
+  //       });
+  //     });
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 12),
-              _buildHeader(),
-              const SizedBox(height: 16),
-              _buildSearchBar(),
-              const SizedBox(height: 24),
-              _buildCategoriesSection(),
-              // const SizedBox(height: 16),
-              // _buildCalendarRow(),
-              const SizedBox(height: 24),
-              _buildAvatarSection(),
-              const SizedBox(height: 24),
-              _buildOutfitSection(),
-              const SizedBox(height: 24),
-              _buildActionButtons(),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHeader() {
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-
-            const SizedBox(width: 16),
-             Text(
-              'Wardrobe',
-              style: GoogleFonts.playfairDisplay(
-                color: Color(0xFFAA8A00),
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-
-              ),
-            ),
-          ],
-        ),
-        SizedBox(height: 20,),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-Row(children: [
-  GestureDetector(
-    onTap: (){
-      Navigator.pushNamed(context, AppRoutes.profile);
-    },
-    child: Container(
-      width: 40,
-      height: 40,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        image: const DecorationImage(
-          image: AssetImage('assets/Images/circle_image.png'),
-          fit: BoxFit.cover,
-        ),
-      ),
-    ),
-  ),
-  const SizedBox(width: 8),
-  // Name
-  const Text(
-    'Johnny Cage',
-    style: TextStyle(
-      fontSize: 16,
-      fontWeight: FontWeight.w500,
-    ),
-  ),
-],),
-            Row(
+      backgroundColor: themeController.white,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFAA8A00),
-                  shape: BoxShape.circle
-                  ),
-                  child: const Icon(
-                    Icons.notifications_outlined,
-                    color: Colors.white,
-                    size: 20,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                const Icon(
-                  Icons.favorite_border,
-                  color: Colors.black,
-                  size: 24,
-                ),
+                _buildTopRow(),
+                const SizedBox(height: 20),
+                _buildThreeColumnSection(),
+                const SizedBox(height: 10),
+                _buildCalendarSection(),
               ],
             ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSearchBar() {
-    return Row(
-      children: [
-        // Profile image
-
-
-        Expanded(
-          flex: 3,
-          child: Card(
-            elevation: 4,
-            child: Container(
-
-              height: 50,
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              decoration: BoxDecoration(
-
-              color: Colors.white,
-                borderRadius: BorderRadius.circular(7),
-              ),
-              child: Row(
-                children: [
-                  const Icon(
-                    Icons.search,
-                    color: Colors.grey,
-                    size: 20,
-                  ),
-                  const SizedBox(width: 8),
-                  const Text(
-                    'Search',
-                    style: TextStyle(
-                      color: Colors.grey,
-                      fontSize: 14,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(width: 8),
-        // Filter button
-        Container(
-          width: 50,
-          height: 50,
-          decoration: BoxDecoration(
-            color: const Color(0xFFAA8A00),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: const Icon(
-            Icons.tune,
-            color: Colors.white,
-            size: 20,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildCategoriesSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Top Categories',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 12),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            children: List.generate(
-              categories.length,
-                  (index) => _buildCategoryChip(categories[index], index),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildCategoryChip(String category, int index) {
-    final isSelected = index == selectedCategoryIndex;
-    return Container(
-      margin: const EdgeInsets.only(right: 8),
-      child: InkWell(
-        onTap: () {
-          setState(() {
-            selectedCategoryIndex = index;
-          });
-        },
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: BoxDecoration(
-            color: isSelected ? const Color(0xFFAA8A00) : Colors.white,
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(
-              color: isSelected ? const Color(0xFFAA8A00) : Colors.black54,
-            ),
-          ),
-          child: Text(
-            category,
-            style: TextStyle(
-              color: isSelected ? Colors.white : Colors.grey.shade700,
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-            ),
           ),
         ),
       ),
     );
   }
-  //
-  // Widget _buildCalendarRow() {
-  //   return Row(
-  //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //     children: List.generate(
-  //       weekdays.length,
-  //           (index) => _buildCalendarItem(weekdays[index], dates[index], index),
-  //     ),
-  //   );
-  // }
 
-  Widget _buildCalendarItem(String day, int date, int index) {
-    final isSelected = index == selectedDateIndex;
-    return InkWell(
-      onTap: () {
-        setState(() {
-          selectedDateIndex = index;
-        });
-      },
-      child: Column(
-        children: [
-          Text(
-            day,
-            style: TextStyle(
-              color: isSelected ? const Color(0xFFAA8A00) : Colors.grey,
-              fontWeight: FontWeight.bold,
+  Widget _buildTopRow() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Expanded(
+          flex:1,
+          child: GestureDetector(
+            onTap: (){
+              Navigator.pushNamed(context, AppRoutes.profile);
+            },
+            child: Container(
+              width: 30,
+              height: 50,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                image: const DecorationImage(
+                  image: AssetImage('assets/Images/circle_image.png'),
+
+                ),
+              ),
             ),
           ),
-          const SizedBox(height: 8),
-          Container(
-            width: 36,
-            height: 36,
+        ),
+        SizedBox(width: 10,),
+        Expanded(
+          flex: 3,
+          child: Text(
+            'FITLIT',
+            style: GoogleFonts.playfairDisplay(
+              color: appcolor,
+              fontSize: 22,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),SizedBox(width:40,),
+        Expanded(
+          flex: 2,
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 2,vertical: 10),
+            height: 40,
             decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              // color: isSelected ?   : Colors.transparent,
-              border: isSelected ? Border.all(color: const Color(0xFFAA8A00)) : null,
+              color: appcolor,
+              borderRadius: BorderRadius.circular(8),
             ),
             child: Center(
               child: Text(
-                date.toString(),
+                'Save Outfit',
                 style: TextStyle(
-                  color: isSelected ? const Color(0xFFAA8A00) : Colors.black,
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                  color: themeController.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 10,
                 ),
               ),
             ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildThreeColumnSection() {
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // First Column - Date, Shirts, Accessories, Pants, Shoes
+          Expanded(
+            child: _buildFirstColumn(),
+          ),
+
+          // Second Column - Avatar
+          Expanded(
+            flex: 2,
+            child: _buildAvatarColumn(),
+          ),
+
+          // Third Column - Similar to first column
+          Expanded(
+            child: _buildThirdColumn(),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildAvatarSection() {
+  Widget _buildFirstColumn() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Your Avatar',
+        // Date section
+        Row(
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const Text(
+                  'Sunday',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey,
+                  ),
+                ),
+                Container(
+                  width: 50,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFAA8A00),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Center(
+                    child: Text(
+                      '11',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+                const Text(
+                  'July',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+
+        const SizedBox(height: 15),
+
+        // Shirts
+        Text(
+          'Shirts',
           style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: 5),
+        _buildClothingItem('assets/Images/1.png'),
+        // const SizedBox(height: 5),
+        Text(
+          'Assessries',
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        _buildClothingItem('assets/Images/2.png'),
+
+        // const SizedBox(height: 8),
+
+        // Pants
+        const Text(
+          'Pants',
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: 5),
+        _buildClothingItem('assets/Images/3.png'),
+        // const SizedBox(height: 5),
+        const Text(
+          'Shoes',
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: 5),
+        _buildClothingItem('assets/Images/4.png'),
+      ],
+    );
+  }
+  Widget _buildAvatarColumn() {
+    return GestureDetector(
+      onHorizontalDragEnd: (details) {
+        if (details.velocity.pixelsPerSecond.dx > 0) {
+          _handleAvatarSwipe(details, false); // Swipe right
+        } else if (details.velocity.pixelsPerSecond.dx < 0) {
+          _handleAvatarSwipe(details, true); // Swipe left
+        }
+      },
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          // Current avatar
+          AnimatedOpacity(
+            opacity: _isLoading ? 0.5 : 1.0,
+            duration: Duration(milliseconds: 300),
+            child: Image.asset(
+              _avatarAssets[_currentAvatarIndex],
+              fit: BoxFit.fitHeight,
+            ),
+          ),
+
+          // White overlay during swipe/loading
+          if (_isLoading)
+            Container(
+              color: Colors.white.withOpacity(0.7),
+              width: double.infinity,
+              height: double.infinity,
+            ),
+
+          // Loading indicator
+          if (_isLoading)
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(appcolor),
+                ),
+                SizedBox(height: 16),
+                Center(
+                  child: Text(
+                    "Loading next outfit...",
+
+                    style: GoogleFonts.poppins(
+                      color: appcolor,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ],
+            ),
+        ],
+      ),
+    );
+  }
+
+  void _handleAvatarSwipe(DragEndDetails details, bool isLeft) {
+    if (_isLoading) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    // Show loading for 2 seconds
+    Future.delayed(const Duration(seconds: 2), () {
+      setState(() {
+        if (isLeft) {
+          _currentAvatarIndex = (_currentAvatarIndex - 1) % _avatarAssets.length;
+          if (_currentAvatarIndex < 0) _currentAvatarIndex = _avatarAssets.length - 1;
+        } else {
+          _currentAvatarIndex = (_currentAvatarIndex + 1) % _avatarAssets.length;
+        }
+        _isLoading = false;
+      });
+    });
+  }
+  //
+  // Widget _buildAvatarColumn() {
+  //   // Add null checks for animation controller before using it
+  //   if (_avatarAnimationController == null ||
+  //       _slideOutAnimation == null ||
+  //       _slideInAnimation == null) {
+  //     // Return a default state if controllers aren't initialized yet
+  //     return Center(
+  //       child: Image.asset(
+  //         _avatarAssets[_currentAvatarIndex],
+  //         fit: BoxFit.fitHeight,
+  //       ),
+  //     );
+  //   }
+  //
+  //   return GestureDetector(
+  //     // Add horizontal drag recognition for swiping
+  //     onHorizontalDragEnd: (details) {
+  //       // Determine swipe direction based on velocity
+  //       if (details.velocity.pixelsPerSecond.dx > 0) {
+  //         _handleAvatarSwipe(details, false); // Swipe right
+  //       } else if (details.velocity.pixelsPerSecond.dx < 0) {
+  //         _handleAvatarSwipe(details, true); // Swipe left
+  //       }
+  //     },
+  //     child: Center(
+  //       child: _isLoading
+  //       // Show loading animation when changing avatar
+  //           ? Column(
+  //         mainAxisAlignment: MainAxisAlignment.center,
+  //         children: [
+  //           SizedBox(
+  //             height: MediaQuery.of(context).size.height * 0.3,
+  //           ),
+  //           SizedBox(
+  //             width: 60,
+  //             height: 60,
+  //             child: CircularProgressIndicator(
+  //               color: appcolor,
+  //               strokeWidth: 3,
+  //             ),
+  //           ),
+  //           const SizedBox(height: 16),
+  //           Text(
+  //             "Updating Outfit...",
+  //             style: GoogleFonts.poppins(
+  //               color: appcolor,
+  //               fontSize: 16,
+  //               fontWeight: FontWeight.w500,
+  //             ),
+  //           ),
+  //           const SizedBox(height: 8),
+  //           // Three dot loading animation
+  //           Row(
+  //             mainAxisAlignment: MainAxisAlignment.center,
+  //             children: List.generate(3, (index) {
+  //               return _buildLoadingDot(index);
+  //             }),
+  //           ),
+  //         ],
+  //       )
+  //       // Show avatar with appropriate animation based on state
+  //           : _avatarAnimationController!.isAnimating
+  //           ? _isAnimatingIn
+  //           ? SlideTransition(
+  //         position: _slideInAnimation!,
+  //         child: Image.asset(
+  //           _avatarAssets[_currentAvatarIndex],
+  //           fit: BoxFit.fitHeight,
+  //         ),
+  //       )
+  //           : SlideTransition(
+  //         position: _slideOutAnimation!,
+  //         child: Image.asset(
+  //           _avatarAssets[_currentAvatarIndex],
+  //           fit: BoxFit.fitHeight,
+  //         ),
+  //       )
+  //       // Default state - show the avatar without animation
+  //           : Image.asset(
+  //         _avatarAssets[_currentAvatarIndex],
+  //         fit: BoxFit.fitHeight,
+  //       ),
+  //     ),
+  //   );
+  // }
+  //
+  // // Animated loading dot
+  // Widget _buildLoadingDot(int index) {
+  //   return TweenAnimationBuilder<double>(
+  //     tween: Tween(begin: 0.0, end: 1.0),
+  //     duration: Duration(milliseconds: 500),
+  //     curve: Curves.easeInOut,
+  //     builder: (context, value, child) {
+  //       return Container(
+  //         margin: EdgeInsets.symmetric(horizontal: 4),
+  //         width: 8,
+  //         height: 8,
+  //         decoration: BoxDecoration(
+  //           shape: BoxShape.circle,
+  //           color: appcolor.withOpacity(value),
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
+  Widget _buildThirdColumn() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        // Weather section
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                GestureDetector(
+                  onTap: () => _showAnimatedCategoryDialog(),
+                  child: Container(
+                    width: 50,
+                    height: 47,
+                    decoration: BoxDecoration(
+                      color: themeController.appColor,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Colors.grey.shade200),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.1),
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: const Center(
+                      child: Icon(
+                        Icons.camera_enhance_outlined,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 5,),
+                Text("Upload",style: GoogleFonts.poppins(color: Colors.grey,fontWeight: FontWeight.w400,fontSize: 12
+                ),)
+              ],
+            ),
+          ],
+        ),
+        SizedBox(height: 20,),
+
+
+        // Shirts
+        Text(
+          'Shirts',
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: 5),
+        _buildClothingItem('assets/Images/5.png'),
+        // const SizedBox(height: 5),
+        Text(
+          'Assessries',
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        _buildClothingItem('assets/Images/6.png'),
+
+
+
+        // Pants
+        const Text(
+          'Pants',
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: 5),
+        _buildClothingItem('assets/Images/1.png'),
+
+        const Text(
+          'Shoes',
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: 5),
+        _buildClothingItem('assets/Images/3.png'),
+      ],
+    );
+  }
+
+  Widget _buildClothingItem(String imagePath) {
+    return Container(
+      width: 60,
+      height: 56,
+      margin: const EdgeInsets.only(bottom: 5),
+      decoration: BoxDecoration(
+        color: themeController.white,
+        borderRadius: BorderRadius.circular(10),
+        // border: Border.all(color: Colors.grey.shade200),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.4),
+            blurRadius: 5,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Image.asset(
+          imagePath,
+          fit: BoxFit.contain,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCalendarSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Text(
+          'Calender',
+          style: GoogleFonts.poppins(
             fontSize: 18,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w600,
           ),
         ),
         const SizedBox(height: 16),
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.shade200,
-                blurRadius: 10,
-                offset: const Offset(0, 5),
+        Column(
+          children: [
+            Card(
+              elevation: 4,
+              color: themeController.white,
+              child: Column(
+                children: [
+                  TableCalendar(
+                    availableGestures:AvailableGestures.none,
+                    firstDay: DateTime.utc(2023, 1, 1),
+                    lastDay: DateTime.utc(2030, 12, 31),
+                    focusedDay: _focusedDay,
+                    calendarFormat: _calendarFormat,
+                    selectedDayPredicate: (day) {
+                      return isSameDay(_selectedDay, day);
+                    },
+                    onDaySelected: (selectedDay, focusedDay) {
+                      setState(() {
+                        _selectedDay = selectedDay;
+                        _focusedDay = focusedDay;
+                      });
+                    },
+                    calendarStyle: CalendarStyle(
+                      selectedDecoration: BoxDecoration(
+                        color: const Color(0xFFAA8A00),
+                        shape: BoxShape.circle,
+                      ),
+                      todayDecoration: BoxDecoration(
+                        color: const Color(0xFFAA8A00).withOpacity(0.5),
+                        shape: BoxShape.circle,
+                      ),
+                      weekendTextStyle: const TextStyle(color: Colors.black,fontWeight: FontWeight.bold),
+                      outsideDaysVisible: false,
+                    ),
+                    headerStyle: HeaderStyle(
+                      formatButtonVisible: false,
+                      titleCentered: true,
+                      titleTextStyle: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      leftChevronIcon: Container(
+                          decoration: BoxDecoration(border:Border.all(color: appcolor),
+                              borderRadius: BorderRadius.circular(5)),
+                          child: Icon(Icons.chevron_left, color: Color(0xFFAA8A00))),
+                      rightChevronIcon:  Container(
+                          decoration: BoxDecoration(border:Border.all(color: appcolor),
+                              borderRadius: BorderRadius.circular(5)),
+                          child: Icon(Icons.chevron_right, color: Color(0xFFAA8A00))),
+                    ),
+                    daysOfWeekStyle: const DaysOfWeekStyle(
+                      weekdayStyle: TextStyle(fontWeight: FontWeight.bold,color:Color(0xff7C7C7C) ),
+                      weekendStyle: TextStyle(fontWeight: FontWeight.bold, color: Color(0xff7C7C7C)),
+                    ),
+                  ),
+                  Container(
+                    decoration: BoxDecoration(
+                        color: appcolor,
+                        borderRadius: BorderRadius.circular(10)
+                    ),
+                    height: 5,
+                    width: 45,
+
+                  ),
+                  const SizedBox(height: 16),
+                ],
               ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  // New method to show the animated clothing category dialog
+  void _showAnimatedCategoryDialog() {
+    String? selectedCategory;
+    String? selectedSubcategory;
+    bool showSubcategories = false;
+    List<String> subcategories = [];
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              backgroundColor: themeController.white,
+              title: Text(
+                showSubcategories
+                    ? 'Select ${selectedCategory} Type'
+                    : 'Select Category',
+                style: GoogleFonts.poppins(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: appcolor,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              content: AnimatedContainer(
+                duration: Duration(milliseconds: 400),
+                curve: Curves.easeInOut,
+                width: double.maxFinite,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (!showSubcategories) ...[
+                      // Main categories
+                      AnimatedOpacity(
+                        duration: Duration(milliseconds: 400),
+                        opacity: showSubcategories ? 0.0 : 1.0,
+                        child: Column(
+                          children: [
+                            _buildAnimatedCategoryButton('Shirts', selectedCategory, (category) {
+                              setState(() {
+                                selectedCategory = category;
+                                subcategories = _getSubcategoriesForCategory(category);
+                                selectedSubcategory = null;
+                                Future.delayed(Duration(milliseconds: 100), () {
+                                  setState(() {
+                                    showSubcategories = true;
+                                  });
+                                });
+                              });
+                            }),
+                            _buildAnimatedCategoryButton('Assessries', selectedCategory, (category) {
+                              setState(() {
+                                selectedCategory = category;
+                                subcategories = _getSubcategoriesForCategory(category);
+                                selectedSubcategory = null;
+                                Future.delayed(Duration(milliseconds: 100), () {
+                                  setState(() {
+                                    showSubcategories = true;
+                                  });
+                                });
+                              });
+                            }),
+                            _buildAnimatedCategoryButton('Pants', selectedCategory, (category) {
+                              setState(() {
+                                selectedCategory = category;
+                                subcategories = _getSubcategoriesForCategory(category);
+                                selectedSubcategory = null;
+                                Future.delayed(Duration(milliseconds: 100), () {
+                                  setState(() {
+                                    showSubcategories = true;
+                                  });
+                                });
+                              });
+                            }),
+                            _buildAnimatedCategoryButton('Shoes', selectedCategory, (category) {
+                              setState(() {
+                                selectedCategory = category;
+                                subcategories = _getSubcategoriesForCategory(category);
+                                selectedSubcategory = null;
+                                Future.delayed(Duration(milliseconds: 100), () {
+                                  setState(() {
+                                    showSubcategories = true;
+                                  });
+                                });
+                              });
+                            }),
+                          ],
+                        ),
+                      ),
+                    ] else ...[
+                      // Subcategories with animation
+                      AnimatedOpacity(
+                        duration: Duration(milliseconds: 400),
+                        opacity: showSubcategories ? 1.0 : 0.0,
+                        child: Column(
+                          children: subcategories.map((subcategory) {
+                            return _buildAnimatedCategoryButton(
+                              subcategory,
+                              selectedSubcategory,
+                                  (value) {
+                                setState(() {
+                                  selectedSubcategory = value;
+                                });
+                              },
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              actions: [
+                if (showSubcategories)
+                  TextButton(
+                    onPressed: () {
+                      setState(() {
+                        showSubcategories = false;
+                        selectedCategory = null;
+                      });
+                    },
+                    child: Text(
+                      'Back',
+                      style: TextStyle(color: themeController.black),
+                    ),
+                  )
+                else
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: Text(
+                      'Cancel',
+                      style: TextStyle(color: Colors.grey),
+                    ),
+                  ),
+
+                TextButton(
+                  onPressed: (showSubcategories && selectedSubcategory != null)
+                      ? () {
+                    Navigator.of(context).pop();
+                    _openCameraWithGoogleVision(selectedCategory!, selectedSubcategory!);
+                  }
+                      : null,
+                  child: Text(
+                    'Open Camera',
+                    style: TextStyle(
+                      color: (showSubcategories && selectedSubcategory != null)
+                          ? appcolor
+                          : Colors.grey,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  // Helper method to build animated category buttons
+  Widget _buildAnimatedCategoryButton(
+      String category, String? selectedCategory, Function(String) onSelect) {
+    bool isSelected = selectedCategory == category;
+
+    return AnimatedContainer(
+      duration: Duration(milliseconds: 300),
+      margin: EdgeInsets.symmetric(vertical: 4.0),
+      child: InkWell(
+        onTap: () => onSelect(category),
+        child: Container(
+          padding: EdgeInsets.symmetric(vertical: 12),
+          decoration: BoxDecoration(
+            color: isSelected ? appcolor : Colors.white,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: isSelected ? appcolor : Colors.grey.shade300,
+            ),
+            boxShadow: [
+              if (isSelected)
+                BoxShadow(
+                  color: appcolor.withOpacity(0.3),
+                  blurRadius: 4,
+                  offset: Offset(0, 2),
+                ),
             ],
           ),
           child: Center(
-            child: Image.asset(
-              'assets/Images/main.png',
-              height: 240,
-              fit: BoxFit.contain,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-  Widget _buildOutfitSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Your Calendar',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 16),
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.shade200,
-                blurRadius: 10,
-                offset: const Offset(0, 5),
+            child: Text(
+              category,
+              style: TextStyle(
+                color: isSelected ? Colors.white : Colors.black87,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               ),
-            ],
-          ),
-          child: TableCalendar(
-            firstDay: DateTime.utc(2020, 1, 1),
-            lastDay: DateTime.utc(2030, 12, 31),
-            focusedDay: DateTime.now(),
-    availableGestures: AvailableGestures.none,
-            calendarStyle: CalendarStyle(
-              selectedDecoration: BoxDecoration(
-                color: appcolor,
-                shape: BoxShape.circle,
-              ),
-              todayDecoration: BoxDecoration(
-                color: appcolor,
-                shape: BoxShape.circle,
-              ),
-              weekendTextStyle: const TextStyle(color: Colors.red),
             ),
-            headerStyle: const HeaderStyle(
-              formatButtonVisible: false,
-              titleCentered: true,
-            ),
-            onDaySelected: (selectedDay, focusedDay) {
-              showDialog(
-
-                context: context,
-                builder: (context) => AlertDialog(
-                  backgroundColor: Colors.white,
-                  title:  Text("No Outfit Set",style: GoogleFonts.poppins(color: appcolor,fontWeight: FontWeight.w600,fontSize: 21),),
-                  content: const Text("You have not set outfit collection for today."),
-                  actions: [
-                    TextButton(
-                      child:  Text("OK", style: TextStyle(color: appcolor)),
-                      onPressed: () => Navigator.of(context).pop(),
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-        ),
-      ],
-    );
-  }
-  Widget _buildOutfitItem(OutfitItem item) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
-      ),
-      child: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Image.asset(
-            item.image,
-            fit: BoxFit.contain,
           ),
         ),
       ),
     );
   }
 
-  Widget _buildActionButtons() {
-    return Row(
-      children: [
-        Expanded(
-          child: Container(
-            height: 48,
-            decoration: BoxDecoration(
-              border: Border.all(color: const Color(0xFFAA8A00)),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Center(
-              child: Text(
-                'Upload',
-                style: TextStyle(
-                  color: const Color(0xFFAA8A00),
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: Container(
-            height: 48,
-            decoration: BoxDecoration(
-              color: const Color(0xFFAA8A00),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: const Center(
-              child: Text(
-                'Save Outfit',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-// Custom painter for drawing dashed line
-class DashedLinePainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.blue.shade300
-      ..strokeWidth = 1
-      ..style = PaintingStyle.stroke;
-
-    const dashWidth = 5;
-    const dashSpace = 5;
-    double startY = 0;
-
-    while (startY < size.height) {
-      canvas.drawLine(
-        Offset(0, startY),
-        Offset(0, startY + dashWidth),
-        paint,
-      );
-      startY += dashWidth + dashSpace;
+  // Helper method to get subcategories based on selected category
+  List<String> _getSubcategoriesForCategory(String category) {
+    switch (category) {
+      case 'Shirts':
+        return ['T-Shirt', 'Half Shirt', 'Casual Shirt', 'Dress Shirt', 'Polo Shirt'];
+      case 'Assessries':
+        return ['Necklace', 'Bracelet', 'Earring', 'Watch', 'Belt', 'Hat', 'Scarf'];
+      case 'Pants':
+        return ['Jeans', 'Trousers', 'Shorts', 'Cargo', 'Track Pants', 'Formal Pants'];
+      case 'Shoes':
+        return ['Sneakers', 'Formal Shoes', 'Boots', 'Loafers', 'Sandals', 'Sports Shoes'];
+      default:
+        return [];
     }
   }
 
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
+  // Method to open camera with Google Vision integration
+  void _openCameraWithGoogleVision(String category, String subcategory) async {
+    // Show loading dialog
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          child: Center(
+            child: Container(
+              padding: EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(appcolor),
+                  ),
+                  SizedBox(height: 16),
+                  Text(
+                    'Opening camera...',
+                    style: TextStyle(
+                      color: Colors.black87,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
 
-// Model for outfit items
-class OutfitItem {
-  final String image;
-  bool isSelected;
+    try {
+      // Pick an image from camera
+      final XFile? image = await _picker.pickImage(source: ImageSource.camera);
 
-  OutfitItem({
-    required this.image,
-    this.isSelected = false,
-  });
+      // Close loading dialog
+      Navigator.pop(context);
+
+      if (image != null) {
+        // Here you would normally implement Google Vision AI integration
+        // For now, we'll just show a confirmation dialog
+        _showImageCapturedDialog(category, subcategory, image.path);
+      }
+    } catch (e) {
+      // Close loading dialog in case of error
+      Navigator.pop(context);
+
+      // Show error dialog
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Error'),
+            content: Text('Failed to open camera: ${e.toString()}'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
+  // Method to show confirmation dialog after image capture
+  void _showImageCapturedDialog(String category, String subcategory, String imagePath) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            'Item Captured',
+            style: GoogleFonts.poppins(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: appcolor,
+            ),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Your $subcategory has been successfully captured and identified using Google Vision AI.',
+                style: TextStyle(fontSize: 14),
+              ),
+              SizedBox(height: 16),
+              Container(
+                height: 150,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  image: DecorationImage(
+                    image: FileImage(File(imagePath)),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                'Cancel',
+                style: TextStyle(color: Colors.grey),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                // Here you would add the item to the wardrobe
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('$subcategory added to your $category collection!'),
+                    backgroundColor: appcolor,
+                  ),
+                );
+              },
+              child: Text(
+                'Add to Wardrobe',
+                style: TextStyle(
+                  color: appcolor,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
 }

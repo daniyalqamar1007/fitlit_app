@@ -38,6 +38,8 @@ dependencies:
   google_fonts:
   image_picker:
   table_calendar:
+  shared_preferences:
+  provider: 
 dev_dependencies:
   flutter_test:
     sdk: flutter
