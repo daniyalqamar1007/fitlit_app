@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../main.dart';
 import '../../../routes/App_routes.dart';
 import '../../Utils/Colors.dart';
 import '../../Utils/Constants.dart';
@@ -92,7 +93,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
           // Bottom controls in a row - positioned at bottom
           Container(
-            color: Colors.white,
+            color: themeController.white,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -127,7 +128,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         child: Material(
           color: Colors.transparent,
           child: Center(
-            child:Text("Next",style: TextStyle(color: Colors.white,fontSize: 22,fontWeight: FontWeight.w400),)
+            child:Text("Next",style: TextStyle(color: themeController.white,fontSize: 22,fontWeight: FontWeight.w400),)
           ),
         ),
       ),
@@ -135,7 +136,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
   Widget _buildOnboardingPage(OnboardingPage page) {
     return Container(
-      color: Colors.white,
+      color: themeController.white,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

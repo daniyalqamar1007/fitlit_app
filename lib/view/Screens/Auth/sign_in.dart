@@ -3,6 +3,7 @@ import 'package:fitlip_app/view/Utils/Colors.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../main.dart';
 import '../../Widgets/Custom_textfield.dart';
 
 class SignInScreen extends StatefulWidget {
@@ -23,11 +24,10 @@ class _SignInScreenState extends State<SignInScreen> {
     _passwordController.dispose();
     super.dispose();
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: themeController.white,
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Form(
@@ -59,7 +59,7 @@ class _SignInScreenState extends State<SignInScreen> {
             style: GoogleFonts.playfairDisplay(
               fontSize: 30,
               fontWeight: FontWeight.w700,
-              color: Colors.black,
+              color: themeController.black,
             ),
             children: [
               const TextSpan(text: 'Welcome '),
@@ -165,7 +165,7 @@ class _SignInScreenState extends State<SignInScreen> {
           child: Text(
             'Sign In',
             style: GoogleFonts.poppins(
-              color: Colors.white,
+              color: themeController.white,
               fontSize: 16,
               fontWeight: FontWeight.w700,
             ),

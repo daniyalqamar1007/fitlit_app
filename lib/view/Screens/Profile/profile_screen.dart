@@ -1,6 +1,8 @@
+import 'package:fitlip_app/main.dart';
 import 'package:fitlip_app/view/Utils/Constants.dart';
 import 'package:flutter/material.dart';
 
+import '../../Utils/Colors.dart';
 import '../../Widgets/custom_switch.dart';
 import '../../Widgets/custom_tile.dart';
 
@@ -18,9 +20,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: themeController.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: themeController.white,
         elevation: 0,
         leading: const BackButton(color: Color(0xFFAA8A00)),
         centerTitle: true,
@@ -59,7 +61,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
               icon: Icons.dark_mode_outlined,
               title: AppConstants.darkMode,
               value: isDarkMode,
-              onChanged: (val) => setState(() => isDarkMode = val),
+              onChanged: (val){
+                setState(() {
+                  isDarkMode = val;          // this updates the switch UI
+                  themeController.toggleTheme();  // this updates the app theme
+                });
+
+
+              },
             ),
             const SizedBox(height: 10),
             CustomListTile(

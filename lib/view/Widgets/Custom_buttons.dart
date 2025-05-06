@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../main.dart';
 import '../Utils/Colors.dart';
 import '../Utils/Constants.dart';
 
@@ -32,7 +33,7 @@ class CustomButton extends StatelessWidget {
         ),
         child: isLoading
             ? const CircularProgressIndicator()
-            : Text(text, style: AppTextStyles.button.copyWith(color: secondary)),
+            : Text(text, style: AppTextStyles.button.copyWith(color: themeController.white)),
       ),
     );
   }

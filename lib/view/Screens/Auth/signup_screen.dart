@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import '../../../main.dart';
 import '../../Widgets/Custom_textfield.dart';
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -38,7 +39,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: themeController.white,
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Form(
@@ -70,7 +71,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
             style: GoogleFonts.playfairDisplay(
               fontSize: 30,
               fontWeight: FontWeight.w700,
-              color: Colors.black,
+              color: themeController.black,
             ),
             children: [
               const TextSpan(text: 'Let \'s'),
@@ -166,7 +167,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               borderSide: BorderSide.none,
             ),
           ),
-          style: GoogleFonts.poppins(color: Colors.black),
+          style: GoogleFonts.poppins(color: themeController.black),
           items: _genderOptions.map((gender) {
             return DropdownMenuItem(
               value: gender,
@@ -253,7 +254,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
           child: Text(
             'Create Account',
             style: GoogleFonts.poppins(
-              color: Colors.white,
+              color: themeController.white,
               fontSize: 16,
               fontWeight: FontWeight.w700,
             ),

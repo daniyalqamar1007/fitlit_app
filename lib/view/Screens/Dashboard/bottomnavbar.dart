@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../main.dart';
 import '../../Utils/Colors.dart';
 import 'hompage.dart';
 
@@ -28,10 +29,10 @@ class _HomeScreenState extends State<HomeScreen> {
     return Container(
       height: 70,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: themeController.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: themeController.black.withOpacity(0.1),
             blurRadius: 10,
             offset: Offset(0, -2),
           ),
@@ -57,7 +58,7 @@ class _HomeScreenState extends State<HomeScreen> {
         width: 70,
         height: 60,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.only(topLeft: Radius.circular(20))
+          borderRadius: BorderRadius.only(topLeft: Radius.circular(20),topRight:Radius.circular(20) )
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

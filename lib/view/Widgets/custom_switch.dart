@@ -1,6 +1,7 @@
 import 'package:fitlip_app/view/Utils/Colors.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../main.dart';
 
 class CustomSwitchTile extends StatelessWidget {
   final IconData? icon;
@@ -24,15 +25,15 @@ class CustomSwitchTile extends StatelessWidget {
     return ListTile(
 
       leading:image==""||image==null? Icon(icon, color: appcolor,size: 25,):Image.asset(image!,scale: 3.5,),
-      title: Text(title, style:  GoogleFonts.poppins(fontSize: 14,fontWeight: FontWeight.w400)),
+      title: Text(title, style:  GoogleFonts.poppins(fontSize: 14,fontWeight: FontWeight.w400,color: themeController.black)),
       trailing: Switch(
 
         value: value,
         onChanged: onChanged,
-        activeColor: Colors.white,
+        activeColor: themeController.white,
         activeTrackColor: appcolor,
         inactiveThumbColor: appcolor,
-        inactiveTrackColor: Colors.white,
+        inactiveTrackColor: themeController.white,
 
 
 

@@ -1,7 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import '../../main.dart';
 import '../Utils/Colors.dart';
+
+// import '../Utils/Colors.dart';
 
 class CategoryChip extends StatelessWidget {
   final String label;
@@ -23,7 +26,7 @@ class CategoryChip extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         margin: const EdgeInsets.only(right: 8),
         decoration: BoxDecoration(
-          color: isSelected ? appcolor : Colors.white,
+          color: isSelected ? appcolor : themeController.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isSelected ? appcolor : Colors.grey.shade300,
@@ -32,7 +35,7 @@ class CategoryChip extends StatelessWidget {
         child: Text(
           label,
           style: TextStyle(
-            color: isSelected ? Colors.white : Colors.grey.shade700,
+            color: isSelected ? themeController.white : Colors.grey.shade700,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
           ),
         ),
@@ -82,7 +85,7 @@ class CalendarDayItem extends StatelessWidget {
               child: Text(
                 date.toString(),
                 style: TextStyle(
-                  color: isSelected ? appcolor : Colors.black,
+                  color: isSelected ? appcolor : themeController.black,
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                 ),
               ),
