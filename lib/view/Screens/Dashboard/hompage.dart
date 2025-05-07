@@ -118,18 +118,31 @@ class _WardrobeScreenState extends State<WardrobeScreen> with SingleTickerProvid
       backgroundColor: themeController.white,
       body: SafeArea(
         child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildTopRow(),
-                const SizedBox(height: 20),
-                _buildThreeColumnSection(),
-                const SizedBox(height: 10),
-                _buildCalendarSection(),
-              ],
-            ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+           Stack(
+             children: [
+               Positioned.fill(child: Opacity(
+                 opacity: 0.7,
+                   child: Image.asset('assets/Images/new.jpg',fit: BoxFit.cover,))),
+               Padding(
+                 padding: const EdgeInsets.all(16.0),
+                 child: Column( crossAxisAlignment: CrossAxisAlignment.start,
+                 children: [
+                   _buildTopRow(),
+                   const SizedBox(height: 20),
+                   _buildThreeColumnSection(),
+                 ],
+                              ),
+               ),]
+           ),
+              const SizedBox(height: 10),
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: _buildCalendarSection(),
+              ),
+            ],
           ),
         ),
       ),
@@ -171,25 +184,21 @@ class _WardrobeScreenState extends State<WardrobeScreen> with SingleTickerProvid
             ),
           ),
         ),SizedBox(width:40,),
+
         Expanded(
-          flex: 2,
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 2,vertical: 10),
-            height: 40,
+          flex: 1,
+          child:  Container(
+            padding: EdgeInsets.symmetric(horizontal: 14,vertical: 8),
+
+            height: 30,
             decoration: BoxDecoration(
-              color: appcolor,
-              borderRadius: BorderRadius.circular(8),
+              color: appcolor.withOpacity(0.7),
+              borderRadius: BorderRadius.circular(30),
+              // border: Border.all(color: Colors.black54),
+
             ),
-            child: Center(
-              child: Text(
-                'Save Outfit',
-                style: TextStyle(
-                  color: themeController.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 10,
-                ),
-              ),
-            ),
+            child:  Text("Save",style: GoogleFonts.poppins(color: Colors.white,fontWeight: FontWeight.bold,fontSize: 10
+            ),),
           ),
         ),
       ],
@@ -203,6 +212,7 @@ class _WardrobeScreenState extends State<WardrobeScreen> with SingleTickerProvid
         children: [
           // First Column - Date, Shirts, Accessories, Pants, Shoes
           Expanded(
+            flex: 1,
             child: _buildFirstColumn(),
           ),
 
@@ -211,6 +221,7 @@ class _WardrobeScreenState extends State<WardrobeScreen> with SingleTickerProvid
             flex: 2,
             child: _buildAvatarColumn(),
           ),
+          // SizedBox(width: 70,),
 
           // Third Column - Similar to first column
           Expanded(
@@ -224,62 +235,41 @@ class _WardrobeScreenState extends State<WardrobeScreen> with SingleTickerProvid
   Widget _buildFirstColumn() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         // Date section
-        Row(
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const Text(
-                  'Sunday',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey,
-                  ),
-                ),
-                Container(
-                  width: 50,
-                  height: 50,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFAA8A00),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Center(
-                    child: Text(
-                      '11',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-                const Text(
-                  'July',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 14,vertical: 8),
 
-        const SizedBox(height: 15),
+          height: 30,
+          decoration: BoxDecoration(
+            color: appcolor.withOpacity(0.7),
+            borderRadius: BorderRadius.circular(30),
+            // border: Border.all(color: Colors.black54),
+
+          ),
+          child:  Row(
+            children: [
+              Icon(Icons.calendar_month_sharp,color: Colors.white,size: 13,),
+              Text("  11 July",style: GoogleFonts.poppins(color: Colors.white,fontWeight: FontWeight.bold,fontSize: 10
+              ),),
+            ],
+          ),
+        ),
+        SizedBox(height: 20,),
+
+
 
         // Shirts
         Text(
           'Shirts',
           style: TextStyle(
             fontSize: 14,
+            color: Colors.white,
             fontWeight: FontWeight.w600,
           ),
         ),
-        const SizedBox(height: 5),
-        _buildClothingItem('assets/Images/1.png'),
+        _buildClothingItem('assets/Images/1.png'), const SizedBox(height: 5),
         // const SizedBox(height: 5),
         Text(
           'Assessries',
@@ -288,11 +278,9 @@ class _WardrobeScreenState extends State<WardrobeScreen> with SingleTickerProvid
             fontWeight: FontWeight.w600,
           ),
         ),
-        _buildClothingItem('assets/Images/2.png'),
+        _buildClothingItem('assets/Images/6.png'), const SizedBox(height: 5),
 
         // const SizedBox(height: 8),
-
-        // Pants
         const Text(
           'Pants',
           style: TextStyle(
@@ -300,8 +288,10 @@ class _WardrobeScreenState extends State<WardrobeScreen> with SingleTickerProvid
             fontWeight: FontWeight.w600,
           ),
         ),
-        const SizedBox(height: 5),
+        // Pants
+
         _buildClothingItem('assets/Images/3.png'),
+        const SizedBox(height: 5),
         // const SizedBox(height: 5),
         const Text(
           'Shoes',
@@ -310,7 +300,7 @@ class _WardrobeScreenState extends State<WardrobeScreen> with SingleTickerProvid
             fontWeight: FontWeight.w600,
           ),
         ),
-        const SizedBox(height: 5),
+
         _buildClothingItem('assets/Images/4.png'),
       ],
     );
@@ -505,91 +495,88 @@ class _WardrobeScreenState extends State<WardrobeScreen> with SingleTickerProvid
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
+        SizedBox(height: 25,),
         // Weather section
         Row(
-          mainAxisAlignment: MainAxisAlignment.end,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                GestureDetector(
-                  onTap: () => _showAnimatedCategoryDialog(),
-                  child: Container(
-                    width: 50,
-                    height: 47,
-                    decoration: BoxDecoration(
-                      color: themeController.appColor,
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: Colors.grey.shade200),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.1),
-                          blurRadius: 4,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: const Center(
-                      child: Icon(
-                        Icons.camera_enhance_outlined,
-                        color: Colors.white,
-                        size: 20,
-                      ),
-                    ),
-                  ),
+            GestureDetector(
+              onTap: () => _showAnimatedCategoryDialog(),
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 12,vertical: 5),
+
+                height: 30,
+                decoration: BoxDecoration(
+                  color: appcolor.withOpacity(0.7),
+                  borderRadius: BorderRadius.circular(30),
+                  // border: Border.all(color: Colors.black54),
+
                 ),
-                SizedBox(height: 5,),
-                Text("Upload",style: GoogleFonts.poppins(color: Colors.grey,fontWeight: FontWeight.w400,fontSize: 12
-                ),)
-              ],
+                child:  Row(
+                  children: [
+                    Icon(
+                      Icons.file_upload_outlined,
+                      color: Colors.white,
+                      size: 15,
+                      weight: 10,
+
+                    ),
+                    Text("  Upload",style: GoogleFonts.poppins(color: Colors.white,fontWeight: FontWeight.bold,fontSize: 10
+                    ),),
+                  ],
+                ),
+              ),
             ),
+
+
+
           ],
         ),
-        SizedBox(height: 20,),
-
-
-        // Shirts
-        Text(
-          'Shirts',
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        const SizedBox(height: 5),
-        _buildClothingItem('assets/Images/5.png'),
+        // SizedBox(height: 20,),
+        //
+        //
+        // // Shirts
+        // Text(
+        //   'Shirts',
+        //   style: TextStyle(
+        //     fontSize: 14,
+        //     fontWeight: FontWeight.w600,
+        //   ),
+        // ),
         // const SizedBox(height: 5),
-        Text(
-          'Assessries',
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        _buildClothingItem('assets/Images/6.png'),
-
-
-
-        // Pants
-        const Text(
-          'Pants',
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        const SizedBox(height: 5),
-        _buildClothingItem('assets/Images/1.png'),
-
-        const Text(
-          'Shoes',
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        const SizedBox(height: 5),
-        _buildClothingItem('assets/Images/3.png'),
+        // _buildClothingItem('assets/Images/5.png'),
+        // // const SizedBox(height: 5),
+        // Text(
+        //   'Assessries',
+        //   style: TextStyle(
+        //     fontSize: 14,
+        //     fontWeight: FontWeight.w600,
+        //   ),
+        // ),
+        // _buildClothingItem('assets/Images/6.png'),
+        //
+        //
+        //
+        // // Pants
+        // const Text(
+        //   'Pants',
+        //   style: TextStyle(
+        //     fontSize: 14,
+        //     fontWeight: FontWeight.w600,
+        //   ),
+        // ),
+        // const SizedBox(height: 5),
+        // _buildClothingItem('assets/Images/1.png'),
+        //
+        // const Text(
+        //   'Shoes',
+        //   style: TextStyle(
+        //     fontSize: 14,
+        //     fontWeight: FontWeight.w600,
+        //   ),
+        // ),
+        // const SizedBox(height: 5),
+        // _buildClothingItem('assets/Images/3.png'),
       ],
     );
   }

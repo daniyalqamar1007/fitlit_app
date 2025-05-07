@@ -4,6 +4,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../main.dart';
+import '../../Widgets/Custom_buttons.dart';
 import '../../Widgets/Custom_textfield.dart';
 
 class SignInScreen extends StatefulWidget {
@@ -12,6 +13,7 @@ class SignInScreen extends StatefulWidget {
   @override
   State<SignInScreen> createState() => _SignInScreenState();
 }
+
 class _SignInScreenState extends State<SignInScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
@@ -24,6 +26,7 @@ class _SignInScreenState extends State<SignInScreen> {
     _passwordController.dispose();
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -42,7 +45,14 @@ class _SignInScreenState extends State<SignInScreen> {
               _buildWelcomeText(),
               const SizedBox(height: 20),
               _buildFormFields(),
-              _buildSignInButton(),
+
+              CustomButton(text: "Login",
+    onPressed: () async{
+              if (_formKey.currentState?.validate() ?? false) {
+                Navigator.pushReplacementNamed(context, AppRoutes.dashboard);
+                // Handle sign in logic
+              }
+            },),
               _buildCreateAccountText(),
             ],
           ),
@@ -139,41 +149,62 @@ class _SignInScreenState extends State<SignInScreen> {
             borderSide: BorderSide.none,
           ),
         ),
+        SizedBox(
+          height: 5,
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Spacer(),
+            GestureDetector(
+                onTap: () {
+                  Navigator.pushNamed(context, AppRoutes.forgot);
+                },
+                child: Text(
+                  "Forgot Password?",
+                  style: GoogleFonts.poppins(
+                      fontWeight: FontWeight.w400,
+                      fontSize: 13,
+                      color: appcolor),
+                ))
+          ],
+        )
       ],
     );
   }
 
-  Widget _buildSignInButton() {
-    return Padding(
-      padding: const EdgeInsets.only(top: 24),
-      child: SizedBox(
-        width: double.infinity,
-        height: 60,
-        child: ElevatedButton(
-          onPressed: () {
-            if (_formKey.currentState?.validate() ?? false) {
-              Navigator.pushReplacementNamed(context, AppRoutes.dashboard);
-              // Handle sign in logic
-            }
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: appcolor,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14),
-            ),
-          ),
-          child: Text(
-            'Sign In',
-            style: GoogleFonts.poppins(
-              color: themeController.white,
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+  // Widget _buildSignInButton() {
+  //   return Padding(
+  //     padding: const EdgeInsets.only(top: 24),
+  //     child: SizedBox(
+  //       width: double.infinity,
+  //       height: 60,
+  //       child: ElevatedButton(
+  //         onPressed: () {
+  //           if (_formKey.currentState?.validate() ?? false) {
+  //             Navigator.pushReplacementNamed(context, AppRoutes.dashboard);
+  //             // Handle sign in logic
+  //           }
+  //         },
+  //         style: ElevatedButton.styleFrom(
+  //           backgroundColor: appcolor,
+  //           shape: RoundedRectangleBorder(
+  //             borderRadius: BorderRadius.circular(14),
+  //           ),
+  //         ),
+  //         child: Text(
+  //           'Sign In',
+  //           style: GoogleFonts.poppins(
+  //             color: themeController.white,
+  //             fontSize: 16,
+  //             fontWeight: FontWeight.w700,
+  //           ),
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
+
   Widget _buildCreateAccountText() {
     return Padding(
       padding: const EdgeInsets.only(top: 16),
@@ -183,9 +214,10 @@ class _SignInScreenState extends State<SignInScreen> {
           style: GoogleFonts.poppins(),
           children: [
             TextSpan(
-              recognizer: TapGestureRecognizer()..onTap = () {
-                Navigator.pushReplacementNamed(context, AppRoutes.signup);
-              },
+              recognizer: TapGestureRecognizer()
+                ..onTap = () {
+                  Navigator.pushReplacementNamed(context, AppRoutes.signup);
+                },
               text: 'Create one',
               style: GoogleFonts.poppins(
                 color: appcolor,

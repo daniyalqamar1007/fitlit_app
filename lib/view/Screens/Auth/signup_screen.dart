@@ -1,3 +1,4 @@
+import 'package:fitlip_app/controllers/auth_controller.dart';
 import 'package:fitlip_app/routes/App_routes.dart';
 import 'package:fitlip_app/view/Utils/Colors.dart';
 import 'package:flutter/gestures.dart';
@@ -6,12 +7,16 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import '../../../main.dart';
+import '../../Utils/globle_variable/globle.dart';
+import '../../Widgets/Custom_buttons.dart';
 import '../../Widgets/Custom_textfield.dart';
+
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
   @override
   State<SignUpScreen> createState() => _SignUpScreenState();
 }
+
 class _SignUpScreenState extends State<SignUpScreen> {
   final _formKey = GlobalKey<FormState>();
   String? _selectedGender;
@@ -21,13 +26,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
   File? _profileImage;
-  bool _obscurePassword=true;
+  bool _obscurePassword = true;
   Future<void> _pickImage() async {
-    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+    final pickedFile =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       setState(() => _profileImage = File(pickedFile.path));
     }
   }
+
   @override
   void dispose() {
     _nameController.dispose();
@@ -36,6 +43,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     _passwordController.dispose();
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -44,17 +52,26 @@ class _SignUpScreenState extends State<SignUpScreen> {
         padding: const EdgeInsets.all(20),
         child: Form(
           key: _formKey,
-          child: Column(mainAxisAlignment: MainAxisAlignment.center,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SizedBox(height: 30),
               Image.asset('assets/Images/splash_logo.png', scale: 10),
-               SizedBox(height: 20),
+              SizedBox(height: 20),
               _buildWelcomeText(),
               // _buildPhotoUpload(),
               SizedBox(height: 20),
               _buildFormFields(),
-              _buildSignUpButton(),
+              // _buildSignUpButton(),
+              CustomButton(text: "Create Account",
+                onPressed: () async{
+                  if (_formKey.currentState?.validate() ?? false) {
+                    first_time = true;
+                    Navigator.pushNamed(context, AppRoutes.otp);
+                    // Handle sign up
+                  }
+                },),
               _buildSignInText(),
             ],
           ),
@@ -101,6 +118,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       ],
     );
   }
+
   Widget _buildFormFields() {
     return Column(
       children: [
@@ -111,11 +129,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
           hintStyle: GoogleFonts.poppins(color: hintextcolor),
           controller: _nameController,
           validator: (value) => value?.isEmpty ?? true ? 'Required' : null,
-
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
-        borderSide: BorderSide.none
-      ),
+          border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide.none),
         ),
         const SizedBox(height: 16),
         CustomTextField(
@@ -138,12 +154,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
           fillColor: Colors.grey.shade100,
           filled: true,
           controller: _phoneController,
-          hintStyle:GoogleFonts.poppins(color: hintextcolor),
+          hintStyle: GoogleFonts.poppins(color: hintextcolor),
           validator: (value) => value?.isEmpty ?? true ? 'Required' : null,
           keyboardType: TextInputType.phone,
         ),
         const SizedBox(height: 16),
-
         DropdownButtonFormField<String>(
           value: _selectedGender,
           onChanged: (value) {
@@ -151,7 +166,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
           },
           decoration: InputDecoration(
             hintText: 'Select Gender',
-            hintStyle: GoogleFonts.poppins(color: hintextcolor.withOpacity(0.5)),
+            hintStyle:
+                GoogleFonts.poppins(color: hintextcolor.withOpacity(0.5)),
             filled: true,
             fillColor: Colors.grey.shade100,
             border: OutlineInputBorder(
@@ -177,7 +193,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
           validator: (value) => value == null ? 'Please select a gender' : null,
         ),
         const SizedBox(height: 16),
-
         CustomTextField(
           hintText: 'Password',
           hintStyle: GoogleFonts.poppins(color: hintextcolor),
@@ -189,7 +204,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
             if (value?.isEmpty ?? true) return 'Required';
             if (value!.length < 6) return 'Minimum 6 characters';
             return null;
-
           },
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
@@ -206,7 +220,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
               });
             },
           ),
-
         ),
         const SizedBox(height: 16),
         GestureDetector(
@@ -215,11 +228,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
             child: TextFormField(
               readOnly: true,
               decoration: InputDecoration(
-                hintText: _profileImage != null ? 'Image Selected' : 'Upload Photo',
+                hintText:
+                    _profileImage != null ? 'Image Selected' : 'Upload Photo',
                 hintStyle: GoogleFonts.poppins(color: hintextcolor),
                 // prefixIcon: Icon(Icons.camera_alt, color: hintextcolor),
                 filled: true,
-                suffixIcon: Image.asset('assets/Icons/camera_icon.png',scale: 5,),
+                suffixIcon: Image.asset(
+                  'assets/Icons/camera_icon.png',
+                  scale: 5,
+                ),
                 fillColor: Colors.grey[100],
                 // border: InputBorder.none,
                 border: OutlineInputBorder(
@@ -233,36 +250,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       ],
     );
   }
-  Widget _buildSignUpButton() {
-    return Padding(
-      padding: const EdgeInsets.only(top: 24),
-      child: SizedBox(
-        width: double.infinity,
-        height: 60,
-        child: ElevatedButton(
-          onPressed: () {
-            if (_formKey.currentState?.validate() ?? false) {
-              // Handle sign up
-            }
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: appcolor,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14),
-            ),
-          ),
-          child: Text(
-            'Create Account',
-            style: GoogleFonts.poppins(
-              color: themeController.white,
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+
   Widget _buildSignInText() {
     return Padding(
       padding: const EdgeInsets.only(top: 16),
@@ -273,10 +261,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
           children: [
             TextSpan(
               text: 'Sign In',
-
-              recognizer: TapGestureRecognizer()..onTap = () {
-                Navigator.pushReplacementNamed(context, AppRoutes.signin);
-              },
+              recognizer: TapGestureRecognizer()
+                ..onTap = () {
+                  Navigator.pushReplacementNamed(context, AppRoutes.signin);
+                },
               style: GoogleFonts.poppins(
                 color: appcolor,
                 fontSize: 12,
