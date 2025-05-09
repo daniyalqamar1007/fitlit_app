@@ -1,5 +1,6 @@
 // auth_controller.dart
 import 'dart:io';
+import 'package:fitlip_app/view/Utils/globle_variable/globle.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../model/user_model.dart';
@@ -97,8 +98,8 @@ class AuthController {
       if (response.user != null) {
         _tempSignUpData = {};
         _verificationOtp = null;
-        SharedPreferences prefs=await SharedPreferences.getInstance();
-        await prefs.setString('token',response.user?.accessToken??"");
+      savetoken(response.user?.accessToken??"");
+      gettoken();
         return {
           'success': true,
           'message': response.message ?? 'Verification successful',
@@ -127,6 +128,9 @@ class AuthController {
       final response = await _authService.signIn(request);
 
       if (response.user != null) {
+        savetoken(response.user?.accessToken??"");
+        gettoken();
+        print("saved tomen is $token");
         return {
           'success': true,
           'message': response.message ?? 'Login successful',

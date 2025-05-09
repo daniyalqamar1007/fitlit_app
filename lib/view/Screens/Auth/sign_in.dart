@@ -281,6 +281,16 @@ class _SignInScreenState extends State<SignInScreen> {
       setState(() => _isLoading = false);
 
       if (result['success']) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Sign in Successfully',style: TextStyle(color: appcolor),
+            ),
+            backgroundColor: Colors.white,
+            behavior: SnackBarBehavior.floating,
+            duration: Duration(seconds: 3),
+          ),
+        );
         Navigator.pushReplacementNamed(context, AppRoutes.dashboard);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(

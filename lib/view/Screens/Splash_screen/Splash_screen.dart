@@ -1,4 +1,5 @@
 import 'package:fitlip_app/routes/App_routes.dart';
+import 'package:fitlip_app/view/Utils/globle_variable/globle.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -20,19 +21,19 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
-    check();
-    if(already_login==null||already_login==""){
-    Future.delayed(const Duration(seconds: 3), () {
-      Navigator.pushReplacementNamed(context, AppRoutes.onboarding);
+
+
+    Future.delayed(const Duration(seconds: 3), () async {
+      await gettoken();
+      if(token==""||token==null){
+      Navigator.pushReplacementNamed(context, AppRoutes.onboarding);}
+      else{
+        Navigator.pushReplacementNamed(context, AppRoutes.dashboard);
+      }
     });}
-    else{
-      Navigator.pushReplacementNamed(context, AppRoutes.dashboard);
-    }
-  }
-  Future<void> check()async{
-    SharedPreferences prefs=await SharedPreferences.getInstance();
-    already_login=await prefs.getString('token')??"";
-  }
+
+
+
   @override
   void dispose() {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);

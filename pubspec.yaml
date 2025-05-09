@@ -40,7 +40,7 @@ dependencies:
   table_calendar:
   shared_preferences:
   otp_text_field:
-
+  mime:
 dev_dependencies:
   flutter_test:
     sdk: flutter
