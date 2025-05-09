@@ -69,7 +69,7 @@ class CustomTextField extends StatelessWidget {
   const CustomTextField({
     super.key,
     this.controller,
-     this.labelText,
+    this.labelText,
     this.hintText,
     this.helperText,
     this.errorText,
@@ -135,10 +135,8 @@ class CustomTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextFormField(
-
       controller: controller,
       decoration: InputDecoration(
-
         labelText: labelText,
         hintText: hintText,
         helperText: helperText,
@@ -154,26 +152,31 @@ class CustomTextField extends StatelessWidget {
         labelStyle: labelStyle,
         hintStyle: hintStyle,
         contentPadding: contentPadding,
-        border: border ?? OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide:BorderSide.none,
-        ),
-        enabledBorder: enabledBorder ?? OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide:BorderSide.none,
-        ),
-        focusedBorder: focusedBorder ?? OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide:BorderSide.none,
-        ),
-        errorBorder: errorBorder ?? OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: Colors.red),
-        ),
-        disabledBorder: disabledBorder ?? OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: Colors.grey.shade200),
-        ),
+        border: border ??
+            OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide.none,
+            ),
+        enabledBorder: enabledBorder ??
+            OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide.none,
+            ),
+        focusedBorder: focusedBorder ??
+            OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide.none,
+            ),
+        errorBorder: errorBorder ??
+            OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: const BorderSide(color: Colors.red),
+            ),
+        disabledBorder: disabledBorder ??
+            OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide(color: Colors.grey.shade200),
+            ),
       ),
       keyboardType: keyboardType,
       obscureText: obscureText,

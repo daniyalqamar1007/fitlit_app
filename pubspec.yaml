@@ -39,7 +39,8 @@ dependencies:
   image_picker:
   table_calendar:
   shared_preferences:
-  provider: 
+  otp_text_field:
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

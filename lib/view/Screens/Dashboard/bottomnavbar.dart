@@ -1,3 +1,4 @@
+import 'package:fitlip_app/view/Screens/Dashboard/social_media.dart';
 import 'package:flutter/material.dart';
 import '../../../main.dart';
 import '../../Utils/Colors.dart';
@@ -14,7 +15,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final List<Widget> _pages = [
     WardrobeScreen(),
     Center(child: Text("Profile")),
-    Center(child: Text("Wallet")),
+    SocialMediaProfile()
   ];
 
   @override
