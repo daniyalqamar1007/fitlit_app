@@ -1,93 +1,213 @@
-// auth_service.dart
+// auth_controller.dart
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../model/user_model.dart';
+import '../services/auth_services.dart';
 
-class AuthService {
-  final ValueNotifier<String?> email = ValueNotifier(null);
-  final ValueNotifier<String?> otp = ValueNotifier(null);
-  final ValueNotifier<String?> newPassword = ValueNotifier(null);
-  final ValueNotifier<String?> confirmPassword = ValueNotifier(null);
-  final ValueNotifier<bool> isLoading = ValueNotifier(false);
-  final ValueNotifier<String?> error = ValueNotifier(null);
+class AuthController {
+  static final AuthController _instance = AuthController._internal();
 
-  Future<bool> sendOtp(String email) async {
-    isLoading.value = true;
-    error.value = null;
+  factory AuthController({
+    String? name,
+    String? email,
+    String? phone,
+    String? gender,
+    String? password,
+    File? imageFile,
+  }) {
+    if (name != null && email != null) {
+      _instance._tempSignUpData = {
+        'name': name,
+        'email': email,
+        'phone': phone ?? '',
+        'gender': gender ?? '',
+        'password': password ?? '',
+        'imageFile': imageFile,
+      };
+    }
+    return _instance;
+  }
+
+  AuthController._internal();
+
+  final AuthService _authService = AuthService();
+  Map<String, dynamic> _tempSignUpData = {};
+  String? _verificationOtp;
+
+  // Getters for ValueNotifiers
+  ValueNotifier<UserModel?> get currentUser => _authService.currentUser;
+  ValueNotifier<String?> get email => _authService.email;
+  ValueNotifier<bool> get isLoading => _authService.isLoading;
+  ValueNotifier<String?> get error => _authService.error;
+
+  Future<void> init() async {
+    await _authService.loadUserSession();
+  }
+
+  // Sign Up - Updated for new response format
+  Future<Map<String, dynamic>> signUp() async {
+    if (_tempSignUpData.isEmpty) {
+      return {'success': false, 'message': 'No sign up data provided'};
+    }
 
     try {
-      // Simulate network delay
-      await Future.delayed(const Duration(seconds: 2));
+      final request = SignUpRequest(
+        name: _tempSignUpData['name'],
+        email: _tempSignUpData['email'],
+        password: _tempSignUpData['password'],
+        phoneNumber: _tempSignUpData['phone'],
+        gender: _tempSignUpData['gender'],
+      );
 
-      // Validate email format
-      if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email)) {
-        throw Exception('Invalid email format');
+      final response = await _authService.signUp(request);
+
+      // Handle the new response format {otp, message}
+      if (response.otp != null) {
+        _verificationOtp = response.otp;
+        return {
+          'success': true,
+          'otp': response.otp,
+          'message': response.message ?? 'OTP sent successfully'
+        };
+      } else {
+        return {
+          'success': false,
+          'message': response.message ?? 'Failed to send OTP'
+        };
       }
-
-      this.email.value = email;
-      return true;
     } catch (e) {
-      error.value = e.toString();
-      return false;
-    } finally {
-      isLoading.value = false;
+      return {'success': false, 'message': 'An error occurred: ${e.toString()}'};
     }
   }
 
-  Future<bool> verifyOtp(String otp) async {
-    isLoading.value = true;
-    error.value = null;
-
+  // Verify OTP for Sign Up - Updated for new response format
+  Future<Map<String, dynamic>> verifySignUpOtp(String userOtp) async {
     try {
-      // Simulate network delay
-      await Future.delayed(const Duration(seconds: 2));
+      final request = VerifyOtpRequest(
+        email: _tempSignUpData['email'],
+        otp: userOtp,
+        password: _tempSignUpData['password'],
+        name: _tempSignUpData['name'],
+      );
 
-      // Simple validation for demo
-      if (otp.length != 4) {
-        throw Exception('OTP must be 4 digits');
+      final response = await _authService.verifyOtp(request);
+
+      // Assuming verify endpoint returns {message, user} on success
+      if (response.user != null) {
+        _tempSignUpData = {};
+        _verificationOtp = null;
+        SharedPreferences prefs=await SharedPreferences.getInstance();
+        await prefs.setString('token',response.user?.accessToken??"");
+        return {
+          'success': true,
+          'message': response.message ?? 'Verification successful',
+          'userId': response.user?.userId,
+          'token': response.user?.accessToken,
+        };
+      } else {
+        return {
+          'success': false,
+          'message': response.message ?? 'Verification failed'
+        };
       }
-
-      this.otp.value = otp;
-      return true;
     } catch (e) {
-      error.value = e.toString();
-      return false;
-    } finally {
-      isLoading.value = false;
+      return {'success': false, 'message': 'An error occurred: ${e.toString()}'};
     }
   }
 
-  Future<bool> resetPassword(String newPassword, String confirmPassword) async {
-    isLoading.value = true;
-    error.value = null;
-
+  // Sign In - Updated for new response format
+  Future<Map<String, dynamic>> signIn(String email, String password) async {
     try {
-      // Simulate network delay
-      await Future.delayed(const Duration(seconds: 2));
+      final request = SignInRequest(
+        email: email,
+        password: password,
+      );
 
-      if (newPassword.length < 8) {
-        throw Exception('Password must be at least 8 characters');
+      final response = await _authService.signIn(request);
+
+      if (response.user != null) {
+        return {
+          'success': true,
+          'message': response.message ?? 'Login successful',
+          'userId': response.user?.userId,
+          'token': response.user?.accessToken,
+        };
+      } else {
+        return {
+          'success': false,
+          'message': response.message ?? 'Login failed'
+        };
       }
-
-      if (newPassword != confirmPassword) {
-        throw Exception('Passwords do not match');
-      }
-
-      this.newPassword.value = newPassword;
-      this.confirmPassword.value = confirmPassword;
-      return true;
     } catch (e) {
-      error.value = e.toString();
-      return false;
-    } finally {
-      isLoading.value = false;
+      return {'success': false, 'message': 'An error occurred: ${e.toString()}'};
     }
+  }
+
+  // Forgot Password - Updated for new response format
+// Forgot Password - Fixed for API response format
+  Future<Map<String, dynamic>> forgotPassword(String email) async {
+    try {
+      final request = ForgotPasswordRequest(email: email);
+      final response = await _authService.forgotPassword(request);
+
+      // Debug logs
+      print('Controller received: OTP=${response.otp}, Message=${response.message}, Success=${response.success}');
+
+      // Important: If we have an OTP, consider it a success regardless of the success flag
+      final bool isSuccess = response.otp != null;
+
+      return {
+        'success': isSuccess,
+        'otp': response.otp,
+        'message': response.message ?? 'No message received',
+      };
+    } catch (e) {
+      print('Error in forgotPassword: ${e.toString()}');
+      return {
+        'success': false,
+        'message': 'An error occurred: ${e.toString()}',
+        'otp': null,
+      };
+    }
+  }// Reset Password - Updated for new response format
+  Future<Map<String, dynamic>> resetPassword(String email, String newPassword) async {
+    try {
+      final request = ResetPasswordRequest(
+        email: email,
+        newPassword: newPassword,
+      );
+
+      final response = await _authService.resetPassword(request);
+
+      // Assuming reset password returns {message} on success
+      if (response.message != null) {
+        _verificationOtp = null;
+        return {
+          'success': true,
+          'message': response.message ?? 'Password reset successful'
+        };
+      } else {
+        return {
+          'success': false,
+          'message': response.message ?? 'Password reset failed'
+        };
+      }
+    } catch (e) {
+      return {'success': false, 'message': 'An error occurred: ${e.toString()}'};
+    }
+  }
+
+  // Verify OTP for Password Reset
+  Future<bool> verifyResetOtp(String userOtp) async {
+    return userOtp == _verificationOtp;
+  }
+
+  Future<void> logout() async {
+    await _authService.logout();
   }
 
   void dispose() {
-    email.dispose();
-    otp.dispose();
-    newPassword.dispose();
-    confirmPassword.dispose();
-    isLoading.dispose();
-    error.dispose();
+    _authService.dispose();
   }
 }

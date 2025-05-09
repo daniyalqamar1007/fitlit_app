@@ -15,7 +15,8 @@ class WardrobeScreen extends StatefulWidget {
   State<WardrobeScreen> createState() => _WardrobeScreenState();
 }
 
-class _WardrobeScreenState extends State<WardrobeScreen> with SingleTickerProviderStateMixin {
+class _WardrobeScreenState extends State<WardrobeScreen>
+    with SingleTickerProviderStateMixin {
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
   CalendarFormat _calendarFormat = CalendarFormat.month;
@@ -73,45 +74,6 @@ class _WardrobeScreenState extends State<WardrobeScreen> with SingleTickerProvid
     super.dispose();
   }
 
-  // Method to handle avatar swipe
-  // void _handleAvatarSwipe(DragEndDetails details, bool isLeft) {
-  //   if (_isLoading || _avatarAnimationController == null) return; // Added null check
-  //
-  //   setState(() {
-  //     _isLoading = true;
-  //     _isAnimatingIn = false; // Start with slide out animation
-  //   });
-  //
-  //   // Start slide out animation
-  //   _avatarAnimationController!.forward().then((_) {
-  //     // Show loading for 2 seconds
-  //     Future.delayed(const Duration(seconds: 2), () {
-  //       // Update avatar index
-  //       setState(() {
-  //         if (isLeft) {
-  //           _currentAvatarIndex = (_currentAvatarIndex - 1) % _avatarAssets.length;
-  //           if (_currentAvatarIndex < 0) _currentAvatarIndex = _avatarAssets.length - 1;
-  //         } else {
-  //           _currentAvatarIndex = (_currentAvatarIndex + 1) % _avatarAssets.length;
-  //         }
-  //
-  //         // Reset animation controller for slide in
-  //         _avatarAnimationController!.reset();
-  //         _isAnimatingIn = true; // Now we'll do slide in animation
-  //         _isLoading = false;
-  //       });
-  //
-  //       // Run the slide-in animation
-  //       _avatarAnimationController!.forward().then((_) {
-  //         setState(() {
-  //           _isAnimatingIn = false; // Animation complete
-  //           _avatarAnimationController!.reset();
-  //         });
-  //       });
-  //     });
-  //   });
-  // }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -121,22 +83,26 @@ class _WardrobeScreenState extends State<WardrobeScreen> with SingleTickerProvid
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-           Stack(
-             children: [
-               Positioned.fill(child: Opacity(
-                 opacity: 0.7,
-                   child: Image.asset('assets/Images/new.jpg',fit: BoxFit.cover,))),
-               Padding(
-                 padding: const EdgeInsets.all(16.0),
-                 child: Column( crossAxisAlignment: CrossAxisAlignment.start,
-                 children: [
-                   _buildTopRow(),
-                   const SizedBox(height: 20),
-                   _buildThreeColumnSection(),
-                 ],
-                              ),
-               ),]
-           ),
+              Stack(children: [
+                Positioned.fill(
+                    child: Opacity(
+                        opacity: 0.7,
+                        child: Image.asset(
+                          'assets/Images/new.jpg',
+                          fit: BoxFit.cover,
+                        ))),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildTopRow(),
+                      const SizedBox(height: 20),
+                      _buildThreeColumnSection(),
+                    ],
+                  ),
+                ),
+              ]),
               const SizedBox(height: 10),
               Padding(
                 padding: const EdgeInsets.all(16.0),
@@ -154,9 +120,9 @@ class _WardrobeScreenState extends State<WardrobeScreen> with SingleTickerProvid
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Expanded(
-          flex:1,
+          flex: 1,
           child: GestureDetector(
-            onTap: (){
+            onTap: () {
               Navigator.pushNamed(context, AppRoutes.profile);
             },
             child: Container(
@@ -166,13 +132,14 @@ class _WardrobeScreenState extends State<WardrobeScreen> with SingleTickerProvid
                 borderRadius: BorderRadius.circular(20),
                 image: const DecorationImage(
                   image: AssetImage('assets/Images/circle_image.png'),
-
                 ),
               ),
             ),
           ),
         ),
-        SizedBox(width: 10,),
+        SizedBox(
+          width: 10,
+        ),
         Expanded(
           flex: 3,
           child: Text(
@@ -183,22 +150,27 @@ class _WardrobeScreenState extends State<WardrobeScreen> with SingleTickerProvid
               fontWeight: FontWeight.w600,
             ),
           ),
-        ),SizedBox(width:40,),
-
+        ),
+        SizedBox(
+          width: 40,
+        ),
         Expanded(
           flex: 1,
-          child:  Container(
-            padding: EdgeInsets.symmetric(horizontal: 14,vertical: 8),
-
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
             height: 30,
             decoration: BoxDecoration(
               color: appcolor.withOpacity(0.7),
               borderRadius: BorderRadius.circular(30),
               // border: Border.all(color: Colors.black54),
-
             ),
-            child:  Text("Save",style: GoogleFonts.poppins(color: Colors.white,fontWeight: FontWeight.bold,fontSize: 10
-            ),),
+            child: Text(
+              "Save",
+              style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 10),
+            ),
           ),
         ),
       ],
@@ -239,72 +211,129 @@ class _WardrobeScreenState extends State<WardrobeScreen> with SingleTickerProvid
       children: [
         // Date section
         Container(
-          padding: EdgeInsets.symmetric(horizontal: 14,vertical: 8),
-
+          padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
           height: 30,
           decoration: BoxDecoration(
             color: appcolor.withOpacity(0.7),
             borderRadius: BorderRadius.circular(30),
             // border: Border.all(color: Colors.black54),
-
           ),
-          child:  Row(
+          child: Row(
             children: [
-              Icon(Icons.calendar_month_sharp,color: Colors.white,size: 13,),
-              Text("  11 July",style: GoogleFonts.poppins(color: Colors.white,fontWeight: FontWeight.bold,fontSize: 10
-              ),),
+              Icon(
+                Icons.calendar_month_sharp,
+                color: Colors.white,
+                size: 13,
+              ),
+              Text(
+                "  11 July",
+                style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 10),
+              ),
             ],
           ),
         ),
-        SizedBox(height: 20,),
-
-
+        SizedBox(
+          height: 20,
+        ),
 
         // Shirts
-        Text(
-          'Shirts',
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.white,
-            fontWeight: FontWeight.w600,
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          height: 30,
+          decoration: BoxDecoration(
+            color: appcolor.withOpacity(0.7),
+            borderRadius: BorderRadius.circular(30),
+            // border: Border.all(color: Colors.black54),
           ),
+          child: Text(
+            'Shirts',
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.white,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+        SizedBox(
+          height: 5,
         ),
         _buildClothingItem('assets/Images/1.png'), const SizedBox(height: 5),
         // const SizedBox(height: 5),
-        Text(
-          'Assessries',
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          height: 30,
+          decoration: BoxDecoration(
+            color: appcolor.withOpacity(0.7),
+            borderRadius: BorderRadius.circular(30),
+            // border: Border.all(color: Colors.black54),
           ),
+          child: Text(
+            'Others',
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.white,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+        SizedBox(
+          height: 5,
         ),
         _buildClothingItem('assets/Images/6.png'), const SizedBox(height: 5),
 
         // const SizedBox(height: 8),
-        const Text(
-          'Pants',
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          height: 30,
+          decoration: BoxDecoration(
+            color: appcolor.withOpacity(0.7),
+            borderRadius: BorderRadius.circular(30),
+            // border: Border.all(color: Colors.black54),
+          ),
+          child: Text(
+            'Pants',
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.white,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
-        // Pants
+        SizedBox(
+          height: 5,
+        ),
 
         _buildClothingItem('assets/Images/3.png'),
         const SizedBox(height: 5),
         // const SizedBox(height: 5),
-        const Text(
-          'Shoes',
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          height: 30,
+          decoration: BoxDecoration(
+            color: appcolor.withOpacity(0.7),
+            borderRadius: BorderRadius.circular(30),
+            // border: Border.all(color: Colors.black54),
+          ),
+          child: Text(
+            'Shoes',
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.white,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
-
+        SizedBox(
+          height: 5,
+        ),
         _buildClothingItem('assets/Images/4.png'),
       ],
     );
   }
+
   Widget _buildAvatarColumn() {
     return GestureDetector(
       onHorizontalDragEnd: (details) {
@@ -348,12 +377,10 @@ class _WardrobeScreenState extends State<WardrobeScreen> with SingleTickerProvid
                 Center(
                   child: Text(
                     "Loading next outfit...",
-
                     style: GoogleFonts.poppins(
                       color: appcolor,
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
-
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -376,15 +403,19 @@ class _WardrobeScreenState extends State<WardrobeScreen> with SingleTickerProvid
     Future.delayed(const Duration(seconds: 2), () {
       setState(() {
         if (isLeft) {
-          _currentAvatarIndex = (_currentAvatarIndex - 1) % _avatarAssets.length;
-          if (_currentAvatarIndex < 0) _currentAvatarIndex = _avatarAssets.length - 1;
+          _currentAvatarIndex =
+              (_currentAvatarIndex - 1) % _avatarAssets.length;
+          if (_currentAvatarIndex < 0)
+            _currentAvatarIndex = _avatarAssets.length - 1;
         } else {
-          _currentAvatarIndex = (_currentAvatarIndex + 1) % _avatarAssets.length;
+          _currentAvatarIndex =
+              (_currentAvatarIndex + 1) % _avatarAssets.length;
         }
         _isLoading = false;
       });
     });
   }
+
   //
   // Widget _buildAvatarColumn() {
   //   // Add null checks for animation controller before using it
@@ -495,7 +526,7 @@ class _WardrobeScreenState extends State<WardrobeScreen> with SingleTickerProvid
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        SizedBox(height: 25,),
+        // SizedBox(height: 25,),
         // Weather section
         Row(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -503,80 +534,35 @@ class _WardrobeScreenState extends State<WardrobeScreen> with SingleTickerProvid
             GestureDetector(
               onTap: () => _showAnimatedCategoryDialog(),
               child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 12,vertical: 5),
-
+                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 5),
                 height: 30,
                 decoration: BoxDecoration(
                   color: appcolor.withOpacity(0.7),
                   borderRadius: BorderRadius.circular(30),
                   // border: Border.all(color: Colors.black54),
-
                 ),
-                child:  Row(
+                child: Row(
                   children: [
                     Icon(
                       Icons.file_upload_outlined,
                       color: Colors.white,
                       size: 15,
                       weight: 10,
-
                     ),
-                    Text("  Upload",style: GoogleFonts.poppins(color: Colors.white,fontWeight: FontWeight.bold,fontSize: 10
-                    ),),
+                    Text(
+                      "  Upload",
+                      style: GoogleFonts.poppins(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 10),
+                    ),
                   ],
                 ),
               ),
             ),
-
-
-
           ],
         ),
-        // SizedBox(height: 20,),
-        //
-        //
-        // // Shirts
-        // Text(
-        //   'Shirts',
-        //   style: TextStyle(
-        //     fontSize: 14,
-        //     fontWeight: FontWeight.w600,
-        //   ),
-        // ),
-        // const SizedBox(height: 5),
-        // _buildClothingItem('assets/Images/5.png'),
-        // // const SizedBox(height: 5),
-        // Text(
-        //   'Assessries',
-        //   style: TextStyle(
-        //     fontSize: 14,
-        //     fontWeight: FontWeight.w600,
-        //   ),
-        // ),
-        // _buildClothingItem('assets/Images/6.png'),
-        //
-        //
-        //
-        // // Pants
-        // const Text(
-        //   'Pants',
-        //   style: TextStyle(
-        //     fontSize: 14,
-        //     fontWeight: FontWeight.w600,
-        //   ),
-        // ),
-        // const SizedBox(height: 5),
-        // _buildClothingItem('assets/Images/1.png'),
-        //
-        // const Text(
-        //   'Shoes',
-        //   style: TextStyle(
-        //     fontSize: 14,
-        //     fontWeight: FontWeight.w600,
-        //   ),
-        // ),
-        // const SizedBox(height: 5),
-        // _buildClothingItem('assets/Images/3.png'),
+
       ],
     );
   }
@@ -628,7 +614,7 @@ class _WardrobeScreenState extends State<WardrobeScreen> with SingleTickerProvid
               child: Column(
                 children: [
                   TableCalendar(
-                    availableGestures:AvailableGestures.none,
+                    availableGestures: AvailableGestures.none,
                     firstDay: DateTime.utc(2023, 1, 1),
                     lastDay: DateTime.utc(2030, 12, 31),
                     focusedDay: _focusedDay,
@@ -651,7 +637,8 @@ class _WardrobeScreenState extends State<WardrobeScreen> with SingleTickerProvid
                         color: const Color(0xFFAA8A00).withOpacity(0.5),
                         shape: BoxShape.circle,
                       ),
-                      weekendTextStyle: const TextStyle(color: Colors.black,fontWeight: FontWeight.bold),
+                      weekendTextStyle: const TextStyle(
+                          color: Colors.black, fontWeight: FontWeight.bold),
                       outsideDaysVisible: false,
                     ),
                     headerStyle: HeaderStyle(
@@ -662,27 +649,33 @@ class _WardrobeScreenState extends State<WardrobeScreen> with SingleTickerProvid
                         fontWeight: FontWeight.bold,
                       ),
                       leftChevronIcon: Container(
-                          decoration: BoxDecoration(border:Border.all(color: appcolor),
+                          decoration: BoxDecoration(
+                              border: Border.all(color: appcolor),
                               borderRadius: BorderRadius.circular(5)),
-                          child: Icon(Icons.chevron_left, color: Color(0xFFAA8A00))),
-                      rightChevronIcon:  Container(
-                          decoration: BoxDecoration(border:Border.all(color: appcolor),
+                          child: Icon(Icons.chevron_left,
+                              color: Color(0xFFAA8A00))),
+                      rightChevronIcon: Container(
+                          decoration: BoxDecoration(
+                              border: Border.all(color: appcolor),
                               borderRadius: BorderRadius.circular(5)),
-                          child: Icon(Icons.chevron_right, color: Color(0xFFAA8A00))),
+                          child: Icon(Icons.chevron_right,
+                              color: Color(0xFFAA8A00))),
                     ),
                     daysOfWeekStyle: const DaysOfWeekStyle(
-                      weekdayStyle: TextStyle(fontWeight: FontWeight.bold,color:Color(0xff7C7C7C) ),
-                      weekendStyle: TextStyle(fontWeight: FontWeight.bold, color: Color(0xff7C7C7C)),
+                      weekdayStyle: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xff7C7C7C)),
+                      weekendStyle: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xff7C7C7C)),
                     ),
                   ),
                   Container(
                     decoration: BoxDecoration(
                         color: appcolor,
-                        borderRadius: BorderRadius.circular(10)
-                    ),
+                        borderRadius: BorderRadius.circular(10)),
                     height: 5,
                     width: 45,
-
                   ),
                   const SizedBox(height: 16),
                 ],
@@ -733,10 +726,12 @@ class _WardrobeScreenState extends State<WardrobeScreen> with SingleTickerProvid
                         opacity: showSubcategories ? 0.0 : 1.0,
                         child: Column(
                           children: [
-                            _buildAnimatedCategoryButton('Shirts', selectedCategory, (category) {
+                            _buildAnimatedCategoryButton(
+                                'Shirts', selectedCategory, (category) {
                               setState(() {
                                 selectedCategory = category;
-                                subcategories = _getSubcategoriesForCategory(category);
+                                subcategories =
+                                    _getSubcategoriesForCategory(category);
                                 selectedSubcategory = null;
                                 Future.delayed(Duration(milliseconds: 100), () {
                                   setState(() {
@@ -745,10 +740,12 @@ class _WardrobeScreenState extends State<WardrobeScreen> with SingleTickerProvid
                                 });
                               });
                             }),
-                            _buildAnimatedCategoryButton('Assessries', selectedCategory, (category) {
+                            _buildAnimatedCategoryButton(
+                                'Assessries', selectedCategory, (category) {
                               setState(() {
                                 selectedCategory = category;
-                                subcategories = _getSubcategoriesForCategory(category);
+                                subcategories =
+                                    _getSubcategoriesForCategory(category);
                                 selectedSubcategory = null;
                                 Future.delayed(Duration(milliseconds: 100), () {
                                   setState(() {
@@ -757,10 +754,12 @@ class _WardrobeScreenState extends State<WardrobeScreen> with SingleTickerProvid
                                 });
                               });
                             }),
-                            _buildAnimatedCategoryButton('Pants', selectedCategory, (category) {
+                            _buildAnimatedCategoryButton(
+                                'Pants', selectedCategory, (category) {
                               setState(() {
                                 selectedCategory = category;
-                                subcategories = _getSubcategoriesForCategory(category);
+                                subcategories =
+                                    _getSubcategoriesForCategory(category);
                                 selectedSubcategory = null;
                                 Future.delayed(Duration(milliseconds: 100), () {
                                   setState(() {
@@ -769,10 +768,12 @@ class _WardrobeScreenState extends State<WardrobeScreen> with SingleTickerProvid
                                 });
                               });
                             }),
-                            _buildAnimatedCategoryButton('Shoes', selectedCategory, (category) {
+                            _buildAnimatedCategoryButton(
+                                'Shoes', selectedCategory, (category) {
                               setState(() {
                                 selectedCategory = category;
-                                subcategories = _getSubcategoriesForCategory(category);
+                                subcategories =
+                                    _getSubcategoriesForCategory(category);
                                 selectedSubcategory = null;
                                 Future.delayed(Duration(milliseconds: 100), () {
                                   setState(() {
@@ -794,7 +795,7 @@ class _WardrobeScreenState extends State<WardrobeScreen> with SingleTickerProvid
                             return _buildAnimatedCategoryButton(
                               subcategory,
                               selectedSubcategory,
-                                  (value) {
+                              (value) {
                                 setState(() {
                                   selectedSubcategory = value;
                                 });
@@ -831,13 +832,13 @@ class _WardrobeScreenState extends State<WardrobeScreen> with SingleTickerProvid
                       style: TextStyle(color: Colors.grey),
                     ),
                   ),
-
                 TextButton(
                   onPressed: (showSubcategories && selectedSubcategory != null)
                       ? () {
-                    Navigator.of(context).pop();
-                    _openCameraWithGoogleVision(selectedCategory!, selectedSubcategory!);
-                  }
+                          Navigator.of(context).pop();
+                          _openCameraWithGoogleVision(
+                              selectedCategory!, selectedSubcategory!);
+                        }
                       : null,
                   child: Text(
                     'Open Camera',
@@ -902,13 +903,41 @@ class _WardrobeScreenState extends State<WardrobeScreen> with SingleTickerProvid
   List<String> _getSubcategoriesForCategory(String category) {
     switch (category) {
       case 'Shirts':
-        return ['T-Shirt', 'Half Shirt', 'Casual Shirt', 'Dress Shirt', 'Polo Shirt'];
+        return [
+          'T-Shirt',
+          'Half Shirt',
+          'Casual Shirt',
+          'Dress Shirt',
+          'Polo Shirt'
+        ];
       case 'Assessries':
-        return ['Necklace', 'Bracelet', 'Earring', 'Watch', 'Belt', 'Hat', 'Scarf'];
+        return [
+          'Necklace',
+          'Bracelet',
+          'Earring',
+          'Watch',
+          'Belt',
+          'Hat',
+          'Scarf'
+        ];
       case 'Pants':
-        return ['Jeans', 'Trousers', 'Shorts', 'Cargo', 'Track Pants', 'Formal Pants'];
+        return [
+          'Jeans',
+          'Trousers',
+          'Shorts',
+          'Cargo',
+          'Track Pants',
+          'Formal Pants'
+        ];
       case 'Shoes':
-        return ['Sneakers', 'Formal Shoes', 'Boots', 'Loafers', 'Sandals', 'Sports Shoes'];
+        return [
+          'Sneakers',
+          'Formal Shoes',
+          'Boots',
+          'Loafers',
+          'Sandals',
+          'Sports Shoes'
+        ];
       default:
         return [];
     }
@@ -989,7 +1018,8 @@ class _WardrobeScreenState extends State<WardrobeScreen> with SingleTickerProvid
   }
 
   // Method to show confirmation dialog after image capture
-  void _showImageCapturedDialog(String category, String subcategory, String imagePath) {
+  void _showImageCapturedDialog(
+      String category, String subcategory, String imagePath) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -1037,7 +1067,8 @@ class _WardrobeScreenState extends State<WardrobeScreen> with SingleTickerProvid
                 // Here you would add the item to the wardrobe
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text('$subcategory added to your $category collection!'),
+                    content: Text(
+                        '$subcategory added to your $category collection!'),
                     backgroundColor: appcolor,
                   ),
                 );

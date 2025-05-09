@@ -31,15 +31,8 @@ class AppRoutes {
     profile: (context) => ProfileScreen(),
     social: (context) => SocialMediaProfile(),
     forgot: (context) => ForgotPasswordScreen(),
-    otp: (context) {
-      final authService =
-          ModalRoute.of(context)!.settings.arguments as AuthService?;
-      return OtpVerificationScreen(authService: authService ?? AuthService());
-    },
-    newpassword: (context) {
-      final authService =
-          ModalRoute.of(context)!.settings.arguments as AuthService?;
-      return NewPasswordScreen(authService: authService ?? AuthService());
-    },
+    otp: (context) => OtpVerificationScreen(email: '@hjgskdgsgds',),
+    newpassword: (context) => NewPasswordScreen(email: "dhsgfjh@",otp: "546338",),
+   
   };
 }

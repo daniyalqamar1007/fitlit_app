@@ -27,11 +27,61 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final _passwordController = TextEditingController();
   File? _profileImage;
   bool _obscurePassword = true;
+  bool _isLoading = false;
+  String? _errorMessage;
+
   Future<void> _pickImage() async {
     final pickedFile =
-        await ImagePicker().pickImage(source: ImageSource.gallery);
+    await ImagePicker().pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       setState(() => _profileImage = File(pickedFile.path));
+    }
+  }
+
+  Future<void> _handleSignUp() async {
+    if (_formKey.currentState?.validate() ?? false) {
+      setState(() {
+        _isLoading = true;
+        _errorMessage = null;
+      });
+
+      try {
+        // Initialize AuthController with the form data
+        final authController = AuthController(
+          name: _nameController.text,
+          email: _emailController.text,
+          phone: _phoneController.text,
+          gender: _selectedGender,
+          password: _passwordController.text,
+          imageFile: _profileImage,
+        );
+
+        // Call sign up method
+        final result = await authController.signUp();
+
+        setState(() {
+          _isLoading = false;
+        });
+
+        if (result['success']) {
+          // If successful, set the first_time flag and navigate to OTP screen
+          first_time = true;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(result['message'] ?? 'OTP sent to your email')),
+          );
+          Navigator.pushNamed(context, AppRoutes.otp);
+        } else {
+          // If not successful, show error
+          setState(() {
+            _errorMessage = result['message'] ?? 'Sign up failed';
+          });
+        }
+      } catch (e) {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = 'An error occurred: ${e.toString()}';
+        });
+      }
     }
   }
 
@@ -48,34 +98,54 @@ class _SignUpScreenState extends State<SignUpScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: themeController.white,
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const SizedBox(height: 30),
-              Image.asset('assets/Images/splash_logo.png', scale: 10),
-              SizedBox(height: 20),
-              _buildWelcomeText(),
-              // _buildPhotoUpload(),
-              SizedBox(height: 20),
-              _buildFormFields(),
-              // _buildSignUpButton(),
-              CustomButton(text: "Create Account",
-                onPressed: () async{
-                  if (_formKey.currentState?.validate() ?? false) {
-                    first_time = true;
-                    Navigator.pushNamed(context, AppRoutes.otp);
-                    // Handle sign up
-                  }
-                },),
-              _buildSignInText(),
-            ],
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            padding: const EdgeInsets.all(20),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 30),
+                  Image.asset('assets/Images/splash_logo.png', scale: 10),
+                  SizedBox(height: 20),
+                  _buildWelcomeText(),
+                  SizedBox(height: 20),
+                  _buildFormFields(),
+
+                  // Display error message if any
+                  if (_errorMessage != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+                      child: Text(
+                        _errorMessage!,
+                        style: TextStyle(color: Colors.red),
+                      ),
+                    ),
+
+                  CustomButton(
+                    text: "Create Account",
+                    onPressed: _isLoading ? null : _handleSignUp,
+                  ),
+                  _buildSignInText(),
+                ],
+              ),
+            ),
           ),
-        ),
+
+          // Loading overlay
+          if (_isLoading)
+            Container(
+              color: Colors.black.withOpacity(0.3),
+              child: Center(
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(appcolor),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -167,7 +237,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
           decoration: InputDecoration(
             hintText: 'Select Gender',
             hintStyle:
-                GoogleFonts.poppins(color: hintextcolor.withOpacity(0.5)),
+            GoogleFonts.poppins(color: hintextcolor.withOpacity(0.5)),
             filled: true,
             fillColor: Colors.grey.shade100,
             border: OutlineInputBorder(
@@ -197,7 +267,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
           hintText: 'Password',
           hintStyle: GoogleFonts.poppins(color: hintextcolor),
           controller: _passwordController,
-          obscureText: true,
+          obscureText: _obscurePassword,
           fillColor: Colors.grey.shade100,
           filled: true,
           validator: (value) {
@@ -229,16 +299,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
               readOnly: true,
               decoration: InputDecoration(
                 hintText:
-                    _profileImage != null ? 'Image Selected' : 'Upload Photo',
+                _profileImage != null ? 'Image Selected' : 'Upload Photo',
                 hintStyle: GoogleFonts.poppins(color: hintextcolor),
-                // prefixIcon: Icon(Icons.camera_alt, color: hintextcolor),
                 filled: true,
                 suffixIcon: Image.asset(
                   'assets/Icons/camera_icon.png',
                   scale: 5,
                 ),
                 fillColor: Colors.grey[100],
-                // border: InputBorder.none,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
                   borderSide: BorderSide.none,

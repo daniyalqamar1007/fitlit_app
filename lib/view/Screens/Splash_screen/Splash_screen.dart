@@ -2,6 +2,7 @@ import 'package:fitlip_app/routes/App_routes.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../main.dart';
 import '../../Utils/Colors.dart';
@@ -14,13 +15,23 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  String already_login="";
   @override
   void initState() {
     super.initState();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+    check();
+    if(already_login==null||already_login==""){
     Future.delayed(const Duration(seconds: 3), () {
       Navigator.pushReplacementNamed(context, AppRoutes.onboarding);
-    });
+    });}
+    else{
+      Navigator.pushReplacementNamed(context, AppRoutes.dashboard);
+    }
+  }
+  Future<void> check()async{
+    SharedPreferences prefs=await SharedPreferences.getInstance();
+    already_login=await prefs.getString('token')??"";
   }
   @override
   void dispose() {
