@@ -1,0 +1,2 @@
+/Users/macbookpro/Documents/Dart/fitlit_app/android/app/.cxx/RelWithDebInfo/2xy641i5/arm64-v8a/CMakeFiles/edit_cache.dir
+/Users/macbookpro/Documents/Dart/fitlit_app/android/app/.cxx/RelWithDebInfo/2xy641i5/arm64-v8a/CMakeFiles/rebuild_cache.dir

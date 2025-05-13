@@ -25,7 +25,9 @@ class _WardrobeScreenState extends State<WardrobeScreen>
   // Avatar control variables
   int _currentAvatarIndex = 0;
   final List<String> _avatarAssets = [
-    'assets/Icons/avatar.png',
+    'assets/Icons/avatar3.png',
+    'assets/Icons/black.png',
+    'assets/Icons/red.png',
     'assets/Icons/avatar2.png',
     'assets/Icons/avatar.png',
     'assets/Icons/avatar2.png',
@@ -37,7 +39,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
   Animation<Offset>? _slideInAnimation; // Changed to nullable
   bool _isLoading = false;
   bool _isAnimatingIn = false; // Add flag to track animation direction
-
+  String loadingType = "";
   @override
   void initState() {
     super.initState();
@@ -154,9 +156,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
         SizedBox(
           width: 40,
         ),
-        Expanded(
-          flex: 1,
-          child: Container(
+         Container(
             padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
             height: 30,
             decoration: BoxDecoration(
@@ -172,7 +172,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                   fontSize: 10),
             ),
           ),
-        ),
+        
       ],
     );
   }
@@ -184,7 +184,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
         children: [
           // First Column - Date, Shirts, Accessories, Pants, Shoes
           Expanded(
-            flex: 1,
+            flex: 2,
             child: _buildFirstColumn(),
           ),
 
@@ -197,6 +197,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
 
           // Third Column - Similar to first column
           Expanded(
+            flex: 2,
             child: _buildThirdColumn(),
           ),
         ],
@@ -213,12 +214,14 @@ class _WardrobeScreenState extends State<WardrobeScreen>
         Container(
           padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
           height: 30,
+          width: 80,
           decoration: BoxDecoration(
             color: appcolor.withOpacity(0.7),
             borderRadius: BorderRadius.circular(30),
             // border: Border.all(color: Colors.black54),
           ),
-          child: Row(
+          child: 
+          Row(
             children: [
               Icon(
                 Icons.calendar_month_sharp,
@@ -226,7 +229,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                 size: 13,
               ),
               Text(
-                "  11 July",
+                " 11 July",
                 style: GoogleFonts.poppins(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
@@ -235,6 +238,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
             ],
           ),
         ),
+        
         SizedBox(
           height: 20,
         ),
@@ -251,7 +255,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
           child: Text(
             'Shirts',
             style: TextStyle(
-              fontSize: 12,
+              fontSize: 10,
               color: Colors.white,
               fontWeight: FontWeight.w600,
             ),
@@ -273,7 +277,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
           child: Text(
             'Others',
             style: TextStyle(
-              fontSize: 12,
+              fontSize: 10,
               color: Colors.white,
               fontWeight: FontWeight.w600,
             ),
@@ -296,7 +300,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
           child: Text(
             'Pants',
             style: TextStyle(
-              fontSize: 12,
+              fontSize: 10,
               color: Colors.white,
               fontWeight: FontWeight.w600,
             ),
@@ -320,7 +324,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
           child: Text(
             'Shoes',
             style: TextStyle(
-              fontSize: 12,
+              fontSize: 10,
               color: Colors.white,
               fontWeight: FontWeight.w600,
             ),
@@ -337,11 +341,41 @@ class _WardrobeScreenState extends State<WardrobeScreen>
   Widget _buildAvatarColumn() {
     return GestureDetector(
       onHorizontalDragEnd: (details) {
-        if (details.velocity.pixelsPerSecond.dx > 0) {
-          _handleAvatarSwipe(details, false); // Swipe right
-        } else if (details.velocity.pixelsPerSecond.dx < 0) {
-          _handleAvatarSwipe(details, true); // Swipe left
+        // print("swipe---------------");
+        // if (details.velocity.pixelsPerSecond.dx > 0) {
+        //   _handleAvatarSwipe(details, false); // Swipe right
+        // } else if (details.velocity.pixelsPerSecond.dx < 0) {
+        //   _handleAvatarSwipe(details, true); // Swipe left
+        // }
+        // Get the position of the swipe
+      double swipePosition = details.localPosition.dy;
+
+      // Define thresholds for the red and blue containers
+      double redContainerTop = 140.0;
+      double redContainerBottom = redContainerTop + 150.0;
+      double blueContainerTop = 300.0;
+      double blueContainerBottom = blueContainerTop + 150.0;
+
+      // Swipe logic
+      if (details.velocity.pixelsPerSecond.dx > 0) {
+        // Swipe right
+        if (swipePosition >= redContainerTop && swipePosition <= redContainerBottom) {
+          _handleAvatarSwipe(details, false, 'tshirt'); // Swipe over red container
+        } else if (swipePosition >= blueContainerTop && swipePosition <= blueContainerBottom) {
+          _handleAvatarSwipe(details, false, 'pants'); // Swipe over blue container
+        } else {
+          _handleAvatarSwipe(details, false, ''); // Swipe outside the containers
         }
+      } else if (details.velocity.pixelsPerSecond.dx < 0) {
+        // Swipe left
+        if (swipePosition >= redContainerTop && swipePosition <= redContainerBottom) {
+          _handleAvatarSwipe(details, true, 'tshirt'); // Swipe over red container
+        } else if (swipePosition >= blueContainerTop && swipePosition <= blueContainerBottom) {
+          _handleAvatarSwipe(details, true, 'pants'); // Swipe over blue container
+        } else {
+          _handleAvatarSwipe(details, true, ''); // Swipe outside the containers
+        }
+      }
       },
       child: Stack(
         alignment: Alignment.center,
@@ -356,12 +390,26 @@ class _WardrobeScreenState extends State<WardrobeScreen>
             ),
           ),
 
-          // White overlay during swipe/loading
-          if (_isLoading)
-            Container(
-              color: Colors.white.withOpacity(0.7),
-              width: double.infinity,
-              height: double.infinity,
+          if (!_isLoading)
+            Positioned(
+              top: 140,
+              left: 0,
+              right: 0,
+              child: Container(
+                  color: Colors.transparent,
+                  height: 150,
+                ),
+            ),
+
+          if (!_isLoading)
+            Positioned(
+              top: 300,
+              left: 0,
+              right: 0,
+              child: Container(
+                color: Colors.transparent,
+                height: 150,
+              ),
             ),
 
           // Loading indicator
@@ -392,8 +440,12 @@ class _WardrobeScreenState extends State<WardrobeScreen>
     );
   }
 
-  void _handleAvatarSwipe(DragEndDetails details, bool isLeft) {
+  void _handleAvatarSwipe(DragEndDetails details, bool isLeft, String keyowrd) {
     if (_isLoading) return;
+
+    print('$keyowrd key -----------');
+
+    
 
     setState(() {
       _isLoading = true;
@@ -402,15 +454,25 @@ class _WardrobeScreenState extends State<WardrobeScreen>
     // Show loading for 2 seconds
     Future.delayed(const Duration(seconds: 2), () {
       setState(() {
-        if (isLeft) {
-          _currentAvatarIndex =
-              (_currentAvatarIndex - 1) % _avatarAssets.length;
-          if (_currentAvatarIndex < 0)
-            _currentAvatarIndex = _avatarAssets.length - 1;
-        } else {
-          _currentAvatarIndex =
-              (_currentAvatarIndex + 1) % _avatarAssets.length;
+        if(!isLeft && keyowrd == "tshirt"){
+             loadingType = "Changing Shirt";
+            _currentAvatarIndex = 1;
+        }else if(!isLeft && keyowrd == "pants"){
+            loadingType = "Changing Pants";
+            _currentAvatarIndex = 2;
+        }else if(isLeft){
+           loadingType = "Loading next outfit..";
+           _currentAvatarIndex = 0;
         }
+        // if (isLeft) {
+        //   _currentAvatarIndex =
+        //       (_currentAvatarIndex - 1) % _avatarAssets.length;
+        //   if (_currentAvatarIndex < 0)
+        //     _currentAvatarIndex = _avatarAssets.length - 1;
+        // } else {
+        //   _currentAvatarIndex =
+        //       (_currentAvatarIndex + 1) % _avatarAssets.length;
+        // }
         _isLoading = false;
       });
     });
@@ -529,7 +591,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
         // SizedBox(height: 25,),
         // Weather section
         Row(
-          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.end,
           children: [
             GestureDetector(
               onTap: () => _showAnimatedCategoryDialog(),
@@ -546,11 +608,11 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                     Icon(
                       Icons.file_upload_outlined,
                       color: Colors.white,
-                      size: 15,
+                      size: 14,
                       weight: 10,
                     ),
                     Text(
-                      "  Upload",
+                      "Upload",
                       style: GoogleFonts.poppins(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
