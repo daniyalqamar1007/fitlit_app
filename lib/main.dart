@@ -24,65 +24,67 @@ class MyApp extends StatelessWidget {
     return ValueListenableBuilder<bool>(
       valueListenable: themeController.isDark,
       builder: (context, isDarkMode, _) {
-        return MaterialApp(
-          debugShowCheckedModeBanner: false,
-          title: 'FitLip App',
-          theme: ThemeData(
-            useMaterial3: true,
-            brightness: Brightness.light,
-            colorScheme: ColorScheme.fromSeed(
-              seedColor: themeController.black,
+        return SafeArea(
+          child: MaterialApp(
+            debugShowCheckedModeBanner: false,
+            title: 'FitLip App',
+            theme: ThemeData(
+              useMaterial3: true,
               brightness: Brightness.light,
-              primary: themeController.black,
-            ),
-            scaffoldBackgroundColor: themeController.white,
-            appBarTheme: AppBarTheme(
-              elevation: 0,
-              centerTitle: true,
-              backgroundColor: themeController.black,
-              foregroundColor: themeController.white,
-            ),
-            textTheme: TextTheme(
-              bodyMedium: TextStyle(color: themeController.black),
-            ),
-            inputDecorationTheme: InputDecorationTheme(
-              hintStyle: TextStyle(color: themeController.hintTextColor),
-              enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: themeController.appColor),
+              colorScheme: ColorScheme.fromSeed(
+                seedColor: themeController.black,
+                brightness: Brightness.light,
+                primary: themeController.black,
               ),
-              focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: themeController.appColor, width: 2),
+              scaffoldBackgroundColor: themeController.white,
+              appBarTheme: AppBarTheme(
+                elevation: 0,
+                centerTitle: true,
+                backgroundColor: themeController.black,
+                foregroundColor: themeController.white,
+              ),
+              textTheme: TextTheme(
+                bodyMedium: TextStyle(color: themeController.black),
+              ),
+              inputDecorationTheme: InputDecorationTheme( 
+                hintStyle: TextStyle(color: themeController.hintTextColor),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: themeController.appColor),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: themeController.appColor, width: 2),
+                ),
               ),
             ),
-          ),
-          initialRoute: AppRoutes.splash,
-          onGenerateInitialRoutes: (initialRoute) {
-            if (AppRoutes.routes.containsKey(initialRoute)) {
+            initialRoute: AppRoutes.dashboard,
+            onGenerateInitialRoutes: (initialRoute) {
+              if (AppRoutes.routes.containsKey(initialRoute)) {
+                return [
+                  MaterialPageRoute(builder: AppRoutes.routes[initialRoute]!)
+                ];
+              }
               return [
-                MaterialPageRoute(builder: AppRoutes.routes[initialRoute]!)
+                MaterialPageRoute(builder: (_) => SplashScreen())
               ];
-            }
-            return [
-              MaterialPageRoute(builder: (_) => SplashScreen())
-            ];
-          },
-          onGenerateRoute: (settings) {
-            return MaterialPageRoute(
-              builder: (context) => Scaffold(
-                body: Center(
-                  child: Text(
-                    'Page not found',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
-                      color: themeController.black,
+            },
+            onGenerateRoute: (settings) {
+              return MaterialPageRoute(
+                builder: (context) => Scaffold(
+                  body: Center(
+                    child: Text(
+                      'Page not found',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                        color: themeController.black,
+                      ),
                     ),
                   ),
                 ),
-              ),
-            );
-          },
-          routes: AppRoutes.routes,
+              );
+            },
+            routes: AppRoutes.routes,
+          ),
         );
       },
     );

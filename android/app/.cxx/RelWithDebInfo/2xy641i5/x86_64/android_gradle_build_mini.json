@@ -1,0 +1,20 @@
+{
+  "buildFiles": [
+    "/Users/macbookpro/Documents/Flutter/flutter_3.24.5/packages/flutter_tools/gradle/src/main/groovy/CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "/Users/macbookpro/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+      "-C",
+      "/Users/macbookpro/Documents/Dart/fitlit_app/android/app/.cxx/RelWithDebInfo/2xy641i5/x86_64",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "/Users/macbookpro/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+    "-C",
+    "/Users/macbookpro/Documents/Dart/fitlit_app/android/app/.cxx/RelWithDebInfo/2xy641i5/x86_64",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {}
+}

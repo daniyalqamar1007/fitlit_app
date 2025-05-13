@@ -162,13 +162,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   // Title with highlighted part
                   _buildHighlightedTitle(page),
 
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 4),
 
                   // Description
                   Text(
                     page.description,
                     style: GoogleFonts.poppins(
-                      fontSize: 15,
+                      fontSize: 13,
                       fontWeight: FontWeight.w400,
                       color: Colors.grey.shade600,
                       height: 1.5,

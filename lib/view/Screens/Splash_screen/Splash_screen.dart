@@ -30,8 +30,8 @@ class _SplashScreenState extends State<SplashScreen> {
     }
   }
   Future<void> check()async{
-    SharedPreferences prefs=await SharedPreferences.getInstance();
-    already_login=await prefs.getString('token')??"";
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    already_login = prefs.getString('token')??"";
   }
   @override
   void dispose() {
