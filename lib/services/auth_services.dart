@@ -1,10 +1,10 @@
-
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../model/user_model.dart';
+
 class AuthService {
   // ValueNotifiers for state management
   final ValueNotifier<UserModel?> currentUser = ValueNotifier(null);
@@ -14,20 +14,17 @@ class AuthService {
   final ValueNotifier<String?> error = ValueNotifier(null);
 
   // Base URL for API
-  final String baseUrl = 'http://192.168.43.63:3000'; // Replace with your actual base URL
+  final String baseUrl =
+      'http://localhost:3000'; // Replace with your actual base URL
   String prettyJson(Map<String, dynamic> json) {
     return const JsonEncoder.withIndent('  ').convert(json);
   }
-  // Sign Up API Call
+
   Future<AuthResponse> signUp(SignUpRequest request) async {
     isLoading.value = true;
     error.value = null;
 
     final requestData = request.toJson();
-    print('📤 SIGN UP REQUEST:');
-    print('• Endpoint: $baseUrl/auth/signup');
-    print('• Data: ${prettyJson(requestData)}');
-
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/auth/signup'),
@@ -36,11 +33,6 @@ class AuthService {
       );
 
       isLoading.value = false;
-
-      print('📥 SIGN UP RESPONSE:');
-      print('• Status: ${response.statusCode}');
-      print(response.body);
-      // print('• Body: ${prettyJsonResponse(response)}');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final jsonResponse = jsonDecode(response.body);
@@ -59,7 +51,6 @@ class AuthService {
     }
   }
 
-  // Verify OTP API Call
   Future<AuthResponse> verifyOtp(VerifyOtpRequest request) async {
     isLoading.value = true;
     error.value = null;
@@ -77,7 +68,8 @@ class AuthService {
         final jsonResponse = jsonDecode(response.body);
         final authResponse = AuthResponse.fromVerifyOtpResponse(jsonResponse);
 
-        if (authResponse.user != null && authResponse.user!.accessToken != null) {
+        if (authResponse.user != null &&
+            authResponse.user!.accessToken != null) {
           await _saveUserSession(authResponse.user!);
           currentUser.value = authResponse.user;
         }
@@ -113,7 +105,8 @@ class AuthService {
         final jsonResponse = jsonDecode(response.body);
         final authResponse = AuthResponse.fromSignInResponse(jsonResponse);
 
-        if (authResponse.user != null && authResponse.user!.accessToken != null) {
+        if (authResponse.user != null &&
+            authResponse.user!.accessToken != null) {
           // Store user email since it's not returned in response
           final updatedUser = UserModel(
             userId: authResponse.user!.userId,
@@ -135,7 +128,6 @@ class AuthService {
       isLoading.value = false;
 
       error.value = 'Network error: ${e.toString()}';
-      print(error.value);
       return AuthResponse.error('Network error: ${e.toString()}');
     }
   }
@@ -158,8 +150,10 @@ class AuthService {
       if (response.statusCode == 201) {
         final jsonResponse = jsonDecode(response.body);
         email.value = request.email;
-        final authResponse = AuthResponse.fromForgotPasswordResponse(jsonResponse);
-        print('Parsed AuthResponse: OTP=${authResponse.otp}, Success=${authResponse.success}');
+        final authResponse =
+            AuthResponse.fromForgotPasswordResponse(jsonResponse);
+        print(
+            'Parsed AuthResponse: OTP=${authResponse.otp}, Success=${authResponse.success}');
         return authResponse;
       } else {
         final errorMessage = _getErrorMessage(response);
@@ -171,7 +165,8 @@ class AuthService {
       error.value = 'Network error: ${e.toString()}';
       return AuthResponse.error('Network error: ${e.toString()}');
     }
-  }// Reset Password API Call
+  }
+
   Future<AuthResponse> resetPassword(ResetPasswordRequest request) async {
     isLoading.value = true;
     error.value = null;
@@ -203,21 +198,6 @@ class AuthService {
   // Upload Profile Image to a server and get URL
   Future<String?> uploadProfileImage(File imageFile) async {
     try {
-      // This is a placeholder for image upload functionality
-      // You'll need to implement this based on your server requirements
-      // Typically involves creating a multipart request
-
-      // Example:
-      // var request = http.MultipartRequest('POST', Uri.parse('$baseUrl/upload'));
-      // request.files.add(await http.MultipartFile.fromPath('file', imageFile.path));
-      // var response = await request.send();
-      // if (response.statusCode == 200) {
-      //   final respStr = await response.stream.bytesToString();
-      //   final jsonResponse = jsonDecode(respStr);
-      //   return jsonResponse['url'];
-      // }
-
-      // For now, return null or a dummy URL
       return "https://example.com/photo.jpg";
     } catch (e) {
       print('Error uploading image: $e');
@@ -225,7 +205,6 @@ class AuthService {
     }
   }
 
-  // Load user session from local storage
   Future<void> loadUserSession() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -240,7 +219,6 @@ class AuthService {
     }
   }
 
-  // Save user session to local storage
   Future<void> _saveUserSession(UserModel user) async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -250,7 +228,6 @@ class AuthService {
     }
   }
 
-  // Clear user session on logout
   Future<void> logout() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -261,17 +238,16 @@ class AuthService {
     }
   }
 
-  // Helper to extract error message from response
   String _getErrorMessage(http.Response response) {
     try {
       final jsonResponse = jsonDecode(response.body);
-      return jsonResponse['message'] ?? 'An error occurred: ${response.statusCode}';
+      return jsonResponse['message'] ??
+          'An error occurred: ${response.statusCode}';
     } catch (e) {
       return 'An error occurred: ${response.statusCode}';
     }
   }
 
-  // Dispose resources
   void dispose() {
     currentUser.dispose();
     email.dispose();

@@ -196,12 +196,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         final result = await _authController.forgotPassword(
           _emailController.text.trim(),
         );
-        print('UI received result: $result');
-
         setState(() => _isLoading = false);
-
         if (result['success'] == true && result['otp'] != null) {
-          // Success case
+
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
@@ -225,6 +222,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       }
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -267,7 +265,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                     controller: _emailController,
                     hintText: 'Enter your email',
                     hintStyle:
-                    GoogleFonts.poppins(color: themeController.black),
+                        GoogleFonts.poppins(color: themeController.black),
                     keyboardType: TextInputType.emailAddress,
                     validator: (value) {
                       if (value == null || value.isEmpty) {

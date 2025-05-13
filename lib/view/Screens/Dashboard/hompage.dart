@@ -25,11 +25,13 @@ class _WardrobeScreenState extends State<WardrobeScreen>
   DateTime? _selectedDay;
   CalendarFormat _calendarFormat = CalendarFormat.month;
   final ImagePicker _picker = ImagePicker();
-
+  var loadingType = "";
   // Avatar control variables
   int _currentAvatarIndex = 0;
   final List<String> _avatarAssets = [
-    'assets/Icons/avatar.png',
+    'assets/Icons/avatar3.png',
+    'assets/Icons/black.png',
+    'assets/Icons/red.png',
     'assets/Icons/avatar2.png',
     'assets/Icons/avatar.png',
     'assets/Icons/avatar2.png',
@@ -41,27 +43,16 @@ class _WardrobeScreenState extends State<WardrobeScreen>
   Animation<Offset>? _slideInAnimation;
   bool _isLoading = false;
   bool _isAnimatingIn = false;
-
-  // New variables to track item loading states
   bool _isLoadingItems = true;
-
-  File? _selectedImageFile;
-
-  // Wardrobe controller for API calls
   final WardrobeController _wardrobeController = WardrobeController();
-
   @override
   void initState() {
     super.initState();
     _selectedDay = _focusedDay;
-
-    // Initialize animation controller
     _avatarAnimationController = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
-
-    // Slide out animation (current avatar exits)
     _slideOutAnimation = Tween<Offset>(
       begin: Offset.zero,
       end: const Offset(-1.5, 0.0),
@@ -69,8 +60,6 @@ class _WardrobeScreenState extends State<WardrobeScreen>
       parent: _avatarAnimationController!,
       curve: Curves.easeInOut,
     ));
-
-    // Slide in animation (new avatar enters)
     _slideInAnimation = Tween<Offset>(
       begin: const Offset(1.5, 0.0),
       end: Offset.zero,
@@ -78,24 +67,19 @@ class _WardrobeScreenState extends State<WardrobeScreen>
       parent: _avatarAnimationController!,
       curve: Curves.easeInOut,
     ));
-
-    // Get user info and load wardrobe items
     _getUserInfoAndLoadItems();
-
-    // Listen to the status notifier to update loading state
     _wardrobeController.statusNotifier.addListener(_handleStatusChange);
   }
 
-  // Handle status changes from the controller
   void _handleStatusChange() {
     if (mounted) {
       setState(() {
-        _isLoadingItems = _wardrobeController.statusNotifier.value == WardrobeStatus.loading;
+        _isLoadingItems =
+            _wardrobeController.statusNotifier.value == WardrobeStatus.loading;
       });
     }
   }
 
-  // Get user information and load wardrobe items
   Future<void> _getUserInfoAndLoadItems() async {
     try {
       setState(() {
@@ -103,7 +87,6 @@ class _WardrobeScreenState extends State<WardrobeScreen>
       });
 
       await _wardrobeController.loadWardrobeItems();
-
     } catch (e) {
       print("Error getting user info: $e");
       if (mounted) {
@@ -206,27 +189,38 @@ class _WardrobeScreenState extends State<WardrobeScreen>
           width: 40,
         ),
         Expanded(
-          flex: 1,
-          child: GestureDetector(
-            onTap: () {
-              // Refresh wardrobe items
-              _getUserInfoAndLoadItems();
-            },
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-              height: 30,
-              decoration: BoxDecoration(
-                color: appcolor.withOpacity(0.7),
-                borderRadius: BorderRadius.circular(30),
-              ),
-              child: Text(
-                "Refresh",
-                style: GoogleFonts.poppins(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 10),
-              ),
-            ),
+            flex: 1,
+            child: GestureDetector(
+                onTap: () {
+                  // Refresh wardrobe items
+                  _getUserInfoAndLoadItems();
+                },
+                child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                    height: 30,
+                    decoration: BoxDecoration(
+                      color: appcolor.withOpacity(0.7),
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    child: Text(
+                      "Refresh",
+                      style: GoogleFonts.poppins(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 10),
+                    )))),
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          height: 30,
+          decoration: BoxDecoration(
+            color: appcolor.withOpacity(0.7),
+            borderRadius: BorderRadius.circular(30),
+            // border: Border.all(color: Colors.black54),
+          ),
+          child: Text(
+            "Save",
+            style: GoogleFonts.poppins(
+                color: Colors.white, fontWeight: FontWeight.bold, fontSize: 10),
           ),
         ),
       ],
@@ -240,7 +234,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
         children: [
           // First Column - Date, Shirts, Accessories, Pants, Shoes
           Expanded(
-            flex: 1,
+            flex: 2,
             child: _buildFirstColumn(),
           ),
 
@@ -252,6 +246,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
 
           // Third Column - Similar to first column
           Expanded(
+            flex: 2,
             child: _buildThirdColumn(),
           ),
         ],
@@ -268,6 +263,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
         Container(
           padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
           height: 30,
+          width: 80,
           decoration: BoxDecoration(
             color: appcolor.withOpacity(0.7),
             borderRadius: BorderRadius.circular(30),
@@ -289,11 +285,11 @@ class _WardrobeScreenState extends State<WardrobeScreen>
             ],
           ),
         ),
+
         SizedBox(
           height: 20,
         ),
 
-        // Shirts
         Container(
           padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
           height: 30,
@@ -304,7 +300,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
           child: Text(
             'Shirts',
             style: TextStyle(
-              fontSize: 12,
+              fontSize: 10,
               color: Colors.white,
               fontWeight: FontWeight.w600,
             ),
@@ -316,7 +312,6 @@ class _WardrobeScreenState extends State<WardrobeScreen>
         _buildWardrobeItemContainer('shirt'),
         const SizedBox(height: 5),
 
-        // Accessories
         Container(
           padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
           height: 30,
@@ -327,7 +322,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
           child: Text(
             'Accessories',
             style: TextStyle(
-              fontSize: 12,
+              fontSize: 10,
               color: Colors.white,
               fontWeight: FontWeight.w600,
             ),
@@ -339,7 +334,6 @@ class _WardrobeScreenState extends State<WardrobeScreen>
         _buildWardrobeItemContainer('accessory'),
         const SizedBox(height: 5),
 
-        // Pants
         Container(
           padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
           height: 30,
@@ -350,7 +344,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
           child: Text(
             'Pants',
             style: TextStyle(
-              fontSize: 12,
+              fontSize: 10,
               color: Colors.white,
               fontWeight: FontWeight.w600,
             ),
@@ -362,7 +356,6 @@ class _WardrobeScreenState extends State<WardrobeScreen>
         _buildWardrobeItemContainer('pant'),
         const SizedBox(height: 5),
 
-        // Shoes
         Container(
           padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
           height: 30,
@@ -373,7 +366,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
           child: Text(
             'Shoes',
             style: TextStyle(
-              fontSize: 12,
+              fontSize: 10,
               color: Colors.white,
               fontWeight: FontWeight.w600,
             ),
@@ -387,16 +380,24 @@ class _WardrobeScreenState extends State<WardrobeScreen>
     );
   }
 
-  // Helper method to get month name
   String _getMonthName(int month) {
     const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec'
     ];
     return months[month - 1];
   }
 
-  // Build wardrobe item container with loading animation
   Widget _buildWardrobeItemContainer(String category) {
     // Get the right notifier based on category
     ValueNotifier<List<WardrobeItem>> notifier;
@@ -485,7 +486,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                         strokeWidth: 2.0,
                         value: loadingProgress.expectedTotalBytes != null
                             ? loadingProgress.cumulativeBytesLoaded /
-                            loadingProgress.expectedTotalBytes!
+                                loadingProgress.expectedTotalBytes!
                             : null,
                       ),
                     ),
@@ -499,7 +500,6 @@ class _WardrobeScreenState extends State<WardrobeScreen>
     );
   }
 
-  // Helper method to get icon for category
   IconData _getIconForCategory(String category) {
     switch (category) {
       case 'shirt':
@@ -518,10 +518,39 @@ class _WardrobeScreenState extends State<WardrobeScreen>
   Widget _buildAvatarColumn() {
     return GestureDetector(
       onHorizontalDragEnd: (details) {
+        double swipePosition = details.localPosition.dy;
+
+        // Define thresholds for the red and blue containers
+        double redContainerTop = 140.0;
+        double redContainerBottom = redContainerTop + 150.0;
+        double blueContainerTop = 300.0;
+        double blueContainerBottom = blueContainerTop + 150.0;
         if (details.velocity.pixelsPerSecond.dx > 0) {
-          _handleAvatarSwipe(details, false); // Swipe right
+          if (swipePosition >= redContainerTop &&
+              swipePosition <= redContainerBottom) {
+            _handleAvatarSwipe(
+                details, false, 'tshirt'); // Swipe over red container
+          } else if (swipePosition >= blueContainerTop &&
+              swipePosition <= blueContainerBottom) {
+            _handleAvatarSwipe(
+                details, false, 'pants'); // Swipe over blue container
+          } else {
+            _handleAvatarSwipe(
+                details, false, ''); // Swipe outside the containers
+          }
         } else if (details.velocity.pixelsPerSecond.dx < 0) {
-          _handleAvatarSwipe(details, true); // Swipe left
+          if (swipePosition >= redContainerTop &&
+              swipePosition <= redContainerBottom) {
+            _handleAvatarSwipe(
+                details, true, 'tshirt'); // Swipe over red container
+          } else if (swipePosition >= blueContainerTop &&
+              swipePosition <= blueContainerBottom) {
+            _handleAvatarSwipe(
+                details, true, 'pants'); // Swipe over blue container
+          } else {
+            _handleAvatarSwipe(
+                details, true, ''); // Swipe outside the containers
+          }
         }
       },
       child: Stack(
@@ -537,12 +566,26 @@ class _WardrobeScreenState extends State<WardrobeScreen>
             ),
           ),
 
-          // White overlay during swipe/loading
-          if (_isLoading)
-            Container(
-              color: Colors.white.withOpacity(0.7),
-              width: double.infinity,
-              height: double.infinity,
+          if (!_isLoading)
+            Positioned(
+              top: 140,
+              left: 0,
+              right: 0,
+              child: Container(
+                color: Colors.transparent,
+                height: 150,
+              ),
+            ),
+
+          if (!_isLoading)
+            Positioned(
+              top: 300,
+              left: 0,
+              right: 0,
+              child: Container(
+                color: Colors.transparent,
+                height: 150,
+              ),
             ),
 
           // Loading indicator
@@ -573,24 +616,23 @@ class _WardrobeScreenState extends State<WardrobeScreen>
     );
   }
 
-  void _handleAvatarSwipe(DragEndDetails details, bool isLeft) {
+  void _handleAvatarSwipe(DragEndDetails details, bool isLeft, String keyowrd) {
     if (_isLoading) return;
-
     setState(() {
       _isLoading = true;
     });
 
-    // Show loading for 2 seconds
     Future.delayed(const Duration(seconds: 2), () {
       setState(() {
-        if (isLeft) {
-          _currentAvatarIndex =
-              (_currentAvatarIndex - 1) % _avatarAssets.length;
-          if (_currentAvatarIndex < 0)
-            _currentAvatarIndex = _avatarAssets.length - 1;
-        } else {
-          _currentAvatarIndex =
-              (_currentAvatarIndex + 1) % _avatarAssets.length;
+        if (!isLeft && keyowrd == "tshirt") {
+          loadingType = "Changing Shirt";
+          _currentAvatarIndex = 1;
+        } else if (!isLeft && keyowrd == "pants") {
+          loadingType = "Changing Pants";
+          _currentAvatarIndex = 2;
+        } else if (isLeft) {
+          loadingType = "Loading next outfit..";
+          _currentAvatarIndex = 0;
         }
         _isLoading = false;
       });
@@ -601,9 +643,8 @@ class _WardrobeScreenState extends State<WardrobeScreen>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        // Upload button
         Row(
-          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.end,
           children: [
             GestureDetector(
               onTap: () => _showAnimatedCategoryDialog(),
@@ -619,11 +660,11 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                     Icon(
                       Icons.file_upload_outlined,
                       color: Colors.white,
-                      size: 15,
+                      size: 14,
                       weight: 10,
                     ),
                     Text(
-                      "  Upload",
+                      "Upload",
                       style: GoogleFonts.poppins(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
@@ -637,72 +678,6 @@ class _WardrobeScreenState extends State<WardrobeScreen>
         ),
         // Status indicator
         SizedBox(height: 10),
-        // ValueListenableBuilder<WardrobeStatus>(
-        //   valueListenable: _wardrobeController.statusNotifier,
-        //   builder: (context, status, child) {
-        //     Color statusColor;
-        //     String statusText;
-        //
-        //     switch (status) {
-        //       case WardrobeStatus.loading:
-        //         statusColor = Colors.blue;
-        //         statusText = "Loading...";
-        //         break;
-        //       case WardrobeStatus.success:
-        //         statusColor = Colors.green;
-        //         statusText = "Updated";
-        //         break;
-        //       case WardrobeStatus.error:
-        //         statusColor = Colors.red;
-        //         statusText = "Error";
-        //         break;
-        //       default:
-        //         statusColor = Colors.grey;
-        //         statusText = "Ready";
-        //     }
-        //
-        //     return Column(
-        //       crossAxisAlignment: CrossAxisAlignment.end,
-        //       children: [
-        //         Container(
-        //           padding: EdgeInsets.all(4),
-        //           decoration: BoxDecoration(
-        //             color: statusColor.withOpacity(0.2),
-        //             borderRadius: BorderRadius.circular(8),
-        //           ),
-        //           child: Text(
-        //             statusText,
-        //             style: TextStyle(
-        //               color: statusColor,
-        //               fontSize: 10,
-        //               fontWeight: FontWeight.bold,
-        //             ),
-        //           ),
-        //         ),
-        //         // Error message if any
-        //         if (status == WardrobeStatus.error)
-        //           ValueListenableBuilder<String>(
-        //             valueListenable: _wardrobeController.errorNotifier,
-        //             builder: (context, error, child) {
-        //               return Container(
-        //                 margin: EdgeInsets.only(top: 4),
-        //                 width: 100,
-        //                 child: Text(
-        //                   error,
-        //                   style: TextStyle(
-        //                     color: Colors.red,
-        //                     fontSize: 8,
-        //                   ),
-        //                   maxLines: 2,
-        //                   overflow: TextOverflow.ellipsis,
-        //                 ),
-        //               );
-        //             },
-        //           ),
-        //       ],
-        //     );
-        //   },
-        // ),
       ],
     );
   }
@@ -800,13 +775,11 @@ class _WardrobeScreenState extends State<WardrobeScreen>
     );
   }
 
-  // New method to show the animated clothing category dialog
   void _showAnimatedCategoryDialog() {
     String? selectedCategory;
     String? selectedSubcategory;
     bool showSubcategories = false;
     List<String> subcategories = [];
-
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -908,7 +881,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                             return _buildAnimatedCategoryButton(
                               subcategory,
                               selectedSubcategory,
-                                  (value) {
+                              (value) {
                                 setState(() {
                                   selectedSubcategory = value;
                                 });
@@ -948,10 +921,10 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                 TextButton(
                   onPressed: (showSubcategories && selectedSubcategory != null)
                       ? () {
-                    Navigator.of(context).pop();
-                    _openCameraWithGoogleVision(
-                        selectedCategory!, selectedSubcategory!);
-                  }
+                          Navigator.of(context).pop();
+                          _openCameraWithGoogleVision(
+                              selectedCategory!, selectedSubcategory!);
+                        }
                       : null,
                   child: Text(
                     'Open Camera',
@@ -970,232 +943,154 @@ class _WardrobeScreenState extends State<WardrobeScreen>
       },
     );
   }
-  
-    // Helper method to build animated category buttons
-    Widget _buildAnimatedCategoryButton(
-        String category, String? selectedCategory, Function(String) onSelect) {
-      bool isSelected = selectedCategory == category;
-  
-      return AnimatedContainer(
-        duration: Duration(milliseconds: 300),
-        margin: EdgeInsets.symmetric(vertical: 4.0),
-        child: InkWell(
-          onTap: () => onSelect(category),
-          child: Container(
-            padding: EdgeInsets.symmetric(vertical: 12),
-            decoration: BoxDecoration(
-              color: isSelected ? appcolor : Colors.white,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                color: isSelected ? appcolor : Colors.grey.shade300,
-              ),
-              boxShadow: [
-                if (isSelected)
-                  BoxShadow(
-                    color: appcolor.withOpacity(0.3),
-                    blurRadius: 4,
-                    offset: Offset(0, 2),
-                  ),
-              ],
+
+  Widget _buildAnimatedCategoryButton(
+      String category, String? selectedCategory, Function(String) onSelect) {
+    bool isSelected = selectedCategory == category;
+
+    return AnimatedContainer(
+      duration: Duration(milliseconds: 300),
+      margin: EdgeInsets.symmetric(vertical: 4.0),
+      child: InkWell(
+        onTap: () => onSelect(category),
+        child: Container(
+          padding: EdgeInsets.symmetric(vertical: 12),
+          decoration: BoxDecoration(
+            color: isSelected ? appcolor : Colors.white,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: isSelected ? appcolor : Colors.grey.shade300,
             ),
-            child: Center(
-              child: Text(
-                category,
-                style: TextStyle(
-                  color: isSelected ? Colors.white : Colors.black87,
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+            boxShadow: [
+              if (isSelected)
+                BoxShadow(
+                  color: appcolor.withOpacity(0.3),
+                  blurRadius: 4,
+                  offset: Offset(0, 2),
                 ),
+            ],
+          ),
+          child: Center(
+            child: Text(
+              category,
+              style: TextStyle(
+                color: isSelected ? Colors.white : Colors.black87,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               ),
             ),
           ),
         ),
-      );
+      ),
+    );
+  }
+
+  List<String> _getSubcategoriesForCategory(String category) {
+    switch (category) {
+      case 'Shirts':
+        return [
+          'T-Shirt',
+          'Half Shirt',
+          'Casual Shirt',
+          'Dress Shirt',
+          'Polo Shirt'
+        ];
+      case 'Accessories':
+        return [
+          'Necklace',
+          'Bracelet',
+          'Earring',
+          'Watch',
+          'Belt',
+          'Hat',
+          'Scarf'
+        ];
+      case 'Pants':
+        return [
+          'Jeans',
+          'Trousers',
+          'Shorts',
+          'Cargo',
+          'Track Pants',
+          'Formal Pants'
+        ];
+      case 'Shoes':
+        return [
+          'Sneakers',
+          'Formal Shoes',
+          'Boots',
+          'Loafers',
+          'Sandals',
+          'Sports Shoes'
+        ];
+      default:
+        return [];
     }
-  
-    // Helper method to get subcategories based on selected category
-    List<String> _getSubcategoriesForCategory(String category) {
-      switch (category) {
-        case 'Shirts':
-          return [
-            'T-Shirt',
-            'Half Shirt',
-            'Casual Shirt',
-            'Dress Shirt',
-            'Polo Shirt'
-          ];
-        case 'Accessories':
-          return [
-            'Necklace',
-            'Bracelet',
-            'Earring',
-            'Watch',
-            'Belt',
-            'Hat',
-            'Scarf'
-          ];
-        case 'Pants':
-          return [
-            'Jeans',
-            'Trousers',
-            'Shorts',
-            'Cargo',
-            'Track Pants',
-            'Formal Pants'
-          ];
-        case 'Shoes':
-          return [
-            'Sneakers',
-            'Formal Shoes',
-            'Boots',
-            'Loafers',
-            'Sandals',
-            'Sports Shoes'
-          ];
-        default:
-          return [];
-      }
-    }
-  
-    // Method to open camera and handle image capture
-    void _openCameraWithGoogleVision(String category, String subcategory) async {
-      // Show loading dialog
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext context) {
-          return Dialog(
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            child: Center(
-              child: Container(
-                padding: EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(appcolor),
+  }
+
+  void _openCameraWithGoogleVision(String category, String subcategory) async {
+    // Show loading dialog
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          child: Center(
+            child: Container(
+              padding: EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(appcolor),
+                  ),
+                  SizedBox(height: 16),
+                  Text(
+                    'Opening camera...',
+                    style: TextStyle(
+                      color: Colors.black87,
+                      fontWeight: FontWeight.w500,
                     ),
-                    SizedBox(height: 16),
-                    Text(
-                      'Opening camera...',
-                      style: TextStyle(
-                        color: Colors.black87,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
-          );
-        },
-      );
-  
-      try {
-        // Pick an image from camera
-        final XFile? image = await _picker.pickImage(source: ImageSource.camera);
-  
-        // Close loading dialog
-        Navigator.pop(context);
-  
-        if (image != null) {
-          File imageFile = File(image.path);
-          _showImageCapturedDialog(category, subcategory, imageFile);
-        }
-      } catch (e) {
-        // Close loading dialog in case of error
-        Navigator.pop(context);
-  
-        // Show error dialog
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: Text('Error'),
-              content: Text('Failed to open camera: ${e.toString()}'),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text('OK'),
-                ),
-              ],
-            );
-          },
+          ),
         );
+      },
+    );
+
+    try {
+      // Pick an image from camera
+      final XFile? image = await _picker.pickImage(source: ImageSource.camera);
+
+      // Close loading dialog
+      Navigator.pop(context);
+
+      if (image != null) {
+        File imageFile = File(image.path);
+        _showImageCapturedDialog(category, subcategory, imageFile);
       }
-    }
-  
-    // Method to show confirmation dialog after image capture and handle upload
-    void _showImageCapturedDialog(String category, String subcategory, File imageFile) {
+    } catch (e) {
+      // Close loading dialog in case of error
+      Navigator.pop(context);
+
+      // Show error dialog
       showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text(
-              'Item Captured',
-              style: GoogleFonts.poppins(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: appcolor,
-              ),
-            ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'Your $subcategory has been successfully captured.',
-                  style: TextStyle(fontSize: 14),
-                ),
-                SizedBox(height: 16),
-                Container(
-                  height: 150,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    image: DecorationImage(
-                      image: FileImage(imageFile),
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
-              ],
-            ),
+            title: Text('Error'),
+            content: Text('Failed to open camera: ${e.toString()}'),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: Text(
-                  'Cancel',
-                  style: TextStyle(color: Colors.grey),
-                ),
-              ),
-              TextButton(
-                onPressed: ()async {
-  
-                  _wardrobeController.uploadWardrobeItem(category: category, subCategory: subcategory,imageFile:  imageFile,token: token);
-
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        'Image successfully saved to wardrobe under "$category > $subcategory".',
-                      ),
-                      backgroundColor: Colors.green,
-                      behavior: SnackBarBehavior.floating,
-                      duration: Duration(seconds: 3),
-                    ),
-                  );
-                  Navigator.pop(context);
-                },
-                child: Text(
-                  'Add to Wardrobe',
-                  style: TextStyle(
-                    color: appcolor,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                child: Text('OK'),
               ),
             ],
           );
@@ -1203,3 +1098,81 @@ class _WardrobeScreenState extends State<WardrobeScreen>
       );
     }
   }
+
+  void _showImageCapturedDialog(
+      String category, String subcategory, File imageFile) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            'Item Captured',
+            style: GoogleFonts.poppins(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: appcolor,
+            ),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Your $subcategory has been successfully captured.',
+                style: TextStyle(fontSize: 14),
+              ),
+              SizedBox(height: 16),
+              Container(
+                height: 150,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  image: DecorationImage(
+                    image: FileImage(imageFile),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                'Cancel',
+                style: TextStyle(color: Colors.grey),
+              ),
+            ),
+            TextButton(
+              onPressed: () async {
+                _wardrobeController.uploadWardrobeItem(
+                    category: category,
+                    subCategory: subcategory,
+                    imageFile: imageFile,
+                    token: token);
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      'Image successfully saved to wardrobe under "$category > $subcategory".',
+                    ),
+                    backgroundColor: Colors.green,
+                    behavior: SnackBarBehavior.floating,
+                    duration: Duration(seconds: 3),
+                  ),
+                );
+                Navigator.pop(context);
+              },
+              child: Text(
+                'Add to Wardrobe',
+                style: TextStyle(
+                  color: appcolor,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}

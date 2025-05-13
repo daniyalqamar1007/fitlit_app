@@ -82,7 +82,6 @@ class AuthController {
     }
   }
 
-  // Verify OTP for Sign Up - Updated for new response format
   Future<Map<String, dynamic>> verifySignUpOtp(String userOtp) async {
     try {
       final request = VerifyOtpRequest(

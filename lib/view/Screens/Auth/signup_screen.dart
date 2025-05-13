@@ -32,7 +32,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   Future<void> _pickImage() async {
     final pickedFile =
-    await ImagePicker().pickImage(source: ImageSource.gallery);
+        await ImagePicker().pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       setState(() => _profileImage = File(pickedFile.path));
     }
@@ -64,10 +64,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
         });
 
         if (result['success']) {
-          // If successful, set the first_time flag and navigate to OTP screen
           first_time = true;
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(result['message'] ?? 'OTP sent to your email')),
+            SnackBar(
+                content: Text(result['message'] ?? 'OTP sent to your email')),
           );
           Navigator.pushNamed(context, AppRoutes.otp);
         } else {
@@ -237,7 +237,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
           decoration: InputDecoration(
             hintText: 'Select Gender',
             hintStyle:
-            GoogleFonts.poppins(color: hintextcolor.withOpacity(0.5)),
+                GoogleFonts.poppins(color: hintextcolor.withOpacity(0.5)),
             filled: true,
             fillColor: Colors.grey.shade100,
             border: OutlineInputBorder(
@@ -299,7 +299,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               readOnly: true,
               decoration: InputDecoration(
                 hintText:
-                _profileImage != null ? 'Image Selected' : 'Upload Photo',
+                    _profileImage != null ? 'Image Selected' : 'Upload Photo',
                 hintStyle: GoogleFonts.poppins(color: hintextcolor),
                 filled: true,
                 suffixIcon: Image.asset(

@@ -13,7 +13,7 @@ import '../Forgot_password/new_password.dart';
 
 class OtpVerificationScreen extends StatefulWidget {
   String? email;
-   OtpVerificationScreen({Key? key,required this.email}) : super(key: key);
+  OtpVerificationScreen({Key? key, required this.email}) : super(key: key);
 
   @override
   _OtpVerificationScreenState createState() => _OtpVerificationScreenState();
@@ -64,7 +64,6 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                   },
                 ),
 
-                // OTP Input Field
                 OTPTextField(
                   controller: _otpController,
                   length: 4,
@@ -85,7 +84,6 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                   },
                 ),
 
-                // Error Message (if any)
                 if (_errorMessage != null)
                   Padding(
                     padding: const EdgeInsets.only(top: 16.0),
@@ -96,7 +94,6 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                     ),
                   ),
 
-                // Verify Button
                 Padding(
                   padding: const EdgeInsets.only(top: 32.0),
                   child: ElevatedButton(
@@ -119,13 +116,10 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                   ),
                 ),
 
-                // Resend OTP Button
                 Padding(
                   padding: const EdgeInsets.only(top: 16.0),
                   child: TextButton(
-                    onPressed: _isLoading
-                        ? null
-                        : _resendOtp,
+                    onPressed: _isLoading ? null : _resendOtp,
                     child: Text(
                       'Resend OTP',
                       style: GoogleFonts.poppins(
@@ -139,7 +133,6 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
             ),
           ),
 
-          // Loading Overlay
           if (_isLoading)
             Container(
               color: Colors.black.withOpacity(0.3),
@@ -177,7 +170,8 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
 
       if (result['success']) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(result['message'] ?? 'Verification successful')),
+          SnackBar(
+              content: Text(result['message'] ?? 'Verification successful')),
         );
 
         // Navigate based on the flow (signup or forgot password)
@@ -187,8 +181,11 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => NewPasswordScreen(email:widget.email.toString(),otp: _otpController.toString(),)),
-            );
+                builder: (context) => NewPasswordScreen(
+                      email: widget.email.toString(),
+                      otp: _otpController.toString(),
+                    )),
+          );
         }
       } else {
         setState(() {
@@ -204,8 +201,6 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   }
 
   Future<void> _resendOtp() async {
-    // Since we don't have a specific resend OTP method in the provided code,
-    // we can re-use the signup or forgotPassword method based on the flow
     setState(() {
       _isLoading = true;
       _errorMessage = null;
@@ -215,10 +210,8 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
       Map<String, dynamic> result;
 
       if (first_time) {
-        // For signup flow, reuse the signup method
         result = await _authController.signUp();
       } else {
-        // For forgot password flow
         final email = _authController.email.value ?? '';
         result = await _authController.forgotPassword(email);
       }

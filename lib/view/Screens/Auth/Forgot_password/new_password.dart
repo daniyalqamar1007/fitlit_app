@@ -8,11 +8,9 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../../controllers/auth_controller.dart';
 import '../../../Widgets/Custom_textfield.dart';
 
-
 class NewPasswordScreen extends StatefulWidget {
   final String email;
   final String otp;
-
   const NewPasswordScreen({
     Key? key,
     required this.email,
@@ -53,7 +51,6 @@ class _NewPasswordScreenState extends State<NewPasswordScreen> {
 
       final result = await _authController.resetPassword(
         widget.email,
-        // _authController.email.toString(),
         _newPasswordController.text,
       );
 
