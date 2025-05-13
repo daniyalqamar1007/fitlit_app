@@ -13,9 +13,9 @@ class AuthService {
   final ValueNotifier<bool> isLoading = ValueNotifier(false);
   final ValueNotifier<String?> error = ValueNotifier(null);
 
-  // Base URL for API
-  final String baseUrl =
-      'http://localhost:3000'; // Replace with your actual base URL
+
+  final String baseUrl = 'http://localhost:3000'; // Replace with your actual base URL
+
   String prettyJson(Map<String, dynamic> json) {
     return const JsonEncoder.withIndent('  ').convert(json);
   }
@@ -25,6 +25,8 @@ class AuthService {
     error.value = null;
 
     final requestData = request.toJson();
+
+
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/auth/signup'),

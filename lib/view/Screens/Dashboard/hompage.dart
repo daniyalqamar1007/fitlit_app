@@ -26,6 +26,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
   CalendarFormat _calendarFormat = CalendarFormat.month;
   final ImagePicker _picker = ImagePicker();
   var loadingType = "";
+  bool _isLoading=false;
   // Avatar control variables
   int _currentAvatarIndex = 0;
   final List<String> _avatarAssets = [
@@ -41,10 +42,14 @@ class _WardrobeScreenState extends State<WardrobeScreen>
   AnimationController? _avatarAnimationController;
   Animation<Offset>? _slideOutAnimation;
   Animation<Offset>? _slideInAnimation;
-  bool _isLoading = false;
+
+
   bool _isAnimatingIn = false;
+
   bool _isLoadingItems = true;
   final WardrobeController _wardrobeController = WardrobeController();
+  // String loadingType = "";
+
   @override
   void initState() {
     super.initState();
@@ -110,7 +115,8 @@ class _WardrobeScreenState extends State<WardrobeScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return
+      Scaffold(
       backgroundColor: themeController.white,
       body: SafeArea(
         child: SingleChildScrollView(
@@ -149,7 +155,8 @@ class _WardrobeScreenState extends State<WardrobeScreen>
     );
   }
 
-  Widget _buildTopRow() {
+  Widget _buildTopRow()
+  {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -188,6 +195,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
         SizedBox(
           width: 40,
         ),
+
         Expanded(
             flex: 1,
             child: GestureDetector(
@@ -220,9 +228,26 @@ class _WardrobeScreenState extends State<WardrobeScreen>
           child: Text(
             "Save",
             style: GoogleFonts.poppins(
-                color: Colors.white, fontWeight: FontWeight.bold, fontSize: 10),
+                color: Colors.white, fontWeight: FontWeight.bold, fontSize: 10))),
+
+         Container(
+            padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+            height: 30,
+            decoration: BoxDecoration(
+              color: appcolor.withOpacity(0.7),
+              borderRadius: BorderRadius.circular(30),
+              // border: Border.all(color: Colors.black54),
+            ),
+            child: Text(
+              "Save",
+              style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 10),
+            ),
+
           ),
-        ),
+        
       ],
     );
   }
@@ -263,12 +288,13 @@ class _WardrobeScreenState extends State<WardrobeScreen>
         Container(
           padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
           height: 30,
-          width: 80,
+          width: 85,
           decoration: BoxDecoration(
             color: appcolor.withOpacity(0.7),
             borderRadius: BorderRadius.circular(30),
           ),
-          child: Row(
+          child: 
+          Row(
             children: [
               Icon(
                 Icons.calendar_month_sharp,
@@ -276,7 +302,9 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                 size: 13,
               ),
               Text(
+
                 "  ${_focusedDay.day} ${_getMonthName(_focusedDay.month)}",
+
                 style: GoogleFonts.poppins(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
@@ -518,6 +546,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
   Widget _buildAvatarColumn() {
     return GestureDetector(
       onHorizontalDragEnd: (details) {
+
         double swipePosition = details.localPosition.dy;
 
         // Define thresholds for the red and blue containers
@@ -525,7 +554,8 @@ class _WardrobeScreenState extends State<WardrobeScreen>
         double redContainerBottom = redContainerTop + 150.0;
         double blueContainerTop = 300.0;
         double blueContainerBottom = blueContainerTop + 150.0;
-        if (details.velocity.pixelsPerSecond.dx > 0) {
+        if (details.velocity.pixelsPerSecond.dx > 0)
+        {
           if (swipePosition >= redContainerTop &&
               swipePosition <= redContainerBottom) {
             _handleAvatarSwipe(
@@ -538,25 +568,30 @@ class _WardrobeScreenState extends State<WardrobeScreen>
             _handleAvatarSwipe(
                 details, false, ''); // Swipe outside the containers
           }
-        } else if (details.velocity.pixelsPerSecond.dx < 0) {
+        }
+        else if (details.velocity.pixelsPerSecond.dx < 0) {
           if (swipePosition >= redContainerTop &&
               swipePosition <= redContainerBottom) {
             _handleAvatarSwipe(
                 details, true, 'tshirt'); // Swipe over red container
-          } else if (swipePosition >= blueContainerTop &&
-              swipePosition <= blueContainerBottom) {
+          }
+          else if (swipePosition >= blueContainerTop &&
+              swipePosition <= blueContainerBottom)
+          {
             _handleAvatarSwipe(
                 details, true, 'pants'); // Swipe over blue container
-          } else {
+          }
+          else {
             _handleAvatarSwipe(
                 details, true, ''); // Swipe outside the containers
           }
+
+
         }
-      },
+        },
       child: Stack(
         alignment: Alignment.center,
         children: [
-          // Current avatar
           AnimatedOpacity(
             opacity: _isLoading ? 0.5 : 1.0,
             duration: Duration(milliseconds: 300),
@@ -572,9 +607,11 @@ class _WardrobeScreenState extends State<WardrobeScreen>
               left: 0,
               right: 0,
               child: Container(
+
                 color: Colors.transparent,
                 height: 150,
               ),
+
             ),
 
           if (!_isLoading)
@@ -618,26 +655,44 @@ class _WardrobeScreenState extends State<WardrobeScreen>
 
   void _handleAvatarSwipe(DragEndDetails details, bool isLeft, String keyowrd) {
     if (_isLoading) return;
+
     setState(() {
       _isLoading = true;
     });
 
     Future.delayed(const Duration(seconds: 2), () {
       setState(() {
+
         if (!isLeft && keyowrd == "tshirt") {
           loadingType = "Changing Shirt";
           _currentAvatarIndex = 1;
-        } else if (!isLeft && keyowrd == "pants") {
+        } else if (!isLeft && keyowrd == "pants")
+        {
           loadingType = "Changing Pants";
           _currentAvatarIndex = 2;
-        } else if (isLeft) {
+        }
+        else if (isLeft)
+        {
           loadingType = "Loading next outfit..";
           _currentAvatarIndex = 0;
+
+        if(!isLeft && keyowrd == "tshirt"){
+             loadingType = "Changing Shirt";
+            _currentAvatarIndex = 1;
+        }else if(!isLeft && keyowrd == "pants"){
+            loadingType = "Changing Pants";
+            _currentAvatarIndex = 2;
+        }
+        else if(isLeft){
+           loadingType = "Loading next outfit..";
+           _currentAvatarIndex = 0;
+
         }
         _isLoading = false;
-      });
-    });
-  }
+      }});
+    });}
+
+
 
   Widget _buildThirdColumn() {
     return Column(
@@ -1176,3 +1231,4 @@ class _WardrobeScreenState extends State<WardrobeScreen>
     );
   }
 }
+
