@@ -12,9 +12,12 @@ class AuthService {
   final ValueNotifier<String?> otp = ValueNotifier(null);
   final ValueNotifier<bool> isLoading = ValueNotifier(false);
   final ValueNotifier<String?> error = ValueNotifier(null);
-
+  final http.Client _client = http.Client();
   // Base URL for API
-  final String baseUrl = 'http://localhost:3000'; // Replace with your actual base URL
+
+  final String baseUrl = 'http://192.168.18.114';
+
+  // Replace with your actual base URL
   String prettyJson(Map<String, dynamic> json) {
     return const JsonEncoder.withIndent('  ').convert(json);
   }
@@ -99,13 +102,19 @@ class AuthService {
   Future<AuthResponse> signIn(SignInRequest request) async {
     isLoading.value = true;
     error.value = null;
+    print("loading");
+    var url='http://localhost:3000';
+    final String correctedUrl = url.replaceAll(
+        'localhost', '192.168.18.114'); // Replace with your actual IP
+    print("coming");
 
     try {
-      final response = await http.post(
-        Uri.parse('$baseUrl/auth/signin'),
+      final response = await _client.post(
+        Uri.parse('$correctedUrl/auth/signin'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(request.toJson()),
       );
+      print(' all data is ${response.body} ${response.statusCode}');
 
       isLoading.value = false;
 

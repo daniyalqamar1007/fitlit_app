@@ -1,5 +1,6 @@
 // auth_controller.dart
 import 'dart:io';
+import 'package:fitlip_app/view/Utils/globle_variable/globle.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../model/user_model.dart';
@@ -125,7 +126,9 @@ class AuthController {
       );
 
       final response = await _authService.signIn(request);
+      print(response.message);
 
+savetoken(response.user?.accessToken??"");
       if (response.user != null) {
         return {
           'success': true,

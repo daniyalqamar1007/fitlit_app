@@ -39,25 +39,25 @@ class _SignInScreenState extends State<SignInScreen> {
   }
 
   Future<void> _handleSignIn() async {
-    Navigator.pushReplacementNamed(context, AppRoutes.dashboard);
-    // if (_formKey.currentState?.validate() ?? false) {
-    //   setState(() => _isLoading = true);
-    //
-    //   final result = await _authController.signIn(
-    //     _emailController.text.trim(),
-    //     _passwordController.text,
-    //   );
-    //
-    //   setState(() => _isLoading = false);
-    //
-    //   if (result['success']) {
-    //     Navigator.pushReplacementNamed(context, AppRoutes.dashboard);
-    //   } else {
-    //     ScaffoldMessenger.of(context).showSnackBar(
-    //       SnackBar(content: Text(result['message'] ?? 'Login failed')),
-    //     );
-    //   }
-    // }
+    //Navigator.pushReplacementNamed(context, AppRoutes.dashboard);
+    if (_formKey.currentState?.validate() ?? false) {
+      setState(() => _isLoading = true);
+
+      final result = await _authController.signIn(
+        _emailController.text.trim(),
+        _passwordController.text,
+      );
+
+      setState(() => _isLoading = false);
+
+      if (result['success']) {
+        Navigator.pushReplacementNamed(context, AppRoutes.dashboard);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(result['message'] ?? 'Login failed')),
+        );
+      }
+    }
   }
 
   @override

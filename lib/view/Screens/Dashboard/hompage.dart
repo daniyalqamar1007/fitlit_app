@@ -4,10 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../../controllers/wardrobe_controller.dart';
 import '../../../main.dart';
+import '../../../model/wardrobe_model.dart';
 import '../../Utils/Colors.dart';
 import 'dart:io';
 
+import '../../Utils/globle_variable/globle.dart';
 import '../../Utils/responsivness.dart';
 
 class WardrobeScreen extends StatefulWidget {
@@ -34,6 +37,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
     'assets/Icons/avatar.png',
     'assets/Icons/avatar2.png',
   ];
+  final WardrobeController _wardrobeController = WardrobeController();
 
   // Animation controllers
   AnimationController? _avatarAnimationController; // Changed to nullable
@@ -42,6 +46,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
   bool _isLoading = false;
   bool _isAnimatingIn = false; // Add flag to track animation direction
   String loadingType = "";
+  bool isLoadingItems = true;
   @override
   void initState() {
     super.initState();
@@ -70,49 +75,88 @@ class _WardrobeScreenState extends State<WardrobeScreen>
       parent: _avatarAnimationController!,
       curve: Curves.easeInOut,
     ));
+    _getUserInfoAndLoadItems();
+    _wardrobeController.statusNotifier.addListener(_handleStatusChange);
+  }
+
+  void _handleStatusChange() {
+    if (mounted) {
+      setState(() {
+        isLoadingItems =
+            _wardrobeController.statusNotifier.value == WardrobeStatus.loading;
+      });
+    }
+  }
+
+  Future<void> _getUserInfoAndLoadItems() async {
+    try {
+      setState(() {
+        isLoadingItems = true;
+      });
+
+      await _wardrobeController.loadWardrobeItems();
+    } catch (e) {
+      print("Error getting user info: $e");
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to load wardrobe items'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   @override
   void dispose() {
-    _avatarAnimationController?.dispose(); // Safe dispose with null check
+    _avatarAnimationController?.dispose();
+    _wardrobeController.statusNotifier.removeListener(_handleStatusChange);
+    _wardrobeController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: themeController.white,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Stack(children: [
-                Positioned.fill(
-                    child: Opacity(
-                        opacity: 0.7,
-                        child: Image.asset(
-                          'assets/Images/new.jpg',
-                          fit: BoxFit.cover,
-                        ))),
+    return RefreshIndicator(
+      color: appcolor,
+    backgroundColor: white,
+      onRefresh: () async {
+       await _getUserInfoAndLoadItems();
+      },
+      child: Scaffold(
+        backgroundColor: themeController.white,
+        body: SafeArea(
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Stack(children: [
+                  Positioned.fill(
+                      child: Opacity(
+                          opacity: 0.7,
+                          child: Image.asset(
+                            'assets/Images/new.jpg',
+                            fit: BoxFit.cover,
+                          ))),
+                  Padding(
+                    padding: Responsive.allPadding(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildTopRow(),
+                        SizedBox(height: Responsive.height(20)),
+                        _buildThreeColumnSection(),
+                      ],
+                    ),
+                  ),
+                ]),
                 Padding(
                   padding: Responsive.allPadding(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildTopRow(),
-                      SizedBox(height: Responsive.height(20)),
-                      _buildThreeColumnSection(),
-                    ],
-                  ),
+                  child: _buildCalendarSection(),
                 ),
-              ]),
-
-              Padding(
-                padding: Responsive.allPadding(16.0),
-                child: _buildCalendarSection(),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -158,25 +202,42 @@ class _WardrobeScreenState extends State<WardrobeScreen>
         SizedBox(
           width: Responsive.width(40),
         ),
+        // Expanded(
+        //     flex: 2,
+        //     child: GestureDetector(
+        //         onTap: () {
+        //           // Refresh wardrobe items
+        //           _getUserInfoAndLoadItems();
+        //         },
+        //         child: Container(
+        //             padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        //             height: 30,
+        //             decoration: BoxDecoration(
+        //               color: appcolor.withOpacity(0.7),
+        //               borderRadius: BorderRadius.circular(30),
+        //             ),
+        //             child: Text(
+        //               "Refresh",
+        //               style: GoogleFonts.poppins(
+        //                   color: Colors.white,
+        //                   fontWeight: FontWeight.bold,
+        //                   fontSize: 10),
+        //             )))),
+
         Container(
-          padding: EdgeInsets.symmetric(
-              horizontal: Responsive.width(14),
-              vertical: Responsive.height(8)
-          ),
-          height: Responsive.height(30),
+          padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          height: 30,
           decoration: BoxDecoration(
             color: appcolor.withOpacity(0.7),
-            borderRadius: BorderRadius.circular(Responsive.radius(30)),
+            borderRadius: BorderRadius.circular(30),
+            // border: Border.all(color: Colors.black54),
           ),
           child: Text(
             "Save",
             style: GoogleFonts.poppins(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: Responsive.fontSize(10)),
+                color: Colors.white, fontWeight: FontWeight.bold, fontSize: 10),
           ),
         ),
-
       ],
     );
   }
@@ -216,17 +277,14 @@ class _WardrobeScreenState extends State<WardrobeScreen>
         // Date section
         Container(
           padding: EdgeInsets.symmetric(
-              horizontal: Responsive.width(14),
-              vertical: Responsive.height(8)
-          ),
+              horizontal: Responsive.width(14), vertical: Responsive.height(8)),
           height: Responsive.height(30),
-          width: Responsive.width(80),
+          width: Responsive.width(85),
           decoration: BoxDecoration(
             color: appcolor.withOpacity(0.7),
             borderRadius: BorderRadius.circular(Responsive.radius(30)),
           ),
-          child:
-          Row(
+          child: Row(
             children: [
               Icon(
                 Icons.calendar_month_sharp,
@@ -234,12 +292,14 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                 size: Responsive.fontSize(13),
               ),
               Text(
-                " 11 July",
+
+                "  ${_focusedDay.day} ${_getMonthName(_focusedDay.month)}",
+
                 style: GoogleFonts.poppins(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
-                    fontSize: Responsive.fontSize(10)),
-              ),
+                    fontSize: Responsive.fontSize(10),
+              )),
             ],
           ),
         ),
@@ -251,9 +311,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
         // Shirts
         Container(
           padding: EdgeInsets.symmetric(
-              horizontal: Responsive.width(14),
-              vertical: Responsive.height(8)
-          ),
+              horizontal: Responsive.width(14), vertical: Responsive.height(8)),
           height: Responsive.height(29),
           decoration: BoxDecoration(
             color: appcolor.withOpacity(0.7),
@@ -271,21 +329,19 @@ class _WardrobeScreenState extends State<WardrobeScreen>
         SizedBox(
           height: Responsive.height(5),
         ),
-        _buildClothingItem('assets/Images/1.png'),
-
+        _buildWardrobeItemContainer('shirt'),
+        const SizedBox(height: 5),
 
         Container(
           padding: EdgeInsets.symmetric(
-              horizontal: Responsive.width(14),
-              vertical: Responsive.height(8)
-          ),
+              horizontal: Responsive.width(14), vertical: Responsive.height(8)),
           height: Responsive.height(30),
           decoration: BoxDecoration(
             color: appcolor.withOpacity(0.7),
             borderRadius: BorderRadius.circular(Responsive.radius(30)),
           ),
           child: Text(
-            'Others',
+            'Accessories',
             style: TextStyle(
               fontSize: Responsive.fontSize(10),
               color: Colors.white,
@@ -296,14 +352,12 @@ class _WardrobeScreenState extends State<WardrobeScreen>
         SizedBox(
           height: Responsive.height(5),
         ),
-        _buildClothingItem('assets/Images/6.png'),
+        _buildWardrobeItemContainer('accessory'),
 
 
         Container(
           padding: EdgeInsets.symmetric(
-              horizontal: Responsive.width(14),
-              vertical: Responsive.height(8)
-          ),
+              horizontal: Responsive.width(14), vertical: Responsive.height(8)),
           height: Responsive.height(30),
           decoration: BoxDecoration(
             color: appcolor.withOpacity(0.7),
@@ -322,13 +376,12 @@ class _WardrobeScreenState extends State<WardrobeScreen>
           height: Responsive.height(5),
         ),
 
-        _buildClothingItem('assets/Images/3.png'),
+        _buildWardrobeItemContainer('pant'),
+
 
         Container(
           padding: EdgeInsets.symmetric(
-              horizontal: Responsive.width(14),
-              vertical: Responsive.height(8)
-          ),
+              horizontal: Responsive.width(14), vertical: Responsive.height(8)),
           height: Responsive.height(30),
           decoration: BoxDecoration(
             color: appcolor.withOpacity(0.7),
@@ -346,10 +399,144 @@ class _WardrobeScreenState extends State<WardrobeScreen>
         SizedBox(
           height: Responsive.height(5),
         ),
-        _buildClothingItem('assets/Images/4.png'),
+        _buildWardrobeItemContainer('shoe'),
+
       ],
     );
   }
+  String _getMonthName(int month) {
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec'
+    ];
+    return months[month - 1];
+  }
+  Widget _buildWardrobeItemContainer(String category) {
+    // Get the right notifier based on category
+    ValueNotifier<List<WardrobeItem>> notifier;
+    switch (category) {
+      case 'shirt':
+        notifier = _wardrobeController.shirtsNotifier;
+        break;
+      case 'pant':
+        notifier = _wardrobeController.pantsNotifier;
+        break;
+      case 'shoe':
+        notifier = _wardrobeController.shoesNotifier;
+        break;
+      case 'accessory':
+        notifier = _wardrobeController.accessoriesNotifier;
+        break;
+      default:
+        notifier = _wardrobeController.shirtsNotifier;
+    }
+
+    return Container(
+      width: 60,
+      height: 56,
+      margin: const EdgeInsets.only(bottom: 5),
+      decoration: BoxDecoration(
+        color: themeController.white,
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.4),
+            blurRadius: 5,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: ValueListenableBuilder<List<WardrobeItem>>(
+        valueListenable: notifier,
+        builder: (context, items, child) {
+          if (isLoadingItems) {
+            // Show loading animation
+            return Center(
+              child: SizedBox(
+                width: 30,
+                height: 30,
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(appcolor),
+                  strokeWidth: 2.0,
+                ),
+              ),
+            );
+          } else if (items.isEmpty) {
+            // Show placeholder if no items
+            return Center(
+              child: Icon(
+                _getIconForCategory(category),
+                color: Colors.grey,
+                size: 24,
+              ),
+            );
+          } else {
+            // Show the latest item image
+            return ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.network(
+                items.first.imageUrl ?? '',
+                fit: BoxFit.cover,
+                width: double.infinity,
+                height: double.infinity,
+                errorBuilder: (context, error, stackTrace) {
+                  return Center(
+                    child: Icon(
+                      _getIconForCategory(category),
+                      color: Colors.grey,
+                      size: 24,
+                    ),
+                  );
+                },
+                loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) return child;
+                  return Center(
+                    child: SizedBox(
+                      width: 30,
+                      height: 30,
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(appcolor),
+                        strokeWidth: 2.0,
+                        value: loadingProgress.expectedTotalBytes != null
+                            ? loadingProgress.cumulativeBytesLoaded /
+                            loadingProgress.expectedTotalBytes!
+                            : null,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            );
+          }
+        },
+      ),
+    );
+  }
+  IconData _getIconForCategory(String category) {
+    switch (category) {
+      case 'shirt':
+        return Icons.dry_cleaning;
+      case 'pant':
+        return Icons.work_outline;
+      case 'shoe':
+        return Icons.shop;
+      case 'accessory':
+        return Icons.watch;
+      default:
+        return Icons.category;
+    }
+  }
+
 
   Widget _buildAvatarColumn() {
     return GestureDetector(
@@ -360,26 +547,37 @@ class _WardrobeScreenState extends State<WardrobeScreen>
         double redContainerTop = Responsive.height(140.0);
         double redContainerBottom = redContainerTop + Responsive.height(150.0);
         double blueContainerTop = Responsive.height(300.0);
-        double blueContainerBottom = blueContainerTop + Responsive.height(150.0);
+        double blueContainerBottom =
+            blueContainerTop + Responsive.height(150.0);
 
         // Swipe logic
         if (details.velocity.pixelsPerSecond.dx > 0) {
           // Swipe right
-          if (swipePosition >= redContainerTop && swipePosition <= redContainerBottom) {
-            _handleAvatarSwipe(details, false, 'tshirt'); // Swipe over red container
-          } else if (swipePosition >= blueContainerTop && swipePosition <= blueContainerBottom) {
-            _handleAvatarSwipe(details, false, 'pants'); // Swipe over blue container
+          if (swipePosition >= redContainerTop &&
+              swipePosition <= redContainerBottom) {
+            _handleAvatarSwipe(
+                details, false, 'tshirt'); // Swipe over red container
+          } else if (swipePosition >= blueContainerTop &&
+              swipePosition <= blueContainerBottom) {
+            _handleAvatarSwipe(
+                details, false, 'pants'); // Swipe over blue container
           } else {
-            _handleAvatarSwipe(details, false, ''); // Swipe outside the containers
+            _handleAvatarSwipe(
+                details, false, ''); // Swipe outside the containers
           }
         } else if (details.velocity.pixelsPerSecond.dx < 0) {
           // Swipe left
-          if (swipePosition >= redContainerTop && swipePosition <= redContainerBottom) {
-            _handleAvatarSwipe(details, true, 'tshirt'); // Swipe over red container
-          } else if (swipePosition >= blueContainerTop && swipePosition <= blueContainerBottom) {
-            _handleAvatarSwipe(details, true, 'pants'); // Swipe over blue container
+          if (swipePosition >= redContainerTop &&
+              swipePosition <= redContainerBottom) {
+            _handleAvatarSwipe(
+                details, true, 'tshirt'); // Swipe over red container
+          } else if (swipePosition >= blueContainerTop &&
+              swipePosition <= blueContainerBottom) {
+            _handleAvatarSwipe(
+                details, true, 'pants'); // Swipe over blue container
           } else {
-            _handleAvatarSwipe(details, true, ''); // Swipe outside the containers
+            _handleAvatarSwipe(
+                details, true, ''); // Swipe outside the containers
           }
         }
       },
@@ -458,13 +656,13 @@ class _WardrobeScreenState extends State<WardrobeScreen>
     // Show loading for 2 seconds
     Future.delayed(const Duration(seconds: 2), () {
       setState(() {
-        if(!isLeft && keyowrd == "tshirt"){
+        if (!isLeft && keyowrd == "tshirt") {
           loadingType = "Changing Shirt";
           _currentAvatarIndex = 1;
-        }else if(!isLeft && keyowrd == "pants"){
+        } else if (!isLeft && keyowrd == "pants") {
           loadingType = "Changing Pants";
           _currentAvatarIndex = 2;
-        }else if(isLeft){
+        } else if (isLeft) {
           loadingType = "Loading next outfit..";
           _currentAvatarIndex = 0;
         }
@@ -485,8 +683,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
               child: Container(
                 padding: EdgeInsets.symmetric(
                     horizontal: Responsive.width(12),
-                    vertical: Responsive.height(5)
-                ),
+                    vertical: Responsive.height(5)),
                 height: Responsive.height(30),
                 decoration: BoxDecoration(
                   color: appcolor.withOpacity(0.7),
@@ -513,6 +710,8 @@ class _WardrobeScreenState extends State<WardrobeScreen>
             ),
           ],
         ),
+        SizedBox(height: 10),
+
       ],
     );
   }
@@ -600,13 +799,15 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                       leftChevronIcon: Container(
                           decoration: BoxDecoration(
                               border: Border.all(color: appcolor),
-                              borderRadius: BorderRadius.circular(Responsive.radius(5))),
+                              borderRadius:
+                                  BorderRadius.circular(Responsive.radius(5))),
                           child: Icon(Icons.chevron_left,
                               color: Color(0xFFAA8A00))),
                       rightChevronIcon: Container(
                           decoration: BoxDecoration(
                               border: Border.all(color: appcolor),
-                              borderRadius: BorderRadius.circular(Responsive.radius(5))),
+                              borderRadius:
+                                  BorderRadius.circular(Responsive.radius(5))),
                           child: Icon(Icons.chevron_right,
                               color: Color(0xFFAA8A00))),
                     ),
@@ -622,7 +823,8 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                   Container(
                     decoration: BoxDecoration(
                         color: appcolor,
-                        borderRadius: BorderRadius.circular(Responsive.radius(10))),
+                        borderRadius:
+                            BorderRadius.circular(Responsive.radius(10))),
                     height: Responsive.height(5),
                     width: Responsive.width(45),
                   ),
@@ -744,7 +946,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                             return _buildAnimatedCategoryButton(
                               subcategory,
                               selectedSubcategory,
-                                  (value) {
+                              (value) {
                                 setState(() {
                                   selectedSubcategory = value;
                                 });
@@ -784,10 +986,10 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                 TextButton(
                   onPressed: (showSubcategories && selectedSubcategory != null)
                       ? () {
-                    Navigator.of(context).pop();
-                    _openCameraWithGoogleVision(
-                        selectedCategory!, selectedSubcategory!);
-                  }
+                          Navigator.of(context).pop();
+                          _openCameraWithGoogleVision(
+                              selectedCategory!, selectedSubcategory!);
+                        }
                       : null,
                   child: Text(
                     'Open Camera',
@@ -939,9 +1141,11 @@ class _WardrobeScreenState extends State<WardrobeScreen>
       Navigator.pop(context);
 
       if (image != null) {
+        File imageFile = File(image.path);
+
         // Here you would normally implement Google Vision AI integration
         // For now, we'll just show a confirmation dialog
-        _showImageCapturedDialog(category, subcategory, image.path);
+        _showImageCapturedDialog(category, subcategory, imageFile);
       }
     } catch (e) {
       // Close loading dialog in case of error
@@ -966,11 +1170,9 @@ class _WardrobeScreenState extends State<WardrobeScreen>
     }
   }
 
-
-
   // Method to show confirmation dialog after image capture
   void _showImageCapturedDialog(
-      String category, String subcategory, String imagePath) {
+      String category, String subcategory, File imageFile) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -997,7 +1199,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(8),
                   image: DecorationImage(
-                    image: FileImage(File(imagePath)),
+                    image: FileImage(imageFile),
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -1013,16 +1215,24 @@ class _WardrobeScreenState extends State<WardrobeScreen>
               ),
             ),
             TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-                // Here you would add the item to the wardrobe
+              onPressed: () async {
+                _wardrobeController.uploadWardrobeItem(
+                    category: category,
+                    subCategory: subcategory,
+                    imageFile: imageFile,
+                    token: token);
+
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(
-                        '$subcategory added to your $category collection!'),
-                    backgroundColor: appcolor,
+                      'Image successfully saved to wardrobe under "$category > $subcategory".',
+                    ),
+                    backgroundColor: Colors.green,
+                    behavior: SnackBarBehavior.floating,
+                    duration: Duration(seconds: 3),
                   ),
                 );
+                Navigator.pop(context);
               },
               child: Text(
                 'Add to Wardrobe',
