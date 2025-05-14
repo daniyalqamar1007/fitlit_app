@@ -5,15 +5,17 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:otp_text_field/otp_field.dart';
 import 'package:otp_text_field/style.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../main.dart';
 import '../../../../services/auth_services.dart';
 import '../../../Utils/globle_variable/globle.dart';
+import '../../../Utils/responsivness.dart';
 import '../Forgot_password/new_password.dart';
 
 class OtpVerificationScreen extends StatefulWidget {
   String? email;
-   OtpVerificationScreen({Key? key,required this.email}) : super(key: key);
+  OtpVerificationScreen({Key? key, required this.email}) : super(key: key);
 
   @override
   _OtpVerificationScreenState createState() => _OtpVerificationScreenState();
@@ -33,30 +35,36 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: appcolor),
+          icon: Icon(Icons.arrow_back, color: appcolor, size: Responsive.fontSize(20)),
           onPressed: () => Navigator.pop(context),
         ),
         backgroundColor: themeController.white,
-        title: Text('Verify OTP', style: GoogleFonts.poppins(color: appcolor)),
+        title: Text(
+          'Verify OTP',
+          style: GoogleFonts.poppins(
+            color: appcolor,
+            fontSize: Responsive.fontSize(18),
+          ),
+        ),
         elevation: 0,
       ),
       body: Stack(
         children: [
           Padding(
-            padding: const EdgeInsets.all(20.0),
+            padding: Responsive.allPadding(20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Display email from ValueNotifier
+                /// Email Info
                 ValueListenableBuilder<String?>(
                   valueListenable: _authController.email,
                   builder: (context, email, _) {
                     return Padding(
-                      padding: const EdgeInsets.only(bottom: 24.0),
+                      padding: EdgeInsets.only(bottom: Responsive.height(24)),
                       child: Text(
                         'Enter the 4-digit code sent to ${email ?? 'your email'}',
                         style: GoogleFonts.poppins(
-                          fontSize: 16,
+                          fontSize: Responsive.fontSize(16),
                           color: themeController.black,
                         ),
                       ),
@@ -64,14 +72,14 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                   },
                 ),
 
-                // OTP Input Field
+                /// OTP Input
                 OTPTextField(
                   controller: _otpController,
                   length: 4,
                   width: MediaQuery.of(context).size.width,
-                  fieldWidth: 60,
+                  fieldWidth: Responsive.width(60),
                   style: GoogleFonts.poppins(
-                    fontSize: 20,
+                    fontSize: Responsive.fontSize(20),
                     fontWeight: FontWeight.w600,
                   ),
                   textFieldAlignment: MainAxisAlignment.spaceAround,
@@ -85,51 +93,55 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                   },
                 ),
 
-                // Error Message (if any)
+                /// Error Message
                 if (_errorMessage != null)
                   Padding(
-                    padding: const EdgeInsets.only(top: 16.0),
+                    padding: EdgeInsets.only(top: Responsive.height(16)),
                     child: Text(
                       _errorMessage!,
-                      style: GoogleFonts.poppins(color: Colors.red),
+                      style: GoogleFonts.poppins(
+                        color: Colors.red,
+                        fontSize: Responsive.fontSize(14),
+                      ),
                       textAlign: TextAlign.center,
                     ),
                   ),
 
-                // Verify Button
+                /// Verify Button
                 Padding(
-                  padding: const EdgeInsets.only(top: 32.0),
+                  padding: EdgeInsets.only(top: Responsive.height(32)),
                   child: ElevatedButton(
                     onPressed: _isLoading ? null : _verifyOtp,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: appcolor,
-                      padding: EdgeInsets.symmetric(vertical: 12),
+                      padding: EdgeInsets.symmetric(
+                        vertical: Responsive.height(12),
+                      ),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
+                        borderRadius: BorderRadius.circular(Responsive.radius(14)),
                       ),
                     ),
                     child: Text(
                       'Verify OTP',
                       style: GoogleFonts.poppins(
                         color: themeController.white,
-                        fontSize: 16,
+                        fontSize: Responsive.fontSize(16),
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
                 ),
 
-                // Resend OTP Button
+                /// Resend Button
                 Padding(
-                  padding: const EdgeInsets.only(top: 16.0),
+                  padding: EdgeInsets.only(top: Responsive.height(16)),
                   child: TextButton(
-                    onPressed: _isLoading
-                        ? null
-                        : _resendOtp,
+                    onPressed: _isLoading ? null : _resendOtp,
                     child: Text(
                       'Resend OTP',
                       style: GoogleFonts.poppins(
                         color: appcolor,
+                        fontSize: Responsive.fontSize(15),
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -139,7 +151,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
             ),
           ),
 
-          // Loading Overlay
+          /// Loader Overlay
           if (_isLoading)
             Container(
               color: Colors.black.withOpacity(0.3),
@@ -173,22 +185,24 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
       setState(() {
         _isLoading = false;
       });
-      print(result.toString());
 
       if (result['success']) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(result['message'] ?? 'Verification successful')),
         );
 
-        // Navigate based on the flow (signup or forgot password)
         if (first_time) {
           Navigator.pushReplacementNamed(context, AppRoutes.dashboard);
         } else {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => NewPasswordScreen(email:widget.email.toString(),otp: _otpController.toString(),)),
-            );
+              builder: (context) => NewPasswordScreen(
+                email: widget.email.toString(),
+                otp: _otpController.toString(),
+              ),
+            ),
+          );
         }
       } else {
         setState(() {
@@ -204,8 +218,6 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   }
 
   Future<void> _resendOtp() async {
-    // Since we don't have a specific resend OTP method in the provided code,
-    // we can re-use the signup or forgotPassword method based on the flow
     setState(() {
       _isLoading = true;
       _errorMessage = null;
@@ -215,10 +227,8 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
       Map<String, dynamic> result;
 
       if (first_time) {
-        // For signup flow, reuse the signup method
         result = await _authController.signUp();
       } else {
-        // For forgot password flow
         final email = _authController.email.value ?? '';
         result = await _authController.forgotPassword(email);
       }

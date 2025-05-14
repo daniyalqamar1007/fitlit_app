@@ -40,7 +40,8 @@ dependencies:
   table_calendar:
   shared_preferences:
   otp_text_field:
-
+  flutter_screenutil:
+  curved_navigation_bar:
 dev_dependencies:
   flutter_test:
     sdk: flutter
