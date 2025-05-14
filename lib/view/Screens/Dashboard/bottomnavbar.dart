@@ -1,8 +1,9 @@
-import 'package:fitlip_app/view/Screens/Dashboard/social_media.dart';
+import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import '../../../main.dart';
 import '../../Utils/Colors.dart';
 import 'hompage.dart';
+import 'package:fitlip_app/view/Screens/Dashboard/social_media.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -15,82 +16,52 @@ class _HomeScreenState extends State<HomeScreen> {
   final List<Widget> _pages = [
     WardrobeScreen(),
     Center(child: Text("Branding")),
-    SocialMediaProfile()
+    SocialMediaProfile(),
   ];
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: _pages[_currentIndex],
-      bottomNavigationBar: _buildCustomBottomNavBar(),
-    );
-  }
+    double iconSize =
+        MediaQuery.of(context).size.width * 0.06; // responsive icon size
+    double navBarHeight =
+        MediaQuery.of(context).size.height * 0.08; // responsive navbar height
 
-  Widget _buildCustomBottomNavBar() {
-    return Container(
-      height: 70,
-      decoration: BoxDecoration(
-        color: themeController.white,
-        boxShadow: [
-          BoxShadow(
-            color: themeController.black.withOpacity(0.1),
-            blurRadius: 10,
-            offset: Offset(0, -2),
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: _pages[_currentIndex],
+      bottomNavigationBar: CurvedNavigationBar(
+        index: _currentIndex,
+        height: navBarHeight,
+        backgroundColor: Colors.white,
+        color: appcolor,
+        buttonBackgroundColor: appcolor,
+        animationCurve: Curves.easeInOut,
+        animationDuration: Duration(milliseconds: 300),
+        items: <Widget>[
+          Image.asset(
+            'assets/Icons/home_icon.png',
+            width: iconSize,
+            height: iconSize,
+            color: Colors.white,
+          ),
+          Image.asset(
+            'assets/Icons/profile.png',
+            width: iconSize,
+            color: Colors.white,
+            height: iconSize,
+          ),
+          Image.asset(
+            'assets/Icons/wallet.png',
+            width: iconSize,
+            color: Colors.white,
+            height: iconSize,
           ),
         ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _buildNavItem(0, 'assets/Icons/home_icon.png', 'Wardrobe'),
-          _buildNavItem(1, 'assets/Icons/profile.png', 'Profile'),
-          _buildNavItem(2, 'assets/Icons/wallet.png', 'Wallet'),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildNavItem(int index, String imagePath, String label) {
-    final isSelected = index == _currentIndex;
-
-    return GestureDetector(
-      onTap: () => setState(() => _currentIndex = index),
-      child: Container(
-        width: 70,
-        height: 60,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.only(topLeft: Radius.circular(20),topRight:Radius.circular(20) )
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Selected item with blue circle background
-            if (isSelected)
-              Container(
-
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.only(topLeft: Radius.circular(20))
-                ),
-                child: Center(
-                  child: Image.asset(
-                    imagePath,
-                    width: 32,
-                    height: 32,
-                    color: appcolor,
-                  ),
-                ),
-              )
-            else // Unselected item
-              Image.asset(
-                imagePath,
-                width: 24,
-                height: 24,
-                color:appcolor,
-              ),
-
-
-          ],
-        ),
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
       ),
     );
   }

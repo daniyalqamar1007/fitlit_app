@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../Utils/Colors.dart';
+import '../../Utils/responsivness.dart';
 import '../../Widgets/Custom_buttons.dart';
 
 class SocialMediaProfile extends StatefulWidget {
@@ -64,8 +65,8 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(Responsive.radius(20))),
       ),
       builder: (context) => DraggableScrollableSheet(
         initialChildSize: 0.7,
@@ -90,14 +91,14 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
           children: [
             // Header
             Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: Responsive.allPadding(12),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
                     'Social Media Page',
                     style: TextStyle(
-                      fontSize: 20,
+                      fontSize: Responsive.fontSize(20),
                       fontWeight: FontWeight.w600,
                       color: appcolor,
                     ),
@@ -110,16 +111,14 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
               ),
             ),
 
-
-
             // Profile Info
             Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: Responsive.allPadding(16),
               child: Row(
                 children: [
                   Container(
-                    width: 50,
-                    height: 50,
+                    width: Responsive.width(50),
+                    height: Responsive.height(50),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       border: Border.all(
@@ -136,61 +135,70 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
                   ),
                   Column(
                     children: [
-                      const Text(
+                      Text(
                         '  Johnny Cage',
                         style: TextStyle(
-                          fontSize: 24,
+                          fontSize: Responsive.fontSize(24),
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const Text(
+                      Text(
                         'Johnycage@gmail.com',
                         style: TextStyle(
                           color: Colors.grey,
+                          fontSize: Responsive.fontSize(14),
                         ),
                       ),
                     ],
                   ),
-
-                  const SizedBox(height: 8),
-
+                  SizedBox(height: Responsive.height(8)),
                 ],
               ),
             ),
 
             // Post Content - Wrap with Expanded to prevent overflow
             Expanded(
+              flex: 1,
               child: SingleChildScrollView(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  padding: Responsive.horizontalPadding(12),
                   child: Column(
                     children: [
                       Card(
                         color: Colors.white,
                         elevation: 2,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(Responsive.radius(12)),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Stack(
                               children: [
-                                Positioned.fill(child:ClipRRect(
-                                    borderRadius: BorderRadius.only(topLeft: Radius.circular(12),topRight: Radius.circular(12)),
-                                    child: Opacity(
-                                        opacity: 0.7,
-                                        child: Image.asset('assets/Images/new.jpg',fit: BoxFit.cover,)))),
-                                Container(
-                                  margin: EdgeInsets.only(top: 15),
+                                Positioned.fill(
                                   child: ClipRRect(
-
-                                    borderRadius: const BorderRadius.vertical(
-                                      top: Radius.circular(12),
+                                    borderRadius: BorderRadius.only(
+                                      topLeft: Radius.circular(Responsive.radius(12)),
+                                      topRight: Radius.circular(Responsive.radius(12)),
+                                    ),
+                                    child: Opacity(
+                                      opacity: 0.7,
+                                      child: Image.asset(
+                                        'assets/Images/new.jpg',
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Container(
+                                  margin: EdgeInsets.only(top: Responsive.height(15)),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.vertical(
+                                      top: Radius.circular(Responsive.radius(12)),
                                     ),
                                     child: Image.asset(
-                                      "assets/Icons/avatar.png",
-                                       height: 350,
+                                      "assets/Icons/avatar3.png",
+                                      height: Responsive.height(300),
                                       scale: 99,
                                       width: double.infinity,
                                       fit: BoxFit.contain,
@@ -198,56 +206,46 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
                                   ),
                                 ),
                                 Positioned(
-                                  top: 16,
-                                  left: 16,
+                                  top: Responsive.height(16),
+                                  left: Responsive.width(16),
                                   child: Column(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     crossAxisAlignment: CrossAxisAlignment.end,
                                     children: [
                                       Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          vertical: 4,
-                                          horizontal: 12,
+                                        padding: EdgeInsets.symmetric(
+                                          vertical: Responsive.height(4),
+                                          horizontal: Responsive.width(12),
                                         ),
                                         decoration: BoxDecoration(
                                           color: const Color(0xFFB8860B),
-                                          borderRadius: BorderRadius.circular(8),
+                                          borderRadius: BorderRadius.circular(Responsive.radius(8)),
                                         ),
-                                        child: const Column(
+                                        child: Column(
                                           children: [
                                             Text(
                                               '11',
                                               style: TextStyle(
                                                 color: Colors.white,
                                                 fontWeight: FontWeight.bold,
+                                                fontSize: Responsive.fontSize(14),
                                               ),
                                             ),
                                             Text(
                                               'July',
                                               style: TextStyle(
                                                 color: Colors.white,
-                                                fontSize: 12,
+                                                fontSize: Responsive.fontSize(12),
                                               ),
                                             ),
                                           ],
                                         ),
                                       ),
-                                      // Padding(
-                                      //   padding: const EdgeInsets.all(8.0),
-                                      //   child: Text(
-                                      //     'x $likeCount',
-                                      //     style: const TextStyle(
-                                      //       color: Colors.white,
-                                      //       fontSize: 14,
-                                      //     ),
-                                      //   ),
-                                      // ),
                                     ],
                                   ),
                                 ),
                               ],
                             ),
-
                             const Divider(height: 1),
                             Row(
                               children: [
@@ -280,29 +278,7 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
                           ],
                         ),
                       ),
-                      // const SizedBox(height: 24),
-                      // SizedBox(
-                      //   width: double.infinity,
-                      //   child: ElevatedButton(
-                      //     onPressed: () {},
-                      //     style: ElevatedButton.styleFrom(
-                      //       backgroundColor: appcolor,
-                      //       padding: const EdgeInsets.symmetric(vertical: 16),
-                      //       shape: RoundedRectangleBorder(
-                      //         borderRadius: BorderRadius.circular(8),
-                      //       ),
-                      //     ),
-                      //     child: const Text(
-                      //       'Share to Facebook',
-                      //       style: TextStyle(
-                      //         fontSize: 16,
-                      //         fontWeight: FontWeight.bold,
-                      //         color: Colors.white,
-                      //       ),
-                      //     ),
-                      //   ),
-                      // ),
-                      const SizedBox(height: 80),
+                      SizedBox(height: Responsive.height(80)),
                     ],
                   ),
                 ),
@@ -311,27 +287,6 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
           ],
         ),
       ),
-      // floatingActionButton: Padding(
-      //   padding: const EdgeInsets.only(bottom: 16.0),
-      //   child: ElevatedButton(
-      //     onPressed: () {},
-      //     style: ElevatedButton.styleFrom(
-      //       backgroundColor: Colors.white,
-      //       foregroundColor: appcolor,
-      //       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-      //       shape: RoundedRectangleBorder(
-      //         borderRadius: BorderRadius.circular(8),
-      //         side: BorderSide(color: appcolor, width: 2),
-      //       ),
-      //       elevation: 2,
-      //     ),
-      //     child: const Text(
-      //       'Take Photos',
-      //       style: TextStyle(fontWeight: FontWeight.bold),
-      //     ),
-      //   ),
-      // ),
-      // floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 }
@@ -355,13 +310,19 @@ class ActionButton extends StatelessWidget {
     return InkWell(
       onTap: onPressed,
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12.0),
+        padding: EdgeInsets.symmetric(vertical: Responsive.height(12)),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: color, size: 20),
-            const SizedBox(width: 8),
-            Text(text, style: TextStyle(color: color)),
+            Icon(icon, color: color, size: Responsive.fontSize(20)),
+            SizedBox(width: Responsive.width(8)),
+            Text(
+                text,
+                style: TextStyle(
+                    color: color,
+                    fontSize: Responsive.fontSize(14)
+                )
+            ),
           ],
         ),
       ),
@@ -382,27 +343,27 @@ class CommentsBottomSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(Responsive.radius(20))),
       ),
       child: Column(
         children: [
           // Header
           Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: Responsive.allPadding(16),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                Text(
                   'Comments',
                   style: TextStyle(
-                    fontSize: 18,
+                    fontSize: Responsive.fontSize(18),
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.close),
+                  icon: Icon(Icons.close, size: Responsive.fontSize(24)),
                   onPressed: () => Navigator.pop(context),
                 ),
               ],
@@ -414,7 +375,7 @@ class CommentsBottomSheet extends StatelessWidget {
           Expanded(
             child: ListView.builder(
               controller: scrollController,
-              padding: const EdgeInsets.all(16),
+              padding: Responsive.allPadding(16),
               itemCount: comments.length,
               itemBuilder: (context, index) {
                 final comment = comments[index];
@@ -422,52 +383,6 @@ class CommentsBottomSheet extends StatelessWidget {
               },
             ),
           ),
-
-          // Comment Input
-          // Container(
-          //   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          //   decoration: const BoxDecoration(
-          //     color: Colors.white,
-          //     border: Border(
-          //       top: BorderSide(color: Colors.grey, width: 0.5),
-          //     ),
-          //   ),
-          //   child: Row(
-          //     children: [
-          //       ClipOval(
-          //         child: Image.network(
-          //             'assets/Images/circle_image.png',
-          //           width: 32,
-          //           height: 32,
-          //         ),
-          //       ),
-          //       const SizedBox(width: 8),
-          //       Expanded(
-          //         child: TextField(
-          //           decoration: InputDecoration(
-          //             hintText: 'Write a comment...',
-          //             border: OutlineInputBorder(
-          //               borderRadius: BorderRadius.circular(20),
-          //               borderSide: BorderSide.none,
-          //             ),
-          //             filled: true,
-          //             fillColor: Colors.grey[200],
-          //             contentPadding: const EdgeInsets.symmetric(
-          //               horizontal: 16,
-          //               vertical: 8,
-          //             ),
-          //           ),
-          //         ),
-          //       ),
-          //       const SizedBox(width: 8),
-          //       IconButton(
-          //         icon: const Icon(Icons.send),
-          //         color: const Color(0xFFB8860B),
-          //         onPressed: () {},
-          //       ),
-          //     ],
-          //   ),
-          // ),
         ],
       ),
     );
@@ -485,24 +400,24 @@ class CommentTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16.0),
+      padding: EdgeInsets.only(bottom: Responsive.height(16)),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ClipOval(
             child: Image.asset(
               comment.avatar,
-              width: 32,
-              height: 32,
+              width: Responsive.width(32),
+              height: Responsive.height(32),
             ),
           ),
-          const SizedBox(width: 8),
+          SizedBox(width: Responsive.width(8)),
           Expanded(
             child: Container(
-              padding: const EdgeInsets.all(12),
+              padding: Responsive.allPadding(12),
               decoration: BoxDecoration(
                 color: Colors.grey[100],
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(Responsive.radius(12)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -512,42 +427,46 @@ class CommentTile extends StatelessWidget {
                     children: [
                       Text(
                         comment.author,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontWeight: FontWeight.bold,
+                          fontSize: Responsive.fontSize(14),
                         ),
                       ),
                       Text(
                         comment.time,
-                        style: const TextStyle(
-                          fontSize: 12,
+                        style: TextStyle(
+                          fontSize: Responsive.fontSize(12),
                           color: Colors.grey,
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 4),
-                  Text(comment.content),
-                  const SizedBox(height: 8),
+                  SizedBox(height: Responsive.height(4)),
+                  Text(
+                    comment.content,
+                    style: TextStyle(fontSize: Responsive.fontSize(14)),
+                  ),
+                  SizedBox(height: Responsive.height(8)),
                   Row(
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.thumb_up_outlined,
-                        size: 12,
+                        size: Responsive.fontSize(12),
                         color: Colors.grey,
                       ),
-                      const SizedBox(width: 4),
+                      SizedBox(width: Responsive.width(4)),
                       Text(
                         '${comment.likes}',
-                        style: const TextStyle(
-                          fontSize: 12,
+                        style: TextStyle(
+                          fontSize: Responsive.fontSize(12),
                           color: Colors.grey,
                         ),
                       ),
-                      const SizedBox(width: 16),
-                      const Text(
+                      SizedBox(width: Responsive.width(16)),
+                      Text(
                         'Reply',
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: Responsive.fontSize(12),
                           color: Colors.grey,
                         ),
                       ),
@@ -580,3 +499,4 @@ class Comment {
     required this.time,
   });
 }
+

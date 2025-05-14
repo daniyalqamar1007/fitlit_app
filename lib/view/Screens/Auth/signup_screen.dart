@@ -5,11 +5,15 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'dart:io';
+
 import '../../../main.dart';
 import '../../Utils/globle_variable/globle.dart';
 import '../../Widgets/Custom_buttons.dart';
 import '../../Widgets/Custom_textfield.dart';
+
+// Import statements remain unchanged...
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -31,8 +35,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   String? _errorMessage;
 
   Future<void> _pickImage() async {
-    final pickedFile =
-    await ImagePicker().pickImage(source: ImageSource.gallery);
+    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       setState(() => _profileImage = File(pickedFile.path));
     }
@@ -46,7 +49,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
       });
 
       try {
-        // Initialize AuthController with the form data
         final authController = AuthController(
           name: _nameController.text,
           email: _emailController.text,
@@ -56,25 +58,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
           imageFile: _profileImage,
         );
 
-        // Call sign up method
         final result = await authController.signUp();
-
-        setState(() {
-          _isLoading = false;
-        });
+        setState(() => _isLoading = false);
 
         if (result['success']) {
-          // If successful, set the first_time flag and navigate to OTP screen
           first_time = true;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(result['message'] ?? 'OTP sent to your email')),
           );
           Navigator.pushNamed(context, AppRoutes.otp);
         } else {
-          // If not successful, show error
-          setState(() {
-            _errorMessage = result['message'] ?? 'Sign up failed';
-          });
+          setState(() => _errorMessage = result['message'] ?? 'Sign up failed');
         }
       } catch (e) {
         setState(() {
@@ -101,41 +95,36 @@ class _SignUpScreenState extends State<SignUpScreen> {
       body: Stack(
         children: [
           SingleChildScrollView(
-            padding: const EdgeInsets.all(20),
+            padding: EdgeInsets.all(20.w),
             child: Form(
               key: _formKey,
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  const SizedBox(height: 30),
-                  Image.asset('assets/Images/splash_logo.png', scale: 10),
-                  SizedBox(height: 20),
+                  SizedBox(height: 30.h),
+                  Image.asset('assets/Images/splash_logo.png', scale: 10.sp),
+                  SizedBox(height: 10.h),
                   _buildWelcomeText(),
-                  SizedBox(height: 20),
+                  SizedBox(height: 20.h),
                   _buildFormFields(),
-
-                  // Display error message if any
                   if (_errorMessage != null)
                     Padding(
-                      padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+                      padding: EdgeInsets.symmetric(vertical: 8.h),
                       child: Text(
                         _errorMessage!,
-                        style: TextStyle(color: Colors.red),
+                        style: TextStyle(color: Colors.red, fontSize: 12.sp),
                       ),
                     ),
-
+                  SizedBox(height: 10.h),
                   CustomButton(
                     text: "Create Account",
                     onPressed: _isLoading ? null : _handleSignUp,
                   ),
                   _buildSignInText(),
+                  SizedBox(height: 20.h),
                 ],
               ),
             ),
           ),
-
-          // Loading overlay
           if (_isLoading)
             Container(
               color: Colors.black.withOpacity(0.3),
@@ -156,31 +145,32 @@ class _SignUpScreenState extends State<SignUpScreen> {
         RichText(
           text: TextSpan(
             style: GoogleFonts.playfairDisplay(
-              fontSize: 30,
+              fontSize: 30.sp,
               fontWeight: FontWeight.w700,
               color: themeController.black,
             ),
             children: [
-              const TextSpan(text: 'Let \'s'),
+              const TextSpan(text: 'Let\'s'),
               TextSpan(
                 text: ' Start',
                 style: GoogleFonts.playfairDisplay(
                   fontWeight: FontWeight.w700,
-                  fontSize: 30,
-                  color: appcolor, // Your highlight color
+                  fontSize: 30.sp,
+                  color: appcolor,
                 ),
               ),
             ],
           ),
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: 8.h),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 30.0),
+          padding: EdgeInsets.symmetric(horizontal: 03.w),
           child: Text(
             'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor',
+            textAlign: TextAlign.center,
             style: GoogleFonts.poppins(
               color: Colors.grey,
-              fontSize: 12,
+              fontSize: 12.sp,
               fontWeight: FontWeight.w400,
             ),
           ),
@@ -196,20 +186,21 @@ class _SignUpScreenState extends State<SignUpScreen> {
           hintText: 'Name',
           fillColor: Colors.grey.shade100,
           filled: true,
-          hintStyle: GoogleFonts.poppins(color: hintextcolor),
+          hintStyle: GoogleFonts.poppins(color: hintextcolor, fontSize: 12.sp),
           controller: _nameController,
           validator: (value) => value?.isEmpty ?? true ? 'Required' : null,
           border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
-              borderSide: BorderSide.none),
+            borderRadius: BorderRadius.circular(14.r),
+            borderSide: BorderSide.none,
+          ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 8.h),
         CustomTextField(
           hintText: 'Email',
           fillColor: Colors.grey.shade100,
           filled: true,
           controller: _emailController,
-          hintStyle: GoogleFonts.poppins(color: hintextcolor),
+          hintStyle: GoogleFonts.poppins(color: hintextcolor, fontSize: 12.sp),
           validator: (value) {
             if (value?.isEmpty ?? true) return 'Required';
             if (!value!.contains('@')) return 'Invalid email';
@@ -218,54 +209,43 @@ class _SignUpScreenState extends State<SignUpScreen> {
           keyboardType: TextInputType.emailAddress,
           border: InputBorder.none,
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 8.h),
         CustomTextField(
           hintText: 'Phone',
           fillColor: Colors.grey.shade100,
           filled: true,
           controller: _phoneController,
-          hintStyle: GoogleFonts.poppins(color: hintextcolor),
+          hintStyle: GoogleFonts.poppins(color: hintextcolor, fontSize: 12.sp),
           validator: (value) => value?.isEmpty ?? true ? 'Required' : null,
           keyboardType: TextInputType.phone,
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 8.h),
         DropdownButtonFormField<String>(
           value: _selectedGender,
-          onChanged: (value) {
-            setState(() => _selectedGender = value);
-          },
+          onChanged: (value) => setState(() => _selectedGender = value),
           decoration: InputDecoration(
             hintText: 'Select Gender',
-            hintStyle:
-            GoogleFonts.poppins(color: hintextcolor.withOpacity(0.5)),
+            hintStyle: GoogleFonts.poppins(
+              color: hintextcolor.withOpacity(0.5),
+              fontSize: 12.sp,
+            ),
             filled: true,
             fillColor: Colors.grey.shade100,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
-              borderSide: BorderSide.none,
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
-              borderSide: BorderSide.none,
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
-              borderSide: BorderSide.none,
-            ),
+            border: InputBorder.none, // ✅ Removed border
           ),
-          style: GoogleFonts.poppins(color: themeController.black),
+          style: GoogleFonts.poppins(color: themeController.black, fontSize: 12.sp),
           items: _genderOptions.map((gender) {
             return DropdownMenuItem(
               value: gender,
-              child: Text(gender),
+              child: Text(gender, style: GoogleFonts.poppins(fontSize: 12.sp)),
             );
           }).toList(),
           validator: (value) => value == null ? 'Please select a gender' : null,
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 8.h),
         CustomTextField(
           hintText: 'Password',
-          hintStyle: GoogleFonts.poppins(color: hintextcolor),
+          hintStyle: GoogleFonts.poppins(color: hintextcolor, fontSize: 12.sp),
           controller: _passwordController,
           obscureText: _obscurePassword,
           fillColor: Colors.grey.shade100,
@@ -276,66 +256,66 @@ class _SignUpScreenState extends State<SignUpScreen> {
             return null;
           },
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(14.r),
             borderSide: BorderSide.none,
           ),
           suffixIcon: IconButton(
             icon: Icon(
               _obscurePassword ? Icons.visibility_off : Icons.visibility,
               color: appcolor,
+              size: 20.sp,
             ),
-            onPressed: () {
-              setState(() {
-                _obscurePassword = !_obscurePassword;
-              });
-            },
+            onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
           ),
         ),
-        const SizedBox(height: 16),
-        GestureDetector(
-          onTap: _pickImage,
-          child: AbsorbPointer(
-            child: TextFormField(
-              readOnly: true,
-              decoration: InputDecoration(
-                hintText:
-                _profileImage != null ? 'Image Selected' : 'Upload Photo',
-                hintStyle: GoogleFonts.poppins(color: hintextcolor),
-                filled: true,
-                suffixIcon: Image.asset(
-                  'assets/Icons/camera_icon.png',
-                  scale: 5,
-                ),
-                fillColor: Colors.grey[100],
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(14),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-            ),
-          ),
-        ),
+        SizedBox(height: 8.h),
+    GestureDetector(
+    onTap: _pickImage,
+    child: AbsorbPointer(
+    child: TextFormField(
+    readOnly: true,
+    decoration: InputDecoration(
+    hintText: _profileImage != null ? 'Image Selected' : 'Upload Photo',
+    hintStyle: GoogleFonts.poppins(color: hintextcolor, fontSize: 12.sp),
+    filled: true,
+    fillColor: Colors.grey[100],
+    border: InputBorder.none, // ✅ Removed border
+    suffixIcon: _profileImage != null
+    ? Container(
+    margin: EdgeInsets.all(10.sp),
+    decoration: BoxDecoration(
+    color: Colors.green,
+    shape: BoxShape.circle,
+    ),
+    padding: EdgeInsets.all(4.sp),
+    child: Icon(Icons.check, color: Colors.white, size: 16.sp),
+    )
+        : Image.asset(
+    'assets/Icons/camera_icon.png',
+    scale: 5.sp,
+    ),
+    ),
+    ),
+    ),)
       ],
     );
   }
 
   Widget _buildSignInText() {
     return Padding(
-      padding: const EdgeInsets.only(top: 16),
+      padding: EdgeInsets.only(top: 16.h),
       child: Text.rich(
         TextSpan(
           text: 'Do you have an account? ',
-          style: GoogleFonts.poppins(),
+          style: GoogleFonts.poppins(fontSize: 12.sp),
           children: [
             TextSpan(
               text: 'Sign In',
               recognizer: TapGestureRecognizer()
-                ..onTap = () {
-                  Navigator.pushReplacementNamed(context, AppRoutes.signin);
-                },
+                ..onTap = () => Navigator.pushReplacementNamed(context, AppRoutes.signin),
               style: GoogleFonts.poppins(
                 color: appcolor,
-                fontSize: 12,
+                fontSize: 12.sp,
                 fontWeight: FontWeight.w400,
               ),
             ),

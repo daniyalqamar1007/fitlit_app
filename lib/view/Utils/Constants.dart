@@ -33,7 +33,7 @@ class AppConstants {
   ];
   static const double buttonHeight = 50;
   static const double buttonBorderRadius = 8;
-  static const EdgeInsets buttonPadding = EdgeInsets.symmetric(horizontal: 44, vertical: 12);
+  static const EdgeInsets buttonPadding = EdgeInsets.symmetric(horizontal: 30, vertical: 6 );
   static const EdgeInsets pagePadding = EdgeInsets.symmetric(horizontal: 24);
   static const double indicatorSize = 8;
   static const double indicatorSpacing = 4;

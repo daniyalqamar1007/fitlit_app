@@ -8,6 +8,8 @@ import '../../../main.dart';
 import '../../Utils/Colors.dart';
 import 'dart:io';
 
+import '../../Utils/responsivness.dart';
+
 class WardrobeScreen extends StatefulWidget {
   const WardrobeScreen({Key? key}) : super(key: key);
 
@@ -94,20 +96,20 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                           fit: BoxFit.cover,
                         ))),
                 Padding(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: Responsive.allPadding(16.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _buildTopRow(),
-                      const SizedBox(height: 20),
+                      SizedBox(height: Responsive.height(20)),
                       _buildThreeColumnSection(),
                     ],
                   ),
                 ),
               ]),
-              const SizedBox(height: 10),
+
               Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: Responsive.allPadding(16.0),
                 child: _buildCalendarSection(),
               ),
             ],
@@ -128,10 +130,10 @@ class _WardrobeScreenState extends State<WardrobeScreen>
               Navigator.pushNamed(context, AppRoutes.profile);
             },
             child: Container(
-              width: 30,
-              height: 50,
+              width: Responsive.width(30),
+              height: Responsive.height(50),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(Responsive.radius(20)),
                 image: const DecorationImage(
                   image: AssetImage('assets/Images/circle_image.png'),
                 ),
@@ -140,7 +142,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
           ),
         ),
         SizedBox(
-          width: 10,
+          width: Responsive.width(10),
         ),
         Expanded(
           flex: 3,
@@ -148,31 +150,33 @@ class _WardrobeScreenState extends State<WardrobeScreen>
             'FITLIT',
             style: GoogleFonts.playfairDisplay(
               color: appcolor,
-              fontSize: 22,
+              fontSize: Responsive.fontSize(22),
               fontWeight: FontWeight.w600,
             ),
           ),
         ),
         SizedBox(
-          width: 40,
+          width: Responsive.width(40),
         ),
-         Container(
-            padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-            height: 30,
-            decoration: BoxDecoration(
-              color: appcolor.withOpacity(0.7),
-              borderRadius: BorderRadius.circular(30),
-              // border: Border.all(color: Colors.black54),
-            ),
-            child: Text(
-              "Save",
-              style: GoogleFonts.poppins(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 10),
-            ),
+        Container(
+          padding: EdgeInsets.symmetric(
+              horizontal: Responsive.width(14),
+              vertical: Responsive.height(8)
           ),
-        
+          height: Responsive.height(30),
+          decoration: BoxDecoration(
+            color: appcolor.withOpacity(0.7),
+            borderRadius: BorderRadius.circular(Responsive.radius(30)),
+          ),
+          child: Text(
+            "Save",
+            style: GoogleFonts.poppins(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: Responsive.fontSize(10)),
+          ),
+        ),
+
       ],
     );
   }
@@ -190,10 +194,9 @@ class _WardrobeScreenState extends State<WardrobeScreen>
 
           // Second Column - Avatar
           Expanded(
-            flex: 2,
+            flex: 3,
             child: _buildAvatarColumn(),
           ),
-          // SizedBox(width: 70,),
 
           // Third Column - Similar to first column
           Expanded(
@@ -212,126 +215,136 @@ class _WardrobeScreenState extends State<WardrobeScreen>
       children: [
         // Date section
         Container(
-          padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-          height: 30,
-          width: 80,
+          padding: EdgeInsets.symmetric(
+              horizontal: Responsive.width(14),
+              vertical: Responsive.height(8)
+          ),
+          height: Responsive.height(30),
+          width: Responsive.width(80),
           decoration: BoxDecoration(
             color: appcolor.withOpacity(0.7),
-            borderRadius: BorderRadius.circular(30),
-            // border: Border.all(color: Colors.black54),
+            borderRadius: BorderRadius.circular(Responsive.radius(30)),
           ),
-          child: 
+          child:
           Row(
             children: [
               Icon(
                 Icons.calendar_month_sharp,
                 color: Colors.white,
-                size: 13,
+                size: Responsive.fontSize(13),
               ),
               Text(
                 " 11 July",
                 style: GoogleFonts.poppins(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
-                    fontSize: 10),
+                    fontSize: Responsive.fontSize(10)),
               ),
             ],
           ),
         ),
-        
+
         SizedBox(
-          height: 20,
+          height: Responsive.height(10),
         ),
 
         // Shirts
         Container(
-          padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-          height: 30,
+          padding: EdgeInsets.symmetric(
+              horizontal: Responsive.width(14),
+              vertical: Responsive.height(8)
+          ),
+          height: Responsive.height(29),
           decoration: BoxDecoration(
             color: appcolor.withOpacity(0.7),
-            borderRadius: BorderRadius.circular(30),
-            // border: Border.all(color: Colors.black54),
+            borderRadius: BorderRadius.circular(Responsive.radius(30)),
           ),
           child: Text(
             'Shirts',
             style: TextStyle(
-              fontSize: 10,
+              fontSize: Responsive.fontSize(10),
               color: Colors.white,
               fontWeight: FontWeight.w600,
             ),
           ),
         ),
         SizedBox(
-          height: 5,
+          height: Responsive.height(5),
         ),
-        _buildClothingItem('assets/Images/1.png'), const SizedBox(height: 5),
-        // const SizedBox(height: 5),
+        _buildClothingItem('assets/Images/1.png'),
+
+
         Container(
-          padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-          height: 30,
+          padding: EdgeInsets.symmetric(
+              horizontal: Responsive.width(14),
+              vertical: Responsive.height(8)
+          ),
+          height: Responsive.height(30),
           decoration: BoxDecoration(
             color: appcolor.withOpacity(0.7),
-            borderRadius: BorderRadius.circular(30),
-            // border: Border.all(color: Colors.black54),
+            borderRadius: BorderRadius.circular(Responsive.radius(30)),
           ),
           child: Text(
             'Others',
             style: TextStyle(
-              fontSize: 10,
+              fontSize: Responsive.fontSize(10),
               color: Colors.white,
               fontWeight: FontWeight.w600,
             ),
           ),
         ),
         SizedBox(
-          height: 5,
+          height: Responsive.height(5),
         ),
-        _buildClothingItem('assets/Images/6.png'), const SizedBox(height: 5),
+        _buildClothingItem('assets/Images/6.png'),
 
-        // const SizedBox(height: 8),
+
         Container(
-          padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-          height: 30,
+          padding: EdgeInsets.symmetric(
+              horizontal: Responsive.width(14),
+              vertical: Responsive.height(8)
+          ),
+          height: Responsive.height(30),
           decoration: BoxDecoration(
             color: appcolor.withOpacity(0.7),
-            borderRadius: BorderRadius.circular(30),
-            // border: Border.all(color: Colors.black54),
+            borderRadius: BorderRadius.circular(Responsive.radius(30)),
           ),
           child: Text(
             'Pants',
             style: TextStyle(
-              fontSize: 10,
+              fontSize: Responsive.fontSize(10),
               color: Colors.white,
               fontWeight: FontWeight.w600,
             ),
           ),
         ),
         SizedBox(
-          height: 5,
+          height: Responsive.height(5),
         ),
 
         _buildClothingItem('assets/Images/3.png'),
-        const SizedBox(height: 5),
-        // const SizedBox(height: 5),
+
         Container(
-          padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-          height: 30,
+          padding: EdgeInsets.symmetric(
+              horizontal: Responsive.width(14),
+              vertical: Responsive.height(8)
+          ),
+          height: Responsive.height(30),
           decoration: BoxDecoration(
             color: appcolor.withOpacity(0.7),
-            borderRadius: BorderRadius.circular(30),
-            // border: Border.all(color: Colors.black54),
+            borderRadius: BorderRadius.circular(Responsive.radius(30)),
           ),
           child: Text(
             'Shoes',
             style: TextStyle(
-              fontSize: 10,
+              fontSize: Responsive.fontSize(10),
               color: Colors.white,
               fontWeight: FontWeight.w600,
             ),
           ),
         ),
         SizedBox(
-          height: 5,
+          height: Responsive.height(5),
         ),
         _buildClothingItem('assets/Images/4.png'),
       ],
@@ -341,41 +354,34 @@ class _WardrobeScreenState extends State<WardrobeScreen>
   Widget _buildAvatarColumn() {
     return GestureDetector(
       onHorizontalDragEnd: (details) {
-        // print("swipe---------------");
-        // if (details.velocity.pixelsPerSecond.dx > 0) {
-        //   _handleAvatarSwipe(details, false); // Swipe right
-        // } else if (details.velocity.pixelsPerSecond.dx < 0) {
-        //   _handleAvatarSwipe(details, true); // Swipe left
-        // }
-        // Get the position of the swipe
-      double swipePosition = details.localPosition.dy;
+        double swipePosition = details.localPosition.dy;
 
-      // Define thresholds for the red and blue containers
-      double redContainerTop = 140.0;
-      double redContainerBottom = redContainerTop + 150.0;
-      double blueContainerTop = 300.0;
-      double blueContainerBottom = blueContainerTop + 150.0;
+        // Define thresholds for the red and blue containers
+        double redContainerTop = Responsive.height(140.0);
+        double redContainerBottom = redContainerTop + Responsive.height(150.0);
+        double blueContainerTop = Responsive.height(300.0);
+        double blueContainerBottom = blueContainerTop + Responsive.height(150.0);
 
-      // Swipe logic
-      if (details.velocity.pixelsPerSecond.dx > 0) {
-        // Swipe right
-        if (swipePosition >= redContainerTop && swipePosition <= redContainerBottom) {
-          _handleAvatarSwipe(details, false, 'tshirt'); // Swipe over red container
-        } else if (swipePosition >= blueContainerTop && swipePosition <= blueContainerBottom) {
-          _handleAvatarSwipe(details, false, 'pants'); // Swipe over blue container
-        } else {
-          _handleAvatarSwipe(details, false, ''); // Swipe outside the containers
+        // Swipe logic
+        if (details.velocity.pixelsPerSecond.dx > 0) {
+          // Swipe right
+          if (swipePosition >= redContainerTop && swipePosition <= redContainerBottom) {
+            _handleAvatarSwipe(details, false, 'tshirt'); // Swipe over red container
+          } else if (swipePosition >= blueContainerTop && swipePosition <= blueContainerBottom) {
+            _handleAvatarSwipe(details, false, 'pants'); // Swipe over blue container
+          } else {
+            _handleAvatarSwipe(details, false, ''); // Swipe outside the containers
+          }
+        } else if (details.velocity.pixelsPerSecond.dx < 0) {
+          // Swipe left
+          if (swipePosition >= redContainerTop && swipePosition <= redContainerBottom) {
+            _handleAvatarSwipe(details, true, 'tshirt'); // Swipe over red container
+          } else if (swipePosition >= blueContainerTop && swipePosition <= blueContainerBottom) {
+            _handleAvatarSwipe(details, true, 'pants'); // Swipe over blue container
+          } else {
+            _handleAvatarSwipe(details, true, ''); // Swipe outside the containers
+          }
         }
-      } else if (details.velocity.pixelsPerSecond.dx < 0) {
-        // Swipe left
-        if (swipePosition >= redContainerTop && swipePosition <= redContainerBottom) {
-          _handleAvatarSwipe(details, true, 'tshirt'); // Swipe over red container
-        } else if (swipePosition >= blueContainerTop && swipePosition <= blueContainerBottom) {
-          _handleAvatarSwipe(details, true, 'pants'); // Swipe over blue container
-        } else {
-          _handleAvatarSwipe(details, true, ''); // Swipe outside the containers
-        }
-      }
       },
       child: Stack(
         alignment: Alignment.center,
@@ -392,23 +398,23 @@ class _WardrobeScreenState extends State<WardrobeScreen>
 
           if (!_isLoading)
             Positioned(
-              top: 140,
-              left: 0,
-              right: 0,
-              child: Container(
-                  color: Colors.transparent,
-                  height: 150,
-                ),
-            ),
-
-          if (!_isLoading)
-            Positioned(
-              top: 300,
+              top: Responsive.height(140),
               left: 0,
               right: 0,
               child: Container(
                 color: Colors.transparent,
-                height: 150,
+                height: Responsive.height(150),
+              ),
+            ),
+
+          if (!_isLoading)
+            Positioned(
+              top: Responsive.height(300),
+              left: 0,
+              right: 0,
+              child: Container(
+                color: Colors.transparent,
+                height: Responsive.height(150),
               ),
             ),
 
@@ -421,13 +427,13 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                 CircularProgressIndicator(
                   valueColor: AlwaysStoppedAnimation<Color>(appcolor),
                 ),
-                SizedBox(height: 16),
+                SizedBox(height: Responsive.height(16)),
                 Center(
                   child: Text(
                     "Loading next outfit...",
                     style: GoogleFonts.poppins(
                       color: appcolor,
-                      fontSize: 16,
+                      fontSize: Responsive.fontSize(16),
                       fontWeight: FontWeight.w500,
                     ),
                     textAlign: TextAlign.center,
@@ -445,8 +451,6 @@ class _WardrobeScreenState extends State<WardrobeScreen>
 
     print('$keyowrd key -----------');
 
-    
-
     setState(() {
       _isLoading = true;
     });
@@ -455,160 +459,45 @@ class _WardrobeScreenState extends State<WardrobeScreen>
     Future.delayed(const Duration(seconds: 2), () {
       setState(() {
         if(!isLeft && keyowrd == "tshirt"){
-             loadingType = "Changing Shirt";
-            _currentAvatarIndex = 1;
+          loadingType = "Changing Shirt";
+          _currentAvatarIndex = 1;
         }else if(!isLeft && keyowrd == "pants"){
-            loadingType = "Changing Pants";
-            _currentAvatarIndex = 2;
+          loadingType = "Changing Pants";
+          _currentAvatarIndex = 2;
         }else if(isLeft){
-           loadingType = "Loading next outfit..";
-           _currentAvatarIndex = 0;
+          loadingType = "Loading next outfit..";
+          _currentAvatarIndex = 0;
         }
-        // if (isLeft) {
-        //   _currentAvatarIndex =
-        //       (_currentAvatarIndex - 1) % _avatarAssets.length;
-        //   if (_currentAvatarIndex < 0)
-        //     _currentAvatarIndex = _avatarAssets.length - 1;
-        // } else {
-        //   _currentAvatarIndex =
-        //       (_currentAvatarIndex + 1) % _avatarAssets.length;
-        // }
         _isLoading = false;
       });
     });
   }
 
-  //
-  // Widget _buildAvatarColumn() {
-  //   // Add null checks for animation controller before using it
-  //   if (_avatarAnimationController == null ||
-  //       _slideOutAnimation == null ||
-  //       _slideInAnimation == null) {
-  //     // Return a default state if controllers aren't initialized yet
-  //     return Center(
-  //       child: Image.asset(
-  //         _avatarAssets[_currentAvatarIndex],
-  //         fit: BoxFit.fitHeight,
-  //       ),
-  //     );
-  //   }
-  //
-  //   return GestureDetector(
-  //     // Add horizontal drag recognition for swiping
-  //     onHorizontalDragEnd: (details) {
-  //       // Determine swipe direction based on velocity
-  //       if (details.velocity.pixelsPerSecond.dx > 0) {
-  //         _handleAvatarSwipe(details, false); // Swipe right
-  //       } else if (details.velocity.pixelsPerSecond.dx < 0) {
-  //         _handleAvatarSwipe(details, true); // Swipe left
-  //       }
-  //     },
-  //     child: Center(
-  //       child: _isLoading
-  //       // Show loading animation when changing avatar
-  //           ? Column(
-  //         mainAxisAlignment: MainAxisAlignment.center,
-  //         children: [
-  //           SizedBox(
-  //             height: MediaQuery.of(context).size.height * 0.3,
-  //           ),
-  //           SizedBox(
-  //             width: 60,
-  //             height: 60,
-  //             child: CircularProgressIndicator(
-  //               color: appcolor,
-  //               strokeWidth: 3,
-  //             ),
-  //           ),
-  //           const SizedBox(height: 16),
-  //           Text(
-  //             "Updating Outfit...",
-  //             style: GoogleFonts.poppins(
-  //               color: appcolor,
-  //               fontSize: 16,
-  //               fontWeight: FontWeight.w500,
-  //             ),
-  //           ),
-  //           const SizedBox(height: 8),
-  //           // Three dot loading animation
-  //           Row(
-  //             mainAxisAlignment: MainAxisAlignment.center,
-  //             children: List.generate(3, (index) {
-  //               return _buildLoadingDot(index);
-  //             }),
-  //           ),
-  //         ],
-  //       )
-  //       // Show avatar with appropriate animation based on state
-  //           : _avatarAnimationController!.isAnimating
-  //           ? _isAnimatingIn
-  //           ? SlideTransition(
-  //         position: _slideInAnimation!,
-  //         child: Image.asset(
-  //           _avatarAssets[_currentAvatarIndex],
-  //           fit: BoxFit.fitHeight,
-  //         ),
-  //       )
-  //           : SlideTransition(
-  //         position: _slideOutAnimation!,
-  //         child: Image.asset(
-  //           _avatarAssets[_currentAvatarIndex],
-  //           fit: BoxFit.fitHeight,
-  //         ),
-  //       )
-  //       // Default state - show the avatar without animation
-  //           : Image.asset(
-  //         _avatarAssets[_currentAvatarIndex],
-  //         fit: BoxFit.fitHeight,
-  //       ),
-  //     ),
-  //   );
-  // }
-  //
-  // // Animated loading dot
-  // Widget _buildLoadingDot(int index) {
-  //   return TweenAnimationBuilder<double>(
-  //     tween: Tween(begin: 0.0, end: 1.0),
-  //     duration: Duration(milliseconds: 500),
-  //     curve: Curves.easeInOut,
-  //     builder: (context, value, child) {
-  //       return Container(
-  //         margin: EdgeInsets.symmetric(horizontal: 4),
-  //         width: 8,
-  //         height: 8,
-  //         decoration: BoxDecoration(
-  //           shape: BoxShape.circle,
-  //           color: appcolor.withOpacity(value),
-  //         ),
-  //       );
-  //     },
-  //   );
-  // }
   Widget _buildThirdColumn() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        // SizedBox(height: 25,),
-        // Weather section
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             GestureDetector(
               onTap: () => _showAnimatedCategoryDialog(),
               child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-                height: 30,
+                padding: EdgeInsets.symmetric(
+                    horizontal: Responsive.width(12),
+                    vertical: Responsive.height(5)
+                ),
+                height: Responsive.height(30),
                 decoration: BoxDecoration(
                   color: appcolor.withOpacity(0.7),
-                  borderRadius: BorderRadius.circular(30),
-                  // border: Border.all(color: Colors.black54),
+                  borderRadius: BorderRadius.circular(Responsive.radius(30)),
                 ),
                 child: Row(
                   children: [
                     Icon(
                       Icons.file_upload_outlined,
                       color: Colors.white,
-                      size: 14,
+                      size: Responsive.fontSize(14),
                       weight: 10,
                     ),
                     Text(
@@ -616,7 +505,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                       style: GoogleFonts.poppins(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
-                          fontSize: 10),
+                          fontSize: Responsive.fontSize(10)),
                     ),
                   ],
                 ),
@@ -624,20 +513,18 @@ class _WardrobeScreenState extends State<WardrobeScreen>
             ),
           ],
         ),
-
       ],
     );
   }
 
   Widget _buildClothingItem(String imagePath) {
     return Container(
-      width: 60,
-      height: 56,
-      margin: const EdgeInsets.only(bottom: 5),
+      width: Responsive.width(60),
+      height: Responsive.height(56),
+      margin: EdgeInsets.only(bottom: Responsive.height(5)),
       decoration: BoxDecoration(
         color: themeController.white,
-        borderRadius: BorderRadius.circular(10),
-        // border: Border.all(color: Colors.grey.shade200),
+        borderRadius: BorderRadius.circular(Responsive.radius(10)),
         boxShadow: [
           BoxShadow(
             color: Colors.grey.withOpacity(0.4),
@@ -647,7 +534,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: Responsive.allPadding(8.0),
         child: Image.asset(
           imagePath,
           fit: BoxFit.contain,
@@ -663,11 +550,11 @@ class _WardrobeScreenState extends State<WardrobeScreen>
         Text(
           'Calender',
           style: GoogleFonts.poppins(
-            fontSize: 18,
+            fontSize: Responsive.fontSize(18),
             fontWeight: FontWeight.w600,
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: Responsive.height(16)),
         Column(
           children: [
             Card(
@@ -706,20 +593,20 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                     headerStyle: HeaderStyle(
                       formatButtonVisible: false,
                       titleCentered: true,
-                      titleTextStyle: const TextStyle(
-                        fontSize: 18,
+                      titleTextStyle: TextStyle(
+                        fontSize: Responsive.fontSize(18),
                         fontWeight: FontWeight.bold,
                       ),
                       leftChevronIcon: Container(
                           decoration: BoxDecoration(
                               border: Border.all(color: appcolor),
-                              borderRadius: BorderRadius.circular(5)),
+                              borderRadius: BorderRadius.circular(Responsive.radius(5))),
                           child: Icon(Icons.chevron_left,
                               color: Color(0xFFAA8A00))),
                       rightChevronIcon: Container(
                           decoration: BoxDecoration(
                               border: Border.all(color: appcolor),
-                              borderRadius: BorderRadius.circular(5)),
+                              borderRadius: BorderRadius.circular(Responsive.radius(5))),
                           child: Icon(Icons.chevron_right,
                               color: Color(0xFFAA8A00))),
                     ),
@@ -735,11 +622,11 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                   Container(
                     decoration: BoxDecoration(
                         color: appcolor,
-                        borderRadius: BorderRadius.circular(10)),
-                    height: 5,
-                    width: 45,
+                        borderRadius: BorderRadius.circular(Responsive.radius(10))),
+                    height: Responsive.height(5),
+                    width: Responsive.width(45),
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: Responsive.height(16)),
                 ],
               ),
             ),
@@ -768,7 +655,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                     ? 'Select ${selectedCategory} Type'
                     : 'Select Category',
                 style: GoogleFonts.poppins(
-                  fontSize: 18,
+                  fontSize: Responsive.fontSize(18),
                   fontWeight: FontWeight.w600,
                   color: appcolor,
                 ),
@@ -857,7 +744,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                             return _buildAnimatedCategoryButton(
                               subcategory,
                               selectedSubcategory,
-                              (value) {
+                                  (value) {
                                 setState(() {
                                   selectedSubcategory = value;
                                 });
@@ -897,10 +784,10 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                 TextButton(
                   onPressed: (showSubcategories && selectedSubcategory != null)
                       ? () {
-                          Navigator.of(context).pop();
-                          _openCameraWithGoogleVision(
-                              selectedCategory!, selectedSubcategory!);
-                        }
+                    Navigator.of(context).pop();
+                    _openCameraWithGoogleVision(
+                        selectedCategory!, selectedSubcategory!);
+                  }
                       : null,
                   child: Text(
                     'Open Camera',
@@ -927,14 +814,14 @@ class _WardrobeScreenState extends State<WardrobeScreen>
 
     return AnimatedContainer(
       duration: Duration(milliseconds: 300),
-      margin: EdgeInsets.symmetric(vertical: 4.0),
+      margin: EdgeInsets.symmetric(vertical: Responsive.height(4.0)),
       child: InkWell(
         onTap: () => onSelect(category),
         child: Container(
-          padding: EdgeInsets.symmetric(vertical: 12),
+          padding: EdgeInsets.symmetric(vertical: Responsive.height(12)),
           decoration: BoxDecoration(
             color: isSelected ? appcolor : Colors.white,
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(Responsive.radius(8)),
             border: Border.all(
               color: isSelected ? appcolor : Colors.grey.shade300,
             ),
@@ -1017,10 +904,10 @@ class _WardrobeScreenState extends State<WardrobeScreen>
           elevation: 0,
           child: Center(
             child: Container(
-              padding: EdgeInsets.all(16),
+              padding: Responsive.allPadding(16),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(Responsive.radius(10)),
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -1028,7 +915,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                   CircularProgressIndicator(
                     valueColor: AlwaysStoppedAnimation<Color>(appcolor),
                   ),
-                  SizedBox(height: 16),
+                  SizedBox(height: Responsive.height(16)),
                   Text(
                     'Opening camera...',
                     style: TextStyle(
@@ -1078,6 +965,8 @@ class _WardrobeScreenState extends State<WardrobeScreen>
       );
     }
   }
+
+
 
   // Method to show confirmation dialog after image capture
   void _showImageCapturedDialog(

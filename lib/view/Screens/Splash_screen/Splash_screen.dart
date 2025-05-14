@@ -21,14 +21,16 @@ class _SplashScreenState extends State<SplashScreen> {
     super.initState();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
     check();
-    if(already_login==null||already_login==""){
+
     Future.delayed(const Duration(seconds: 3), () {
-      Navigator.pushReplacementNamed(context, AppRoutes.onboarding);
+      if(already_login==null||already_login==""){
+      Navigator.pushReplacementNamed(context, AppRoutes.onboarding);}
+      else{
+        Navigator.pushReplacementNamed(context, AppRoutes.dashboard);
+      }
     });}
-    else{
-      Navigator.pushReplacementNamed(context, AppRoutes.dashboard);
-    }
-  }
+
+
   Future<void> check()async{
     SharedPreferences prefs = await SharedPreferences.getInstance();
     already_login = prefs.getString('token')??"";
