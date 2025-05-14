@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../main.dart';
 import '../../Utils/Colors.dart';
+import '../../Utils/globle_variable/globle.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -20,20 +21,15 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
-    check();
-
-    Future.delayed(const Duration(seconds: 3), () {
-      if(already_login==null||already_login==""){
-      Navigator.pushReplacementNamed(context, AppRoutes.onboarding);}
-      else{
+    Future.delayed(const Duration(seconds: 3), () async {
+      await gettoken();
+      print(token);
+      if (token == "" || token == null) {
+        Navigator.pushReplacementNamed(context, AppRoutes.onboarding);
+      } else {
         Navigator.pushReplacementNamed(context, AppRoutes.dashboard);
       }
-    });}
-
-
-  Future<void> check()async{
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    already_login = prefs.getString('token')??"";
+    });
   }
   @override
   void dispose() {
