@@ -23,6 +23,7 @@ class WardrobeService {
           'Authorization': 'Bearer $token',
         },
       );
+      print(response.body);
 
 
       if (response.statusCode == 200) {
@@ -77,31 +78,47 @@ class WardrobeService {
     required String subCategory,
     required File imageFile,
     required String? token,
-  }) async {
+  }) async
+  {
     try {
+      // Log token and basic info
+      print('📌 Starting upload process...');
+      print('🔑 Token: ${token != null ? "*****" + token.substring(token.length - 4) : "NULL"}');
+      print('📂 File path: ${imageFile.path}');
+      print('📏 File size: ${(await imageFile.length()) / 1024} KB');
+      print('🏷️ Category: $category, Subcategory: $subCategory');
 
       if (token == null || token.isEmpty) {
         throw Exception('Authentication token is missing or empty');
       }
 
-      final String correctedUrl = baseUrl.replaceAll(
-          'localhost', '192.168.43.63'); // Use your actual IP
+      final String correctedUrl = baseUrl.replaceAll('localhost', '192.168.18.114');
       final Uri uri = Uri.parse('$correctedUrl/wardrobe-items');
-      print("Sending request to: $uri");
+      print('🌐 API Endpoint: $uri');
+      final http.Client _client = http.Client();
 
       final request = http.MultipartRequest('POST', uri);
 
+      // Log headers
+      print('📤 Request Headers:');
       request.headers.addAll({
         'Authorization': 'Bearer $token',
         'Accept': 'application/json',
       });
+      request.headers.forEach((key, value) => print('   $key: $value'));
 
       request.fields['category'] = category;
       request.fields['sub_category'] = subCategory;
 
+      // Log file details
       String filename = imageFile.path.split('/').last;
       String extension = filename.split('.').last.toLowerCase();
       String mimeType = 'image/$extension';
+      print('📄 File Details:');
+      print('   Name: $filename');
+      print('   Type: $mimeType');
+      print('   Extension: $extension');
+
       final file = await http.MultipartFile.fromPath(
         'image',
         imageFile.path,
@@ -109,48 +126,57 @@ class WardrobeService {
       );
       request.files.add(file);
 
-      http.StreamedResponse streamedResponse;
-      try {
-        streamedResponse = await request.send().timeout(
-          const Duration(seconds: 60),
-          onTimeout: () {
-            throw TimeoutException('Request timed out after 60 seconds');
-          },
-        );
-      } catch (e) {
-        rethrow;
-      }
+      // Log before sending
 
+
+      http.StreamedResponse streamedResponse = await request.send().timeout(
+        const Duration(seconds: 60),
+        onTimeout: () {
+          throw TimeoutException('Request timed out after 60 seconds');
+        },
+      );
 
       final response = await http.Response.fromStream(streamedResponse);
 
+      // Log complete response
+      print('✅ Response Status: ${response.statusCode}');
+      print('📦 Response Body: ${response.body}');
+      print('📋 Response Headers:');
+      response.headers.forEach((key, value) => print('   $key: $value'));
+
       if (response.statusCode == 201 || response.statusCode == 200) {
         final Map<String, dynamic> responseData = json.decode(response.body);
-        if (responseData['data'] != null) {
 
+        // Log parsed data
+        print('🔍 Parsed Response Data:');
+        responseData.forEach((key, value) => print('   $key: $value'));
+
+        if (responseData['data'] != null) {
+          print('🛍️ Successfully created WardrobeItem');
           return WardrobeItem.fromJson(responseData['data']);
         } else {
-          // Fallback: try parsing entire response body directly
-          print("Fallback: Attempting to parse entire body as WardrobeItem");
-          return WardrobeItem.fromJson(
-              responseData); // Adjust based on your actual model structure
+          print('⚠️ No "data" field in response, parsing full body');
+          return WardrobeItem.fromJson(responseData);
         }
       } else {
-        throw Exception(
-            'Server error: ${response.statusCode} - ${response.body}');
+        print('❌ Server error response');
+        throw Exception('Server error: ${response.statusCode} - ${response.body}');
       }
     } on SocketException catch (e) {
-      throw Exception(
-          'Network error: Check your internet connection - ${e.message}');
+      print('🚫 Network error: ${e.message}');
+      throw Exception('Network error: Check your internet connection - ${e.message}');
     } on TimeoutException catch (_) {
+      print('⏰ Request timeout');
       throw Exception('Request timed out: The server took too long to respond');
     } on FormatException catch (_) {
+      print('📛 Response format error');
       throw Exception('Data format error: The response could not be parsed');
     } catch (e) {
-
+      print('❗ Unexpected error: $e');
       throw Exception('Error uploading wardrobe item: $e');
+    } finally {
+      print('🏁 Upload process completed');
     }
-
   }
 
   Future<bool> deleteWardrobeItem(String itemId, String? token) async {

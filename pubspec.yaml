@@ -42,6 +42,8 @@ dependencies:
   otp_text_field:
   flutter_screenutil:
   curved_navigation_bar:
+  flutter_dotenv:
+  intl:
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -68,6 +70,7 @@ flutter:
   assets:
     - assets/Images/
     - assets/Icons/
+    - .env
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

@@ -3,6 +3,7 @@ import 'package:fitlip_app/view/Screens/Splash_screen/Splash_screen.dart';
 import 'package:fitlip_app/view/Utils/Colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart'; // Add this import
 
 import 'controllers/themecontroller.dart';
@@ -11,6 +12,7 @@ final themeController = ThemeController();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   runApp(const MyApp());
 }
 
