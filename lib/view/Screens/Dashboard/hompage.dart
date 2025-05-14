@@ -1,3 +1,4 @@
+
 import 'package:fitlip_app/routes/App_routes.dart';
 import 'package:fitlip_app/controllers/themecontroller.dart';
 import 'package:flutter/material.dart';
@@ -5,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../controllers/wardrobe_controller.dart';
+import '../../../controllers/outfit_controller.dart';
 import '../../../main.dart';
 import '../../../model/wardrobe_model.dart';
 import '../../Utils/Colors.dart';
@@ -23,10 +25,11 @@ class WardrobeScreen extends StatefulWidget {
 class _WardrobeScreenState extends State<WardrobeScreen>
     with SingleTickerProviderStateMixin {
   DateTime _focusedDay = DateTime.now();
+  WardrobeController controller=WardrobeController();
   DateTime? _selectedDay;
   CalendarFormat _calendarFormat = CalendarFormat.month;
   final ImagePicker _picker = ImagePicker();
-
+  String? _avatarUrl;
   // Avatar control variables
   int _currentAvatarIndex = 0;
   final List<String> _avatarAssets = [
@@ -38,15 +41,24 @@ class _WardrobeScreenState extends State<WardrobeScreen>
     'assets/Icons/avatar2.png',
   ];
   final WardrobeController _wardrobeController = WardrobeController();
+  final OutfitController _outfitController = OutfitController();
 
   // Animation controllers
-  AnimationController? _avatarAnimationController; // Changed to nullable
-  Animation<Offset>? _slideOutAnimation; // Changed to nullable
-  Animation<Offset>? _slideInAnimation; // Changed to nullable
+  AnimationController? _avatarAnimationController;
+  Animation<Offset>? _slideOutAnimation;
+  Animation<Offset>? _slideInAnimation;
   bool _isLoading = false;
-  bool _isAnimatingIn = false; // Add flag to track animation direction
+  bool _isAnimatingIn = false;
   String loadingType = "";
   bool isLoadingItems = true;
+  bool isSavingOutfit = false;
+
+  // Selected wardrobe items for outfit
+  String? selectedShirtId;
+  String? selectedPantId;
+  String? selectedShoeId;
+  String? selectedAccessoryId;
+
   @override
   void initState() {
     super.initState();
@@ -77,6 +89,9 @@ class _WardrobeScreenState extends State<WardrobeScreen>
     ));
     _getUserInfoAndLoadItems();
     _wardrobeController.statusNotifier.addListener(_handleStatusChange);
+
+    // Check if there's an outfit for today
+    _checkExistingOutfit(_focusedDay);
   }
 
   void _handleStatusChange() {
@@ -95,6 +110,10 @@ class _WardrobeScreenState extends State<WardrobeScreen>
       });
 
       await _wardrobeController.loadWardrobeItems();
+
+      // After loading items, set default selections
+      _updateSelectedItemsFromCurrentOutfit();
+
     } catch (e) {
       print("Error getting user info: $e");
       if (mounted) {
@@ -108,11 +127,225 @@ class _WardrobeScreenState extends State<WardrobeScreen>
     }
   }
 
+  // Check if there's an existing outfit for the selected date
+  Future<void> _checkExistingOutfit(DateTime date) async {
+    try {
+      setState(() {
+        isLoadingItems = true; // Show loading indicator
+      });
+
+      final outfit = await _outfitController.getOutfitByDate(
+        token: token,
+        date: date,
+      );
+      print("coming ios $outfit");
+    if(url!=""){
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Update available for this date',style: TextStyle(color: Colors.white),),
+          backgroundColor: appcolor,
+          duration: Duration(seconds: 1),
+        ),
+      );
+      _currentAvatarIndex=1;
+      _updateAvatarBasedOnOutfit(outfit);
+
+      // Show brief success message that an outfit was found
+
+    }
+
+
+
+        // Update avatar based on outfit (optional, can use your existing logic)
+
+      // } else
+      //   {
+      //   // Reset selections if no outfit found
+      //   setState(() {
+      //     selectedShirtId = null;
+      //     selectedPantId = null;
+      //     selectedShoeId = null;
+      //     selectedAccessoryId = null;
+      //     _currentAvatarIndex = 0; // Reset to default avatar
+      //   });
+
+        // Show brief message that no outfit was found
+        else{
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('No outfit available for this date',style: TextStyle(color: Colors.white),),
+          backgroundColor: appcolor,
+          duration: Duration(seconds: 1),
+        ),
+      );
+    }
+
+
+      setState(() {
+        isLoadingItems = false; // Hide loading indicator
+      });
+    } catch (e) {
+      print("Error checking existing outfit: $e");
+      setState(() {
+        isLoadingItems = false;
+      });
+    }
+  }
+
+  void _updateAvatarBasedOnOutfit(outfit) {
+    print(outfit);
+    _avatarUrl = outfit;
+    _currentAvatarIndex=1;
+    // Logic to update avatar based on outfit components
+    // This is a simplified implementation
+    if (outfit.shirtId != null && outfit.pantId != null) {
+      setState(() {
+        _currentAvatarIndex = 0; // Default complete outfit
+      });
+    } else if (outfit.shirtId != null) {
+      setState(() {
+        _currentAvatarIndex = 1; // Shirt only
+      });
+    } else if (outfit.pantId != null) {
+      setState(() {
+        _currentAvatarIndex = 2; // Pants only
+      });
+    } else {
+      setState(() {
+        _currentAvatarIndex = 5; // Default
+      });
+    }
+  }
+
+  void _updateSelectedItemsFromCurrentOutfit() {
+    // Update selected IDs based on first items in each category
+    if (_wardrobeController.shirtsNotifier.value.isNotEmpty) {
+      selectedShirtId = _wardrobeController.shirtsNotifier.value.first.id;
+    }
+
+    if (_wardrobeController.pantsNotifier.value.isNotEmpty) {
+      selectedPantId = _wardrobeController.pantsNotifier.value.first.id;
+    }
+
+    if (_wardrobeController.shoesNotifier.value.isNotEmpty) {
+      selectedShoeId = _wardrobeController.shoesNotifier.value.first.id;
+    }
+
+    if (_wardrobeController.accessoriesNotifier.value.isNotEmpty) {
+      selectedAccessoryId = _wardrobeController.accessoriesNotifier.value.first.id;
+    }
+  }
+
+  Future<void> _saveOutfit() async {
+    // Show confirmation dialog
+    bool confirmed = await _showSaveOutfitConfirmationDialog();
+
+    if (!confirmed) return;
+
+    setState(() {
+      isSavingOutfit = true;
+    });
+
+    try {
+      final result = await _outfitController.saveOutfit(
+        token: token,
+
+        shirtId: "1",
+        pantId: "2",
+        shoeId: "3",
+        accessoryId: "4",
+        date: _selectedDay ?? _focusedDay,
+      );
+
+      setState(() {
+        isSavingOutfit = false;
+      });
+
+      if (result) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Outfit saved successfully for ${_getFormattedDate(_selectedDay ?? _focusedDay)}'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(_outfitController.errorNotifier.value ?? 'Failed to save outfit'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      setState(() {
+        isSavingOutfit = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: ${e.toString()}'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+  String _getFormattedDate(DateTime date) {
+    return "${date.day} ${_getMonthName(date.month)} ${date.year}";
+  }
+
+  Future<bool> _showSaveOutfitConfirmationDialog() async {
+    bool result = false;
+    await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(
+          'Save Outfit',
+          style: GoogleFonts.poppins(
+            color: appcolor,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        content: Text(
+          'Do you want to save this outfit for ${_getFormattedDate(_selectedDay ?? _focusedDay)}?',
+          style: GoogleFonts.poppins(),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              result = false;
+            },
+            child: Text(
+              'Cancel',
+              style: TextStyle(color: Colors.grey),
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              result = true;
+            },
+            child: Text(
+              'Save',
+              style: TextStyle(
+                color: appcolor,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+    return result;
+  }
+
   @override
   void dispose() {
     _avatarAnimationController?.dispose();
     _wardrobeController.statusNotifier.removeListener(_handleStatusChange);
     _wardrobeController.dispose();
+    _outfitController.dispose();
+
     super.dispose();
   }
 
@@ -120,9 +353,9 @@ class _WardrobeScreenState extends State<WardrobeScreen>
   Widget build(BuildContext context) {
     return RefreshIndicator(
       color: appcolor,
-    backgroundColor: white,
+      backgroundColor: white,
       onRefresh: () async {
-       await _getUserInfoAndLoadItems();
+        await _getUserInfoAndLoadItems();
       },
       child: Scaffold(
         backgroundColor: themeController.white,
@@ -153,7 +386,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                 ]),
                 Padding(
                   padding: Responsive.allPadding(16.0),
-                  child: _buildCalendarSection(),
+                  child: _buildCalendarSection(controller),
                 ),
               ],
             ),
@@ -202,40 +435,33 @@ class _WardrobeScreenState extends State<WardrobeScreen>
         SizedBox(
           width: Responsive.width(40),
         ),
-        // Expanded(
-        //     flex: 2,
-        //     child: GestureDetector(
-        //         onTap: () {
-        //           // Refresh wardrobe items
-        //           _getUserInfoAndLoadItems();
-        //         },
-        //         child: Container(
-        //             padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-        //             height: 30,
-        //             decoration: BoxDecoration(
-        //               color: appcolor.withOpacity(0.7),
-        //               borderRadius: BorderRadius.circular(30),
-        //             ),
-        //             child: Text(
-        //               "Refresh",
-        //               style: GoogleFonts.poppins(
-        //                   color: Colors.white,
-        //                   fontWeight: FontWeight.bold,
-        //                   fontSize: 10),
-        //             )))),
 
-        Container(
-          padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-          height: 30,
-          decoration: BoxDecoration(
-            color: appcolor.withOpacity(0.7),
-            borderRadius: BorderRadius.circular(30),
-            // border: Border.all(color: Colors.black54),
-          ),
-          child: Text(
-            "Save",
-            style: GoogleFonts.poppins(
-                color: Colors.white, fontWeight: FontWeight.bold, fontSize: 10),
+        GestureDetector(
+          onTap: isSavingOutfit ? null : _saveOutfit,
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+            height: 30,
+            decoration: BoxDecoration(
+              color: isSavingOutfit ? Colors.grey : appcolor.withOpacity(0.7),
+              borderRadius: BorderRadius.circular(30),
+            ),
+            child: isSavingOutfit
+                ? SizedBox(
+              width: 16,
+              height: 16,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+              ),
+            )
+                : Text(
+              "Save",
+              style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 10
+              ),
+            ),
           ),
         ),
       ],
@@ -293,13 +519,13 @@ class _WardrobeScreenState extends State<WardrobeScreen>
               ),
               Text(
 
-                "  ${_focusedDay.day} ${_getMonthName(_focusedDay.month)}",
+                  "  ${_focusedDay.day} ${_getMonthName(_focusedDay.month)}",
 
-                style: GoogleFonts.poppins(
+                  style: GoogleFonts.poppins(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
                     fontSize: Responsive.fontSize(10),
-              )),
+                  )),
             ],
           ),
         ),
@@ -441,87 +667,327 @@ class _WardrobeScreenState extends State<WardrobeScreen>
         notifier = _wardrobeController.shirtsNotifier;
     }
 
-    return Container(
-      width: 60,
-      height: 56,
-      margin: const EdgeInsets.only(bottom: 5),
-      decoration: BoxDecoration(
-        color: themeController.white,
-        borderRadius: BorderRadius.circular(10),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.4),
-            blurRadius: 5,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: ValueListenableBuilder<List<WardrobeItem>>(
-        valueListenable: notifier,
-        builder: (context, items, child) {
-          if (isLoadingItems) {
-            // Show loading animation
-            return Center(
-              child: SizedBox(
-                width: 30,
-                height: 30,
-                child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(appcolor),
-                  strokeWidth: 2.0,
+    return GestureDetector(
+      onTap: () {
+        // Show item selection dialog when container is tapped
+        _showItemSelectionDialog(category, notifier);
+      },
+      child: Container(
+        width: 60,
+        height: 56,
+        margin: const EdgeInsets.only(bottom: 5),
+        decoration: BoxDecoration(
+          color: themeController.white,
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.4),
+              blurRadius: 5,
+              offset: const Offset(0, 2),
+            ),
+          ],
+          // Add highlight border if this item is selected
+          border: _isItemSelected(category)
+              ? Border.all(color: appcolor, width: 2)
+              : null,
+        ),
+        child: ValueListenableBuilder<List<WardrobeItem>>(
+          valueListenable: notifier,
+          builder: (context, items, child) {
+            if (isLoadingItems) {
+              // Show loading animation
+              return Center(
+                child: SizedBox(
+                  width: 30,
+                  height: 30,
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(appcolor),
+                    strokeWidth: 2.0,
+                  ),
                 ),
-              ),
-            );
-          } else if (items.isEmpty) {
-            // Show placeholder if no items
-            return Center(
-              child: Icon(
-                _getIconForCategory(category),
-                color: Colors.grey,
-                size: 24,
-              ),
-            );
-          } else {
-            // Show the latest item image
-            return ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.network(
-                items.first.imageUrl ?? '',
-                fit: BoxFit.cover,
-                width: double.infinity,
-                height: double.infinity,
-                errorBuilder: (context, error, stackTrace) {
-                  return Center(
-                    child: Icon(
-                      _getIconForCategory(category),
-                      color: Colors.grey,
-                      size: 24,
+              );
+            } else if (items.isEmpty) {
+              // Show placeholder if no items
+              return Center(
+                child: Icon(
+                  _getIconForCategory(category),
+                  color: Colors.grey,
+                  size: 24,
+                ),
+              );
+            } else {
+              // Find the selected item for this category
+              WardrobeItem? selectedItem = _getSelectedItemForCategory(category, items);
+
+              // Show the selected item image or the first item if none selected
+              String? imageUrl = selectedItem?.imageUrl ?? items.first.imageUrl;
+
+              return Stack(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.network(
+                      imageUrl ?? '',
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                      height: double.infinity,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Center(
+                          child: Icon(
+                            _getIconForCategory(category),
+                            color: Colors.grey,
+                            size: 24,
+                          ),
+                        );
+                      },
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return Center(
+                          child: SizedBox(
+                            width: 30,
+                            height: 30,
+                            child: CircularProgressIndicator(
+                              valueColor: AlwaysStoppedAnimation<Color>(appcolor),
+                              strokeWidth: 2.0,
+                              value: loadingProgress.expectedTotalBytes != null
+                                  ? loadingProgress.cumulativeBytesLoaded /
+                                  loadingProgress.expectedTotalBytes!
+                                  : null,
+                            ),
+                          ),
+                        );
+                      },
                     ),
-                  );
-                },
-                loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) return child;
-                  return Center(
-                    child: SizedBox(
-                      width: 30,
-                      height: 30,
-                      child: CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(appcolor),
-                        strokeWidth: 2.0,
-                        value: loadingProgress.expectedTotalBytes != null
-                            ? loadingProgress.cumulativeBytesLoaded /
-                            loadingProgress.expectedTotalBytes!
-                            : null,
+                  ),
+                  if (_isItemSelected(category))
+                    Positioned(
+                      bottom: 2,
+                      right: 2,
+                      child: Container(
+                        padding: EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          color: appcolor,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.check,
+                          color: Colors.white,
+                          size: 12,
+                        ),
                       ),
                     ),
-                  );
-                },
-              ),
-            );
-          }
-        },
+                ],
+              );
+            }
+          },
+        ),
       ),
     );
   }
+
+  bool _isItemSelected(String category) {
+    switch (category) {
+      case 'shirt':
+        return selectedShirtId != null;
+      case 'pant':
+        return selectedPantId != null;
+      case 'shoe':
+        return selectedShoeId != null;
+      case 'accessory':
+        return selectedAccessoryId != null;
+      default:
+        return false;
+    }
+  }
+
+  WardrobeItem? _getSelectedItemForCategory(String category, List<WardrobeItem> items) {
+    String? selectedId;
+
+    switch (category) {
+      case 'shirt':
+        selectedId = selectedShirtId;
+        break;
+      case 'pant':
+        selectedId = selectedPantId;
+        break;
+      case 'shoe':
+        selectedId = selectedShoeId;
+        break;
+      case 'accessory':
+        selectedId = selectedAccessoryId;
+        break;
+    }
+
+    if (selectedId == null) return null;
+
+    for (var item in items) {
+      if (item.id == selectedId) {
+        return item;
+      }
+    }
+
+    return null;
+  }
+
+  void _showItemSelectionDialog(String category, ValueNotifier<List<WardrobeItem>> notifier) {
+    if (notifier.value.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('No ${category}s available. Please upload some first.'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Container(
+          padding: EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Select ${category.substring(0, 1).toUpperCase() + category.substring(1)}',
+                style: GoogleFonts.poppins(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: appcolor,
+                ),
+              ),
+              SizedBox(height: 16),
+              ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxHeight: MediaQuery.of(context).size.height * 0.5,
+                ),
+                child: GridView.builder(
+                  shrinkWrap: true,
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                    crossAxisSpacing: 8,
+                    mainAxisSpacing: 8,
+                  ),
+                  itemCount: notifier.value.length,
+                  itemBuilder: (context, index) {
+                    final item = notifier.value[index];
+                    bool isSelected = false;
+
+                    switch (category) {
+                      case 'shirt':
+                        isSelected = selectedShirtId == item.id;
+                        break;
+                      case 'pant':
+                        isSelected = selectedPantId == item.id;
+                        break;
+                      case 'shoe':
+                        isSelected = selectedShoeId == item.id;
+                        break;
+                      case 'accessory':
+                        isSelected = selectedAccessoryId == item.id;
+                        break;
+                    }
+
+                    return GestureDetector(
+                      onTap: () {
+                        switch (category) {
+                          case 'shirt':
+                            setState(() {
+                              selectedShirtId = item.id;
+                            });
+                            break;
+                          case 'pant':
+                            setState(() {
+                              selectedPantId = item.id;
+                            });
+                            break;
+                          case 'shoe':
+                            setState(() {
+                              selectedShoeId = item.id;
+                            });
+                            break;
+                          case 'accessory':
+                            setState(() {
+                              selectedAccessoryId = item.id;
+                            });
+                            break;
+                        }
+                        Navigator.pop(context);
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          border: isSelected
+                              ? Border.all(color: appcolor, width: 2)
+                              : Border.all(color: Colors.grey.shade300),
+                        ),
+                        child: Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(6),
+                              child: Image.network(
+                                item.imageUrl ?? '',
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Center(
+                                    child: Icon(
+                                      _getIconForCategory(category),
+                                      color: Colors.grey,
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                            if (isSelected)
+                              Positioned(
+                                bottom: 4,
+                                right: 4,
+                                child: Container(
+                                  padding: EdgeInsets.all(2),
+                                  decoration: BoxDecoration(
+                                    color: appcolor,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    Icons.check,
+                                    color: Colors.white,
+                                    size: 12,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: Text(
+                      'Cancel',
+                      style: TextStyle(color: Colors.grey),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   IconData _getIconForCategory(String category) {
     switch (category) {
       case 'shirt':
@@ -538,139 +1004,91 @@ class _WardrobeScreenState extends State<WardrobeScreen>
   }
 
 
+  // Continuing from where the code left off:
   Widget _buildAvatarColumn() {
     return GestureDetector(
       onHorizontalDragEnd: (details) {
-        double swipePosition = details.localPosition.dy;
-
-        // Define thresholds for the red and blue containers
-        double redContainerTop = Responsive.height(140.0);
-        double redContainerBottom = redContainerTop + Responsive.height(150.0);
-        double blueContainerTop = Responsive.height(300.0);
-        double blueContainerBottom =
-            blueContainerTop + Responsive.height(150.0);
-
         // Swipe logic
         if (details.velocity.pixelsPerSecond.dx > 0) {
-          // Swipe right
-          if (swipePosition >= redContainerTop &&
-              swipePosition <= redContainerBottom) {
-            _handleAvatarSwipe(
-                details, false, 'tshirt'); // Swipe over red container
-          } else if (swipePosition >= blueContainerTop &&
-              swipePosition <= blueContainerBottom) {
-            _handleAvatarSwipe(
-                details, false, 'pants'); // Swipe over blue container
-          } else {
-            _handleAvatarSwipe(
-                details, false, ''); // Swipe outside the containers
-          }
+          // Swiping Right
+          setState(() {
+            if (_currentAvatarIndex > 0) {
+              _currentAvatarIndex--;
+              _animateAvatarChange();
+            }
+          });
         } else if (details.velocity.pixelsPerSecond.dx < 0) {
-          // Swipe left
-          if (swipePosition >= redContainerTop &&
-              swipePosition <= redContainerBottom) {
-            _handleAvatarSwipe(
-                details, true, 'tshirt'); // Swipe over red container
-          } else if (swipePosition >= blueContainerTop &&
-              swipePosition <= blueContainerBottom) {
-            _handleAvatarSwipe(
-                details, true, 'pants'); // Swipe over blue container
-          } else {
-            _handleAvatarSwipe(
-                details, true, ''); // Swipe outside the containers
-          }
+          // Swiping Left
+          setState(() {
+            if (_currentAvatarIndex < _avatarAssets.length - 1) {
+              _currentAvatarIndex++;
+              _animateAvatarChange();
+            }
+          });
         }
       },
-      child: Stack(
+      child: Container(
         alignment: Alignment.center,
-        children: [
-          // Current avatar
-          AnimatedOpacity(
-            opacity: _isLoading ? 0.5 : 1.0,
-            duration: Duration(milliseconds: 300),
-            child: Image.asset(
-              _avatarAssets[_currentAvatarIndex],
-              fit: BoxFit.fitHeight,
-            ),
-          ),
-
-          if (!_isLoading)
-            Positioned(
-              top: Responsive.height(140),
-              left: 0,
-              right: 0,
-              child: Container(
-                color: Colors.transparent,
-                height: Responsive.height(150),
-              ),
-            ),
-
-          if (!_isLoading)
-            Positioned(
-              top: Responsive.height(300),
-              left: 0,
-              right: 0,
-              child: Container(
-                color: Colors.transparent,
-                height: Responsive.height(150),
-              ),
-            ),
-
-          // Loading indicator
-          if (_isLoading)
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                CircularProgressIndicator(
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            // Animated avatar
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 500),
+              transitionBuilder: (Widget child, Animation<double> animation) {
+                return ScaleTransition(
+                  scale: animation,
+                  child: FadeTransition(
+                    opacity: animation,
+                    child: child,
+                  ),
+                );
+              },
+              child: _isLoading
+                  ? Center(
+                child: CircularProgressIndicator(
                   valueColor: AlwaysStoppedAnimation<Color>(appcolor),
                 ),
-                SizedBox(height: Responsive.height(16)),
-                Center(
-                  child: Text(
-                    "Loading next outfit...",
-                    style: GoogleFonts.poppins(
-                      color: appcolor,
-                      fontSize: Responsive.fontSize(16),
-                      fontWeight: FontWeight.w500,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ],
+              )
+                  : _avatarUrl != null
+                  ? Image.network(
+                _avatarUrl!,
+                key: ValueKey<String>(_avatarUrl!),
+                height: Responsive.height(350),
+                fit: BoxFit.contain,
+                errorBuilder: (context, error, stackTrace) {
+                  // Fallback to default avatar if network image fails
+                  return Image.asset(
+                    _avatarAssets[_currentAvatarIndex],
+                    key: ValueKey<int>(_currentAvatarIndex),
+                    height: Responsive.height(350),
+                    fit: BoxFit.contain,
+                  );
+                },
+              )
+                  : Image.asset(
+                _avatarAssets[_currentAvatarIndex],
+                key: ValueKey<int>(_currentAvatarIndex),
+                height: Responsive.height(350),
+                fit: BoxFit.contain,
+              ),
             ),
-        ],
+          ],
+        ),
       ),
     );
   }
-
-  void _handleAvatarSwipe(DragEndDetails details, bool isLeft, String keyowrd) {
-    if (_isLoading) return;
-
-    print('$keyowrd key -----------');
-
+  void _animateAvatarChange() {
+    _avatarAnimationController?.reset();
     setState(() {
-      _isLoading = true;
+      _isAnimatingIn = true;
     });
-
-    // Show loading for 2 seconds
-    Future.delayed(const Duration(seconds: 2), () {
+    _avatarAnimationController?.forward().then((_) {
       setState(() {
-        if (!isLeft && keyowrd == "tshirt") {
-          loadingType = "Changing Shirt";
-          _currentAvatarIndex = 1;
-        } else if (!isLeft && keyowrd == "pants") {
-          loadingType = "Changing Pants";
-          _currentAvatarIndex = 2;
-        } else if (isLeft) {
-          loadingType = "Loading next outfit..";
-          _currentAvatarIndex = 0;
-        }
-        _isLoading = false;
+        _isAnimatingIn = false;
       });
     });
   }
-
   Widget _buildThirdColumn() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
@@ -716,129 +1134,157 @@ class _WardrobeScreenState extends State<WardrobeScreen>
     );
   }
 
-  Widget _buildClothingItem(String imagePath) {
-    return Container(
-      width: Responsive.width(60),
-      height: Responsive.height(56),
-      margin: EdgeInsets.only(bottom: Responsive.height(5)),
-      decoration: BoxDecoration(
-        color: themeController.white,
-        borderRadius: BorderRadius.circular(Responsive.radius(10)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.4),
-            blurRadius: 5,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Padding(
-        padding: Responsive.allPadding(8.0),
-        child: Image.asset(
-          imagePath,
-          fit: BoxFit.contain,
-        ),
-      ),
-    );
-  }
 
-  Widget _buildCalendarSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Text(
-          'Calender',
-          style: GoogleFonts.poppins(
-            fontSize: Responsive.fontSize(18),
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        SizedBox(height: Responsive.height(16)),
-        Column(
-          children: [
-            Card(
-              elevation: 4,
-              color: themeController.white,
-              child: Column(
-                children: [
-                  TableCalendar(
-                    availableGestures: AvailableGestures.none,
-                    firstDay: DateTime.utc(2023, 1, 1),
-                    lastDay: DateTime.utc(2030, 12, 31),
-                    focusedDay: _focusedDay,
-                    calendarFormat: _calendarFormat,
-                    selectedDayPredicate: (day) {
-                      return isSameDay(_selectedDay, day);
-                    },
-                    onDaySelected: (selectedDay, focusedDay) {
-                      setState(() {
-                        _selectedDay = selectedDay;
-                        _focusedDay = focusedDay;
-                      });
-                    },
-                    calendarStyle: CalendarStyle(
-                      selectedDecoration: BoxDecoration(
-                        color: const Color(0xFFAA8A00),
-                        shape: BoxShape.circle,
-                      ),
-                      todayDecoration: BoxDecoration(
-                        color: const Color(0xFFAA8A00).withOpacity(0.5),
-                        shape: BoxShape.circle,
-                      ),
-                      weekendTextStyle: const TextStyle(
-                          color: Colors.black, fontWeight: FontWeight.bold),
-                      outsideDaysVisible: false,
-                    ),
-                    headerStyle: HeaderStyle(
-                      formatButtonVisible: false,
-                      titleCentered: true,
-                      titleTextStyle: TextStyle(
-                        fontSize: Responsive.fontSize(18),
-                        fontWeight: FontWeight.bold,
-                      ),
-                      leftChevronIcon: Container(
-                          decoration: BoxDecoration(
-                              border: Border.all(color: appcolor),
-                              borderRadius:
-                                  BorderRadius.circular(Responsive.radius(5))),
-                          child: Icon(Icons.chevron_left,
-                              color: Color(0xFFAA8A00))),
-                      rightChevronIcon: Container(
-                          decoration: BoxDecoration(
-                              border: Border.all(color: appcolor),
-                              borderRadius:
-                                  BorderRadius.circular(Responsive.radius(5))),
-                          child: Icon(Icons.chevron_right,
-                              color: Color(0xFFAA8A00))),
-                    ),
-                    daysOfWeekStyle: const DaysOfWeekStyle(
-                      weekdayStyle: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xff7C7C7C)),
-                      weekendStyle: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xff7C7C7C)),
-                    ),
-                  ),
-                  Container(
-                    decoration: BoxDecoration(
-                        color: appcolor,
-                        borderRadius:
-                            BorderRadius.circular(Responsive.radius(10))),
-                    height: Responsive.height(5),
-                    width: Responsive.width(45),
-                  ),
-                  SizedBox(height: Responsive.height(16)),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
 
-  // New method to show the animated clothing category dialog
+  // Widget _buildThirdColumn() {
+  //   return Column(
+  //     mainAxisAlignment: MainAxisAlignment.center,
+  //     crossAxisAlignment: CrossAxisAlignment.end,
+  //     children: [
+  //       GestureDetector(
+  //         onTap: () => _navigateToUploadScreen('shirt'),
+  //         child: Container(
+  //           padding: EdgeInsets.symmetric(
+  //               horizontal: Responsive.width(12), vertical: Responsive.height(8)),
+  //           height: Responsive.height(30),
+  //           decoration: BoxDecoration(
+  //             color: appcolor.withOpacity(0.7),
+  //             borderRadius: BorderRadius.circular(Responsive.radius(30)),
+  //           ),
+  //           child: Row(
+  //             mainAxisSize: MainAxisSize.min,
+  //             children: [
+  //               Text(
+  //                 'Add Shirt',
+  //                 style: TextStyle(
+  //                   fontSize: Responsive.fontSize(10),
+  //                   color: Colors.white,
+  //                   fontWeight: FontWeight.w600,
+  //                 ),
+  //               ),
+  //               SizedBox(width: 5),
+  //               Icon(
+  //                 Icons.add_circle_outline,
+  //                 color: Colors.white,
+  //                 size: Responsive.fontSize(12),
+  //               ),
+  //             ],
+  //           ),
+  //         ),
+  //       ),
+  //       SizedBox(height: Responsive.height(35)),
+  //
+  //       GestureDetector(
+  //         onTap: () => _navigateToUploadScreen('accessory'),
+  //         child: Container(
+  //           padding: EdgeInsets.symmetric(
+  //               horizontal: Responsive.width(12), vertical: Responsive.height(8)),
+  //           height: Responsive.height(30),
+  //           decoration: BoxDecoration(
+  //             color: appcolor.withOpacity(0.7),
+  //             borderRadius: BorderRadius.circular(Responsive.radius(30)),
+  //           ),
+  //           child: Row(
+  //             mainAxisSize: MainAxisSize.min,
+  //             children: [
+  //               Text(
+  //                 'Add Accessory',
+  //                 style: TextStyle(
+  //                   fontSize: Responsive.fontSize(10),
+  //                   color: Colors.white,
+  //                   fontWeight: FontWeight.w600,
+  //                 ),
+  //               ),
+  //               SizedBox(width: 5),
+  //               Icon(
+  //                 Icons.add_circle_outline,
+  //                 color: Colors.white,
+  //                 size: Responsive.fontSize(12),
+  //               ),
+  //             ],
+  //           ),
+  //         ),
+  //       ),
+  //       SizedBox(height: Responsive.height(35)),
+  //
+  //       GestureDetector(
+  //         onTap: () => _navigateToUploadScreen('pant'),
+  //         child: Container(
+  //           padding: EdgeInsets.symmetric(
+  //               horizontal: Responsive.width(12), vertical: Responsive.height(8)),
+  //           height: Responsive.height(30),
+  //           decoration: BoxDecoration(
+  //             color: appcolor.withOpacity(0.7),
+  //             borderRadius: BorderRadius.circular(Responsive.radius(30)),
+  //           ),
+  //           child: Row(
+  //             mainAxisSize: MainAxisSize.min,
+  //             children: [
+  //               Text(
+  //                 'Add Pant',
+  //                 style: TextStyle(
+  //                   fontSize: Responsive.fontSize(10),
+  //                   color: Colors.white,
+  //                   fontWeight: FontWeight.w600,
+  //                 ),
+  //               ),
+  //               SizedBox(width: 5),
+  //               Icon(
+  //                 Icons.add_circle_outline,
+  //                 color: Colors.white,
+  //                 size: Responsive.fontSize(12),
+  //               ),
+  //             ],
+  //           ),
+  //         ),
+  //       ),
+  //       SizedBox(height: Responsive.height(35)),
+  //
+  //       GestureDetector(
+  //         onTap: () => _navigateToUploadScreen('shoe'),
+  //         child: Container(
+  //           padding: EdgeInsets.symmetric(
+  //               horizontal: Responsive.width(12), vertical: Responsive.height(8)),
+  //           height: Responsive.height(30),
+  //           decoration: BoxDecoration(
+  //             color: appcolor.withOpacity(0.7),
+  //             borderRadius: BorderRadius.circular(Responsive.radius(30)),
+  //           ),
+  //           child: Row(
+  //             mainAxisSize: MainAxisSize.min,
+  //             children: [
+  //               Text(
+  //                 'Add Shoe',
+  //                 style: TextStyle(
+  //                   fontSize: Responsive.fontSize(10),
+  //                   color: Colors.white,
+  //                   fontWeight: FontWeight.w600,
+  //                 ),
+  //               ),
+  //               SizedBox(width: 5),
+  //               Icon(
+  //                 Icons.add_circle_outline,
+  //                 color: Colors.white,
+  //                 size: Responsive.fontSize(12),
+  //               ),
+  //             ],
+  //           ),
+  //         ),
+  //       ),
+  //     ],
+  //   );
+  // }
+
+  void _navigateToUploadScreen(String category) {
+    // Navigator.pushNamed(
+    //     context,
+    //     AppRoutes.addWardrobe,
+    //     arguments: {'category': category}
+    // ).then((_) {
+    //   // Refresh data when returning from upload screen
+    //   _getUserInfoAndLoadItems();
+    // });
+  }
   void _showAnimatedCategoryDialog() {
     String? selectedCategory;
     String? selectedSubcategory;
@@ -946,7 +1392,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                             return _buildAnimatedCategoryButton(
                               subcategory,
                               selectedSubcategory,
-                              (value) {
+                                  (value) {
                                 setState(() {
                                   selectedSubcategory = value;
                                 });
@@ -986,10 +1432,10 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                 TextButton(
                   onPressed: (showSubcategories && selectedSubcategory != null)
                       ? () {
-                          Navigator.of(context).pop();
-                          _openCameraWithGoogleVision(
-                              selectedCategory!, selectedSubcategory!);
-                        }
+                    Navigator.of(context).pop();
+                    _openCameraWithGoogleVision(
+                        selectedCategory!, selectedSubcategory!);
+                  }
                       : null,
                   child: Text(
                     'Open Camera',
@@ -1245,6 +1691,102 @@ class _WardrobeScreenState extends State<WardrobeScreen>
           ],
         );
       },
+    );
+  }
+
+  Widget _buildCalendarSection(WardrobeController controller) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          'Calendar',
+          style: GoogleFonts.poppins(
+            color: appcolor,
+            fontSize: Responsive.fontSize(18),
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        SizedBox(height: Responsive.height(8)),
+        ValueListenableBuilder<DateTime>(
+          valueListenable: controller.selectedDayNotifier,
+          builder: (context, DateTime selectedDay, _) {
+            return ValueListenableBuilder<DateTime>(
+              valueListenable: controller.focusedDayNotifier,
+              builder: (context, DateTime focusedDay, _) {
+                return ValueListenableBuilder<CalendarFormat>(
+                  valueListenable: controller.calendarFormatNotifier,
+                  builder: (context, CalendarFormat calendarFormat, _) {
+                    return Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(Responsive.radius(16)),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.2),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: TableCalendar(
+                        firstDay: DateTime.utc(2020, 1, 1),
+                        lastDay: DateTime.utc(2030, 12, 31),
+                        focusedDay: focusedDay,
+                        calendarFormat: calendarFormat,
+                        selectedDayPredicate: (day) {
+                          return isSameDay(selectedDay, day);
+                        },
+                        onDaySelected: (selectedDay, focusedDay) {
+                          controller.selectedDayNotifier.value = selectedDay;
+                          controller.focusedDayNotifier.value = focusedDay;
+                          _checkExistingOutfit(selectedDay);
+                        },
+                        onFormatChanged: (format) {
+                          controller.calendarFormatNotifier.value = format;
+                        },
+                        onPageChanged: (focusedDay) {
+                          controller.focusedDayNotifier.value = focusedDay;
+                        },
+                        calendarStyle: CalendarStyle(
+                          markersMaxCount: 3,
+                          outsideDaysVisible: false,
+                          isTodayHighlighted: true,
+                          todayDecoration: BoxDecoration(
+                            color: appcolor.withOpacity(0.4),
+                            shape: BoxShape.circle,
+                          ),
+                          selectedDecoration: BoxDecoration(
+                            color: appcolor,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        headerStyle: HeaderStyle(
+                          formatButtonVisible: false,
+                          titleCentered: true,
+                          titleTextStyle: GoogleFonts.poppins(
+                            fontSize: Responsive.fontSize(16),
+                            fontWeight: FontWeight.w600,
+                            color: appcolor,
+                          ),
+                          leftChevronIcon: Icon(
+                            Icons.chevron_left,
+                            color: appcolor,
+                          ),
+                          rightChevronIcon: Icon(
+                            Icons.chevron_right,
+                            color: appcolor,
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+            );
+          },
+        ),
+      ],
     );
   }
 }

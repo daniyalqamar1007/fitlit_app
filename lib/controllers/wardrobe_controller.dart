@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
+import 'package:table_calendar/table_calendar.dart';
 import '../model/wardrobe_model.dart';
 
 import '../services/wardrobe_services.dart';
@@ -16,6 +17,9 @@ class WardrobeController {
   final ValueNotifier<WardrobeStatus> statusNotifier = ValueNotifier<WardrobeStatus>(WardrobeStatus.initial);
   final ValueNotifier<String> errorNotifier = ValueNotifier<String>('');
   final ValueNotifier<WardrobeItem?> recentlyUploadedItem = ValueNotifier<WardrobeItem?>(null);
+  final ValueNotifier<DateTime> selectedDayNotifier = ValueNotifier<DateTime>(DateTime.now());
+  final ValueNotifier<DateTime> focusedDayNotifier = ValueNotifier<DateTime>(DateTime.now());
+  final ValueNotifier<CalendarFormat> calendarFormatNotifier = ValueNotifier<CalendarFormat>(CalendarFormat.month);
   Future<void> loadWardrobeItems() async {
     try {
       statusNotifier.value = WardrobeStatus.loading;
