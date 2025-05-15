@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../model/user_model.dart';
+import '../view/Utils/globle_variable/globle.dart';
 class AuthService {
   // ValueNotifiers for state management
   final ValueNotifier<UserModel?> currentUser = ValueNotifier(null);
@@ -15,7 +16,7 @@ class AuthService {
   final http.Client _client = http.Client();
   // Base URL for API
 
-  final String baseUrl = 'http://192.168.18.114';
+  final String baseUrl = 'http://147.93.47.17:3099';
 
   // Replace with your actual base URL
   String prettyJson(Map<String, dynamic> json) {
@@ -103,14 +104,14 @@ class AuthService {
     isLoading.value = true;
     error.value = null;
     print("loading");
-    var url='http://localhost:3000';
-    final String correctedUrl = url.replaceAll(
-        'localhost', '192.168.18.114'); // Replace with your actual IP
-    print("coming");
+   // var url=http://213.210.37.77:3099';
+    // final String correctedUrl = url.replaceAll(
+    //     'localhost', '192.168.18.114'); // Replace with your actual IP
+    // print("coming");
 
     try {
-      final response = await _client.post(
-        Uri.parse('$correctedUrl/auth/signin'),
+      final response = await http.post(
+        Uri.parse('$baseUrl/auth/signin'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(request.toJson()),
       );
@@ -119,8 +120,12 @@ class AuthService {
       isLoading.value = false;
 
       if (response.statusCode == 200) {
+
         final jsonResponse = jsonDecode(response.body);
         final authResponse = AuthResponse.fromSignInResponse(jsonResponse);
+        await savetoken(jsonResponse['access_token']??"");
+        print("new tokwn is ");
+        print(token);
 
         if (authResponse.user != null && authResponse.user!.accessToken != null) {
           // Store user email since it's not returned in response
@@ -137,6 +142,7 @@ class AuthService {
         return authResponse;
       } else {
         final errorMessage = _getErrorMessage(response);
+        print(response);
         error.value = errorMessage;
         return AuthResponse.error(errorMessage);
       }
@@ -274,7 +280,7 @@ class AuthService {
   String _getErrorMessage(http.Response response) {
     try {
       final jsonResponse = jsonDecode(response.body);
-      return jsonResponse['message'] ?? 'An error occurred: ${response.statusCode}';
+      return jsonResponse['error'] ?? 'An error occurred: ${response.statusCode}';
     } catch (e) {
       return 'An error occurred: ${response.statusCode}';
     }

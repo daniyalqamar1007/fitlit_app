@@ -14,3 +14,9 @@ Future<void> savetoken(String token)async{
   await prefs.setString('token',token);
 }
 String url="";
+Future<void> remove()async {
+  SharedPreferences prefs=await SharedPreferences.getInstance();
+  await prefs.remove('token');
+}
+int avatarindex=0;
+int storedindex=0;

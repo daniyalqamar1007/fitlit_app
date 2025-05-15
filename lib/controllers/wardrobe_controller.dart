@@ -26,6 +26,8 @@ class WardrobeController {
       print("coming");
       // print(token);
       List<WardrobeItem> allItems = await _wardrobeService.getWardrobeItems();
+      print("sahvshas");
+      print(allItems.length);
 
       shirtsNotifier.value = [];
       pantsNotifier.value = [];
@@ -33,6 +35,7 @@ class WardrobeController {
       accessoriesNotifier.value = [];
       print(allItems.length);
       for (var item in allItems) {
+        print("comihg");
         _categorizeItem(item);
       }
       statusNotifier.value = WardrobeStatus.success;
@@ -41,18 +44,18 @@ class WardrobeController {
       errorNotifier.value = e.toString();
     }
   }
-  Future<void> loadItemsByCategory(String userId, String category, String? token) async {
-    try {
-      statusNotifier.value = WardrobeStatus.loading;
-
-      List<WardrobeItem> items = await _wardrobeService.getWardrobeItemsByCategory(userId, category, token);
-      _updateCategoryNotifier(category, items);
-      statusNotifier.value = WardrobeStatus.success;
-    } catch (e) {
-      statusNotifier.value = WardrobeStatus.error;
-      errorNotifier.value = e.toString();
-    }
-  }
+  // Future<void> loadItemsByCategory(String userId, String category, String? token) async {
+  //   try {
+  //     statusNotifier.value = WardrobeStatus.loading;
+  //
+  //     List<WardrobeItem> items = await _wardrobeService.getWardrobeItemsByCategory(userId, category, token);
+  //     _updateCategoryNotifier(category, items);
+  //     statusNotifier.value = WardrobeStatus.success;
+  //   } catch (e) {
+  //     statusNotifier.value = WardrobeStatus.error;
+  //     errorNotifier.value = e.toString();
+  //   }
+  // }
   Future<void> uploadWardrobeItem({
     // required String userId,
     required String category,
@@ -94,12 +97,12 @@ class WardrobeController {
         throw Exception('Item ID is null');
       }
 
-      bool success = await _wardrobeService.deleteWardrobeItem(item.id!, token);
+     // bool success = await _wardrobeService.deleteWardrobeItem(item.id!, token);
 
-      if (success) {
-        // Remove from the appropriate category list
-        _removeItemFromCategory(item);
-      }
+      // if (success) {
+      //   // Remove from the appropriate category list
+      //   _removeItemFromCategory(item);
+      // }
 
       statusNotifier.value = WardrobeStatus.success;
     } catch (e) {
@@ -110,6 +113,7 @@ class WardrobeController {
 
   // Helper method to categorize an item
   void _categorizeItem(WardrobeItem item) {
+    print(item.category);
     switch (item.category.toLowerCase()) {
       case 'shirt':
       case 'shirts':

@@ -5,7 +5,7 @@ import '../model/outfit_model.dart';
 import '../view/Utils/globle_variable/globle.dart';
 
 class OutfitService {
-  final String baseUrl = "http://localhost:3000";
+  final String baseUrl = "http://147.93.47.17:3099";
   final http.Client client = http.Client();
 
   // Save outfit selection API
@@ -20,20 +20,21 @@ class OutfitService {
     try {
       final formattedDate = DateFormat('dd/MM/yyyy').format(date);
       print(formattedDate);
-      final String correctedUrl = baseUrl.replaceAll(
-          'localhost', '192.168.18.114');
-      final response = await client.post(
-        Uri.parse('$correctedUrl/avatar/save-avatar'),
+      print("comihis");
+print(storedindex.toString());
+final response = await http.post(
+        Uri.parse('$baseUrl/avatar/save-avatar'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
         body: jsonEncode({
-          'shirt_id': shirtId,
-          'pant_id': pantId,
-          'shoe_id': shoeId,
+          'shirt_id': "1",
+          'pant_id': "2",
+          'shoe_id': "3",
+          'index':avatarindex.toString(),
           'avatarUrl': 'https://fitlit-assets.s3.us-east-2.amazonaws.com/1747230002356-undefined',
-          'accessory_id': accessoryId,
+          'accessory_id': "5",
           'date': formattedDate, // Now in dd/MM/yyyy format
         }),
 
@@ -62,11 +63,10 @@ print(response.statusCode);
     try {
       final formattedDate = DateFormat('dd/MM/yyyy').format(date);
       print("shjdgjh");
-      final String correctedUrl = baseUrl.replaceAll(
-          'localhost', '192.168.18.114');
+
 
       final response = await client.get(
-        Uri.parse('$correctedUrl/avatar/check?date=${formattedDate}'),
+        Uri.parse('$baseUrl/avatar/check?date=${formattedDate}'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -75,15 +75,27 @@ print(response.statusCode);
       print(response.body);
 
 
+
+
       if (response.statusCode == 200) {
+
+
         final jsonResponse = jsonDecode(response.body);
+        print("now");
+
         print(jsonResponse['avatarUrl']);
-        if(jsonResponse['success']==false){
-          url="";
+        if(jsonResponse['success']==true){
+          print("now");
+          avatarindex= int.parse(jsonResponse['index'].toString());
+          print(avatarindex);
+
         }
         else{
-          url="655";
+          avatarindex=3;
+
         }
+
+
         return jsonResponse['avatarUrl'].toString();
       //  return OutfitResponse.fromJson(jsonResponse);
       } else {

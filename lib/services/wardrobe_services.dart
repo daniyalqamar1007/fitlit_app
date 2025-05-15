@@ -1,75 +1,121 @@
-import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'package:fitlip_app/view/Utils/globle_variable/globle.dart';
 import 'package:http/http.dart' as http;
-import 'package:http_parser/http_parser.dart';
-
 import '../model/wardrobe_model.dart';
+import '../view/Utils/globle_variable/globle.dart';
 
 class WardrobeService {
-  final String baseUrl = "http://localhost:3000";
-  final http.Client _client = http.Client();
+  final String baseUrl = "http://147.93.47.17:3099";
+ // Store token for authentication
+
+  WardrobeService(); // Constructor with optional token parameter
 
   Future<List<WardrobeItem>> getWardrobeItems() async {
     try {
-      final String correctedUrl = baseUrl.replaceAll(
-          'localhost', '192.168.18.114'); // Replace with your actual IP
-      print("coming");
-      final response = await _client.get(
-        Uri.parse('$correctedUrl/wardrobe-items'),
+      print("Fetching wardrobe items from API...");
+
+      final response = await http.get(
+        Uri.parse('$baseUrl/wardrobe-items'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
       );
-      print(response.body);
 
+      print("API Response Status Code: ${response.statusCode}");
 
       if (response.statusCode == 200) {
-        final responseData = json.decode(response.body);
+        print("Successfully received response from API");
 
-        if (responseData is List) {
-          return responseData
-              .map((item) => WardrobeItem.fromJson(item))
-              .toList();
-        } else {
-          throw Exception('Unexpected response format');
+        // Print a small sample of the response for debugging
+        print("Response preview: ${response.body.substring(0, min(5000, response.body.length))}...");
+
+        try {
+          // Parse the response body
+          final dynamic responseData = json.decode(response.body);
+          print("Response data type: ${responseData.runtimeType}");
+
+          // Initialize with empty list to avoid null issues
+          List<dynamic> itemsList = [];
+
+          // Handle different response formats
+          if (responseData is List) {
+            // Response is directly a list
+            itemsList = responseData;
+          } else if (responseData is Map && responseData.containsKey('data')) {
+            // Response is wrapped in a data field
+            var data = responseData['data'];
+            if (data is List) {
+              itemsList = data;
+            } else {
+              print("'data' field is not a List: ${data.runtimeType}");
+            }
+          } else if (responseData is Map && responseData.containsKey('items')) {
+            // Response is wrapped in an items field
+            var items = responseData['items'];
+            if (items is List) {
+              itemsList = items;
+            } else {
+              print("'items' field is not a List: ${items.runtimeType}");
+            }
+          } else if (responseData is Map && responseData.containsKey('wardrobeItems')) {
+            // Another possible wrapper
+            var wardrobeItems = responseData['wardrobeItems'];
+            if (wardrobeItems is List) {
+              itemsList = wardrobeItems;
+            } else {
+              print("'wardrobeItems' field is not a List: ${wardrobeItems.runtimeType}");
+            }
+          } else {
+            // If none of the above, try to extract the first list found
+            bool foundList = false;
+            if (responseData is Map) {
+              for (var key in responseData.keys) {
+                if (responseData[key] is List) {
+                  itemsList = responseData[key];
+                  foundList = true;
+                  print("Found items in field: $key");
+                  break;
+                }
+              }
+            }
+
+            if (!foundList) {
+              print("Could not find any list in response. Response structure: $responseData");
+              // Return empty list instead of throwing exception
+              return [];
+            }
+          }
+
+          // Now parse and convert to WardrobeItem objects
+          print("Found ${itemsList.length} items, parsing...");
+
+          List<WardrobeItem> result = [];
+          for (var item in itemsList) {
+            try {
+              result.add(WardrobeItem.fromJson(item));
+            } catch (e) {
+              print("Error parsing item: $e");
+              print("Problematic item data: $item");
+            }
+          }
+
+          print("Successfully parsed ${result.length} wardrobe items");
+          return result;
+        } catch (e) {
+          print("JSON parsing error: $e");
+          // Print the full response for debugging when we have a parsing error
+          print("Full response body: ${response.body}");
+          throw Exception('Failed to parse response: $e');
         }
       } else {
+        print("API error response: ${response.body}");
         throw Exception(
             'Failed to load wardrobe items. Status code: ${response.statusCode}');
       }
     } catch (e) {
+      print("Exception in getWardrobeItems: $e");
       throw Exception('Error retrieving wardrobe items: $e');
-    }
-  }
-
-  // Get wardrobe items by category
-  Future<List<WardrobeItem>> getWardrobeItemsByCategory(
-      String userId, String category, String? token) async {
-    try {
-      final response = await http.get(
-        Uri.parse('$baseUrl/wardrobe-items?user_id=$userId&category=$category'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-      );
-
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> responseData = json.decode(response.body);
-        if (responseData['items'] != null) {
-          return List<WardrobeItem>.from(
-              responseData['items'].map((item) => WardrobeItem.fromJson(item)));
-        }
-        return [];
-      } else {
-        throw Exception(
-            'Failed to load wardrobe items by category: ${response.body}');
-      }
-    } catch (e) {
-      throw Exception('Error retrieving wardrobe items by category: $e');
     }
   }
 
@@ -78,124 +124,91 @@ class WardrobeService {
     required String subCategory,
     required File imageFile,
     required String? token,
-  }) async
-  {
+  }) async {
     try {
-      // Log token and basic info
-      print('📌 Starting upload process...');
-      print('🔑 Token: ${token != null ? "*****" + token.substring(token.length - 4) : "NULL"}');
-      print('📂 File path: ${imageFile.path}');
-      print('📏 File size: ${(await imageFile.length()) / 1024} KB');
-      print('🏷️ Category: $category, Subcategory: $subCategory');
+      print("Starting image upload process...");
+      print("Category: $category, SubCategory: $subCategory");
+      print("Image file size: ${await imageFile.length()} bytes");
+      print("Image file path: ${imageFile.path}");
+      print("Token: ${token != null ? 'Present (${token.length} chars)' : 'NULL'}");
 
-      if (token == null || token.isEmpty) {
-        throw Exception('Authentication token is missing or empty');
+      // Create multipart request
+      var request = http.MultipartRequest('POST', Uri.parse('$baseUrl/wardrobe-items'));
+
+      // Add headers
+      if (token != null && token.isNotEmpty) {
+        request.headers.addAll({
+          'Authorization': 'Bearer $token',
+          // Add content-type header explicitly
+          'Accept': 'application/json',
+        });
+      } else {
+        print("WARNING: Token is null or empty!");
       }
 
-      final String correctedUrl = baseUrl.replaceAll('localhost', '192.168.18.114');
-      final Uri uri = Uri.parse('$correctedUrl/wardrobe-items');
-      print('🌐 API Endpoint: $uri');
-      final http.Client _client = http.Client();
+      // Log all request headers for debugging
+      print("Request headers: ${request.headers}");
 
-      final request = http.MultipartRequest('POST', uri);
-
-      // Log headers
-      print('📤 Request Headers:');
-      request.headers.addAll({
-        'Authorization': 'Bearer $token',
-        'Accept': 'application/json',
-      });
-      request.headers.forEach((key, value) => print('   $key: $value'));
-
+      // Add text fields
       request.fields['category'] = category;
       request.fields['sub_category'] = subCategory;
 
-      // Log file details
-      String filename = imageFile.path.split('/').last;
-      String extension = filename.split('.').last.toLowerCase();
-      String mimeType = 'image/$extension';
-      print('📄 File Details:');
-      print('   Name: $filename');
-      print('   Type: $mimeType');
-      print('   Extension: $extension');
+      // Add file
+      var fileStream = http.ByteStream(imageFile.openRead());
+      var fileLength = await imageFile.length();
 
-      final file = await http.MultipartFile.fromPath(
-        'image',
-        imageFile.path,
-        contentType: MediaType.parse(mimeType),
-      );
-      request.files.add(file);
-
-      // Log before sending
-
-
-      http.StreamedResponse streamedResponse = await request.send().timeout(
-        const Duration(seconds: 60),
-        onTimeout: () {
-          throw TimeoutException('Request timed out after 60 seconds');
-        },
+      var multipartFile = http.MultipartFile(
+          'image',
+          fileStream,
+          fileLength,
+          filename: imageFile.path.split('/').last,
+          // contentType: MediaType('image', 'jpeg') // Explicitly set content type
       );
 
-      final response = await http.Response.fromStream(streamedResponse);
+      request.files.add(multipartFile);
+      print("Request prepared, sending to server...");
 
-      // Log complete response
-      print('✅ Response Status: ${response.statusCode}');
-      print('📦 Response Body: ${response.body}');
-      print('📋 Response Headers:');
-      response.headers.forEach((key, value) => print('   $key: $value'));
+      var streamedResponse = await request.send();
+      print(streamedResponse.statusCode);
 
-      if (response.statusCode == 201 || response.statusCode == 200) {
-        final Map<String, dynamic> responseData = json.decode(response.body);
+      var response = await http.Response.fromStream(streamedResponse);
 
-        // Log parsed data
-        print('🔍 Parsed Response Data:');
-        responseData.forEach((key, value) => print('   $key: $value'));
+      print("Upload API response status code: ${response.statusCode}");
+      print("Upload API response body: ${response.body}");
 
-        if (responseData['data'] != null) {
-          print('🛍️ Successfully created WardrobeItem');
-          return WardrobeItem.fromJson(responseData['data']);
-        } else {
-          print('⚠️ No "data" field in response, parsing full body');
-          return WardrobeItem.fromJson(responseData);
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        try {
+          // Parse response
+          Map<String, dynamic> responseData = json.decode(response.body);
+
+          // Check if response contains the item directly or nested in a field
+          Map<String, dynamic> itemData;
+          if (responseData.containsKey('data')) {
+            itemData = responseData['data'];
+          } else if (responseData.containsKey('item')) {
+            itemData = responseData['item'];
+          } else {
+            // Assume the response is the item itself
+            itemData = responseData;
+          }
+
+          return WardrobeItem.fromJson(itemData);
+        } catch (e) {
+          print("Error parsing upload response: $e");
+          print("Raw response: ${response.body}");
+          throw Exception('Failed to parse upload response: $e');
         }
       } else {
-        print('❌ Server error response');
-        throw Exception('Server error: ${response.statusCode} - ${response.body}');
+        print("Upload failed with status ${response.statusCode}");
+        print("Response body: ${response.body}");
+        throw Exception('Failed to upload wardrobe item. Status code: ${response.statusCode}, Response: ${response.body}');
       }
-    } on SocketException catch (e) {
-      print('🚫 Network error: ${e.message}');
-      throw Exception('Network error: Check your internet connection - ${e.message}');
-    } on TimeoutException catch (_) {
-      print('⏰ Request timeout');
-      throw Exception('Request timed out: The server took too long to respond');
-    } on FormatException catch (_) {
-      print('📛 Response format error');
-      throw Exception('Data format error: The response could not be parsed');
     } catch (e) {
-      print('❗ Unexpected error: $e');
+      print("Exception during image upload: $e");
       throw Exception('Error uploading wardrobe item: $e');
-    } finally {
-      print('🏁 Upload process completed');
     }
   }
-
-  Future<bool> deleteWardrobeItem(String itemId, String? token) async {
-    try {
-      final response = await _client.delete(
-        Uri.parse('$baseUrl/wardrobe-items/$itemId'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-      );
-
-      if (response.statusCode == 200) {
-        return true;
-      } else {
-        throw Exception('Failed to delete wardrobe item: ${response.body}');
-      }
-    } catch (e) {
-      throw Exception('Error deleting wardrobe item: $e');
-    }
+  int min(int a, int b) {
+    return a < b ? a : b;
   }
 }

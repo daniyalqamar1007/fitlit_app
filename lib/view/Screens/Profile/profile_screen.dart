@@ -1,8 +1,10 @@
 import 'package:fitlip_app/main.dart';
+import 'package:fitlip_app/routes/App_routes.dart';
 import 'package:fitlip_app/view/Utils/Constants.dart';
 import 'package:flutter/material.dart';
 
 import '../../Utils/Colors.dart';
+import '../../Utils/globle_variable/globle.dart';
 import '../../Widgets/custom_switch.dart';
 import '../../Widgets/custom_tile.dart';
 
@@ -93,9 +95,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
               onTap: () {},
             ),
             CustomListTile(
-              icon: Icons.account_circle_outlined,
-              title: AppConstants.accountControl,
-              onTap: () {},
+              icon: Icons.login_outlined,
+              title: "logout",
+              onTap: () async {
+await remove();
+Navigator.pushReplacementNamed(context, AppRoutes.signin);
+              },
             ),
           ],
         ),

@@ -98,8 +98,7 @@ class AuthController {
       if (response.user != null) {
         _tempSignUpData = {};
         _verificationOtp = null;
-        SharedPreferences prefs=await SharedPreferences.getInstance();
-        await prefs.setString('token',response.user?.accessToken??"");
+      await savetoken(response.user?.accessToken??"");
         return {
           'success': true,
           'message': response.message ?? 'Verification successful',
@@ -128,7 +127,8 @@ class AuthController {
       final response = await _authService.signIn(request);
       print(response.message);
 
-savetoken(response.user?.accessToken??"");
+
+print(token);
       if (response.user != null) {
         return {
           'success': true,
