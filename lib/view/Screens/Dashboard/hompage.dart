@@ -147,7 +147,9 @@ class _WardrobeScreenState extends State<WardrobeScreen>
           duration: Duration(seconds: 1),
         ),
       );
-      _currentAvatarIndex=1;
+     setState(() {
+       _currentAvatarIndex=avatarindex;
+     });
       _updateAvatarBasedOnOutfit(outfit);
 
       // Show brief success message that an outfit was found
@@ -244,6 +246,8 @@ class _WardrobeScreenState extends State<WardrobeScreen>
 
     setState(() {
       isSavingOutfit = true;
+      storedindex=_currentAvatarIndex;
+      print(_currentAvatarIndex);
     });
 
     try {
@@ -1135,146 +1139,6 @@ class _WardrobeScreenState extends State<WardrobeScreen>
   }
 
 
-
-  // Widget _buildThirdColumn() {
-  //   return Column(
-  //     mainAxisAlignment: MainAxisAlignment.center,
-  //     crossAxisAlignment: CrossAxisAlignment.end,
-  //     children: [
-  //       GestureDetector(
-  //         onTap: () => _navigateToUploadScreen('shirt'),
-  //         child: Container(
-  //           padding: EdgeInsets.symmetric(
-  //               horizontal: Responsive.width(12), vertical: Responsive.height(8)),
-  //           height: Responsive.height(30),
-  //           decoration: BoxDecoration(
-  //             color: appcolor.withOpacity(0.7),
-  //             borderRadius: BorderRadius.circular(Responsive.radius(30)),
-  //           ),
-  //           child: Row(
-  //             mainAxisSize: MainAxisSize.min,
-  //             children: [
-  //               Text(
-  //                 'Add Shirt',
-  //                 style: TextStyle(
-  //                   fontSize: Responsive.fontSize(10),
-  //                   color: Colors.white,
-  //                   fontWeight: FontWeight.w600,
-  //                 ),
-  //               ),
-  //               SizedBox(width: 5),
-  //               Icon(
-  //                 Icons.add_circle_outline,
-  //                 color: Colors.white,
-  //                 size: Responsive.fontSize(12),
-  //               ),
-  //             ],
-  //           ),
-  //         ),
-  //       ),
-  //       SizedBox(height: Responsive.height(35)),
-  //
-  //       GestureDetector(
-  //         onTap: () => _navigateToUploadScreen('accessory'),
-  //         child: Container(
-  //           padding: EdgeInsets.symmetric(
-  //               horizontal: Responsive.width(12), vertical: Responsive.height(8)),
-  //           height: Responsive.height(30),
-  //           decoration: BoxDecoration(
-  //             color: appcolor.withOpacity(0.7),
-  //             borderRadius: BorderRadius.circular(Responsive.radius(30)),
-  //           ),
-  //           child: Row(
-  //             mainAxisSize: MainAxisSize.min,
-  //             children: [
-  //               Text(
-  //                 'Add Accessory',
-  //                 style: TextStyle(
-  //                   fontSize: Responsive.fontSize(10),
-  //                   color: Colors.white,
-  //                   fontWeight: FontWeight.w600,
-  //                 ),
-  //               ),
-  //               SizedBox(width: 5),
-  //               Icon(
-  //                 Icons.add_circle_outline,
-  //                 color: Colors.white,
-  //                 size: Responsive.fontSize(12),
-  //               ),
-  //             ],
-  //           ),
-  //         ),
-  //       ),
-  //       SizedBox(height: Responsive.height(35)),
-  //
-  //       GestureDetector(
-  //         onTap: () => _navigateToUploadScreen('pant'),
-  //         child: Container(
-  //           padding: EdgeInsets.symmetric(
-  //               horizontal: Responsive.width(12), vertical: Responsive.height(8)),
-  //           height: Responsive.height(30),
-  //           decoration: BoxDecoration(
-  //             color: appcolor.withOpacity(0.7),
-  //             borderRadius: BorderRadius.circular(Responsive.radius(30)),
-  //           ),
-  //           child: Row(
-  //             mainAxisSize: MainAxisSize.min,
-  //             children: [
-  //               Text(
-  //                 'Add Pant',
-  //                 style: TextStyle(
-  //                   fontSize: Responsive.fontSize(10),
-  //                   color: Colors.white,
-  //                   fontWeight: FontWeight.w600,
-  //                 ),
-  //               ),
-  //               SizedBox(width: 5),
-  //               Icon(
-  //                 Icons.add_circle_outline,
-  //                 color: Colors.white,
-  //                 size: Responsive.fontSize(12),
-  //               ),
-  //             ],
-  //           ),
-  //         ),
-  //       ),
-  //       SizedBox(height: Responsive.height(35)),
-  //
-  //       GestureDetector(
-  //         onTap: () => _navigateToUploadScreen('shoe'),
-  //         child: Container(
-  //           padding: EdgeInsets.symmetric(
-  //               horizontal: Responsive.width(12), vertical: Responsive.height(8)),
-  //           height: Responsive.height(30),
-  //           decoration: BoxDecoration(
-  //             color: appcolor.withOpacity(0.7),
-  //             borderRadius: BorderRadius.circular(Responsive.radius(30)),
-  //           ),
-  //           child: Row(
-  //             mainAxisSize: MainAxisSize.min,
-  //             children: [
-  //               Text(
-  //                 'Add Shoe',
-  //                 style: TextStyle(
-  //                   fontSize: Responsive.fontSize(10),
-  //                   color: Colors.white,
-  //                   fontWeight: FontWeight.w600,
-  //                 ),
-  //               ),
-  //               SizedBox(width: 5),
-  //               Icon(
-  //                 Icons.add_circle_outline,
-  //                 color: Colors.white,
-  //                 size: Responsive.fontSize(12),
-  //               ),
-  //             ],
-  //           ),
-  //         ),
-  //       ),
-  //     ],
-  //   );
-  // }
-
   void _navigateToUploadScreen(String category) {
     // Navigator.pushNamed(
     //     context,
@@ -1662,11 +1526,15 @@ class _WardrobeScreenState extends State<WardrobeScreen>
             ),
             TextButton(
               onPressed: () async {
-                _wardrobeController.uploadWardrobeItem(
+                print(category);
+                print(subcategory
+                );
+                await _wardrobeController.uploadWardrobeItem(
                     category: category,
                     subCategory: subcategory,
                     imageFile: imageFile,
                     token: token);
+                _getUserInfoAndLoadItems();
 
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
@@ -1678,6 +1546,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                     duration: Duration(seconds: 3),
                   ),
                 );
+
                 Navigator.pop(context);
               },
               child: Text(
@@ -1730,6 +1599,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                         ],
                       ),
                       child: TableCalendar(
+                        availableGestures: AvailableGestures.none,
                         firstDay: DateTime.utc(2020, 1, 1),
                         lastDay: DateTime.utc(2030, 12, 31),
                         focusedDay: focusedDay,
@@ -1740,11 +1610,15 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                         onDaySelected: (selectedDay, focusedDay) {
                           controller.selectedDayNotifier.value = selectedDay;
                           controller.focusedDayNotifier.value = focusedDay;
+                          setState(() {
+                            _selectedDay = selectedDay;
+                            _focusedDay = focusedDay;
+                          });
                           _checkExistingOutfit(selectedDay);
                         },
-                        onFormatChanged: (format) {
-                          controller.calendarFormatNotifier.value = format;
-                        },
+                        // onFormatChanged: (format) {
+                        //   controller.calendarFormatNotifier.value = format;
+                        // },
                         onPageChanged: (focusedDay) {
                           controller.focusedDayNotifier.value = focusedDay;
                         },

@@ -22,7 +22,7 @@ class WardrobeItem {
   factory WardrobeItem.fromJson(Map<String, dynamic> json) {
     return WardrobeItem(
       id: json['_id'],
-      userId: json['user_id'],
+      userId: json['user_id']?.toString(),
       category: json['category'],
       subCategory: json['sub_category'],
       imageUrl: json['image_url'],
@@ -33,7 +33,7 @@ class WardrobeItem {
 
   Map<String, dynamic> toJson() {
     return {
-      'user_id': userId,
+      'user_id': userId.toString(),
       'category': category,
       'sub_category': subCategory,
       'image_url': imageUrl,
