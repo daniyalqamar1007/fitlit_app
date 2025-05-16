@@ -5,8 +5,6 @@ import '../model/wardrobe_model.dart';
 import '../view/Utils/globle_variable/globle.dart';
 
 class WardrobeService {
-  final String baseUrl = "http://147.93.47.17:3099";
- // Store token for authentication
 
   WardrobeService(); // Constructor with optional token parameter
 

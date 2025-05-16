@@ -44,6 +44,7 @@ dependencies:
   curved_navigation_bar:
   flutter_dotenv:
   intl:
+  http:
 dev_dependencies:
   flutter_test:
     sdk: flutter

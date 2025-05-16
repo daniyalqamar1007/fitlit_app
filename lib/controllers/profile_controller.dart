@@ -1,0 +1,81 @@
+import 'dart:io';
+import 'package:flutter/foundation.dart';
+import 'package:fitlip_app/services/profile_service.dart';
+import '../model/profile_model.dart';
+
+class ProfileController {
+  final ProfileService _profileService = ProfileService();
+
+  // ValueNotifier for the user profile
+  final ValueNotifier<UserProfileModel?> profileNotifier = ValueNotifier<UserProfileModel?>(null);
+  final ValueNotifier<bool> isLoadingNotifier = ValueNotifier<bool>(false);
+  final ValueNotifier<String?> errorNotifier = ValueNotifier<String?>(null);
+
+  // Singleton implementation with proper factory constructor
+  static ProfileController? _instance;
+
+  factory ProfileController() {
+    _instance ??= ProfileController._internal();
+    return _instance!;
+  }
+
+  ProfileController._internal();
+
+  // Get user profile from service
+  Future<void> getUserProfile() async {
+    if (isLoadingNotifier.value) return; // Prevent multiple simultaneous calls
+
+    isLoadingNotifier.value = true;
+    errorNotifier.value = null;
+
+    try {
+      final profile = await _profileService.getUserProfile();
+      print('Profile loaded successfully: ${profile}');
+      // Use Future.microtask to avoid changing notifier during build
+      Future.microtask(() {
+        print("newew");
+        profileNotifier.value = profile;
+      print(  profileNotifier.value!.profileImage);
+      });
+    } catch (e) {
+      errorNotifier.value = e.toString();
+      print('Error loading profile: $e');
+    } finally {
+      // Use Future.microtask to avoid changing notifier during build
+      Future.microtask(() {
+        isLoadingNotifier.value = false;
+      });
+    }
+  }
+
+  // Update user profile
+  Future<bool> updateUserProfile(UserProfileModel profile, File? imageFile) async {
+    isLoadingNotifier.value = true;
+    errorNotifier.value = null;
+
+    try {
+      print("${profile.email} ${profile.gender} ${profile.name} $imageFile");
+      final updatedProfile = await _profileService.updateUserProfile(profile, imageFile);
+      print(updatedProfile.name);
+      profileNotifier.value = updatedProfile;
+      return true;
+    } catch (e) {
+      errorNotifier.value = e.toString();
+      print(errorNotifier.value);
+      return false;
+
+    } finally {
+      print("nmew");
+      isLoadingNotifier.value = false;
+    }
+  }
+
+  // Clean up resources when done
+  void dispose() {
+    // Dispose all ValueNotifiers properly
+    profileNotifier.dispose();
+    isLoadingNotifier.dispose();
+    errorNotifier.dispose();
+    _instance = null; // Reset the singleton instance
+  }
+}

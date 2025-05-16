@@ -16,35 +16,57 @@ class AuthService {
   final http.Client _client = http.Client();
   // Base URL for API
 
-  final String baseUrl = 'http://147.93.47.17:3099';
+
 
   // Replace with your actual base URL
   String prettyJson(Map<String, dynamic> json) {
     return const JsonEncoder.withIndent('  ').convert(json);
   }
-  // Sign Up API Call
+
   Future<AuthResponse> signUp(SignUpRequest request) async {
     isLoading.value = true;
     error.value = null;
 
-    final requestData = request.toJson();
-    print('📤 SIGN UP REQUEST:');
-    print('• Endpoint: $baseUrl/auth/signup');
-    print('• Data: ${prettyJson(requestData)}');
-// zainyshorts@gmail.com
     try {
-      final response = await http.post(
-        Uri.parse('$baseUrl/auth/signup'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(requestData),
-      );
+      print(request.profilePhotoFile);
+      print(request.name);
+      print(request.email);
+      print(request.gender);
+      print(request.phoneNumber);
+      print(request.password);
+      final uri = Uri.parse('$baseUrl/auth/signup');
+
+      var requestMultipart = http.MultipartRequest('POST', uri);
+
+      // Add text fields
+      requestMultipart.fields['name'] = request.name;
+      requestMultipart.fields['email'] = request.email;
+      requestMultipart.fields['password'] = request.password;
+      requestMultipart.fields['phoneNumber'] = request.phoneNumber;
+      requestMultipart.fields['gender'] = request.gender.toLowerCase();
+
+      // Add the file (actual File object)
+      if (request.profilePhotoFile != null) {
+        requestMultipart.files.add(
+          http.MultipartFile(
+            'file', // key expected by the backend
+            request.profilePhotoFile!.openRead(), // Stream<List<int>>
+            await request.profilePhotoFile!.length(), // length of the file
+            filename: request.profilePhotoFile!.path.split('/').last,
+            // no contentType needed
+          ),
+        );
+      }
+
+      final streamedResponse = await requestMultipart.send();
+      print(streamedResponse.statusCode);
+      final response = await http.Response.fromStream(streamedResponse);
 
       isLoading.value = false;
 
       print('📥 SIGN UP RESPONSE:');
       print('• Status: ${response.statusCode}');
       print(response.body);
-      // print('• Body: ${prettyJsonResponse(response)}');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final jsonResponse = jsonDecode(response.body);
@@ -63,7 +85,6 @@ class AuthService {
     }
   }
 
-  // Verify OTP API Call
   Future<AuthResponse> verifyOtp(VerifyOtpRequest request) async {
     isLoading.value = true;
     error.value = null;

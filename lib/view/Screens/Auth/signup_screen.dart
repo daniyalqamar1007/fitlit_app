@@ -270,10 +270,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
         ),
         SizedBox(height: 8.h),
     GestureDetector(
-    onTap: _pickImage,
+    onTap: _showImageSourceSheet,
     child: AbsorbPointer(
     child: TextFormField(
     readOnly: true,
+
     decoration: InputDecoration(
     hintText: _profileImage != null ? 'Image Selected' : 'Upload Photo',
     hintStyle: GoogleFonts.poppins(color: hintextcolor, fontSize: 12.sp),
@@ -324,4 +325,54 @@ class _SignUpScreenState extends State<SignUpScreen> {
       ),
     );
   }
+  Future<void> _pickImageFromGallery() async {
+    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      print("coming");
+      setState(() => _profileImage = File(pickedFile.path));
+    }
+  }
+
+  Future<void> _pickImageFromCamera() async {
+    final pickedFile = await ImagePicker().pickImage(source: ImageSource.camera);
+    if (pickedFile != null) {
+      print("coming");
+      setState(() => _profileImage = File(pickedFile.path));
+    }
+  }
+
+  void _showImageSourceSheet() {
+    showModalBottomSheet(
+      context: context,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
+      ),
+      builder: (BuildContext context) {
+        return Padding(
+          padding: EdgeInsets.all(20.w),
+          child: Wrap(
+            children: [
+              ListTile(
+                leading: Icon(Icons.photo_library, color: appcolor),
+                title: Text('Pick from Gallery', style: GoogleFonts.poppins()),
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickImageFromGallery();
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.camera_alt, color: appcolor),
+                title: Text('Take Photo', style: GoogleFonts.poppins()),
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickImageFromCamera();
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
 }
