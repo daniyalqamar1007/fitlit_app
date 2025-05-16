@@ -3,6 +3,7 @@ import 'package:fitlip_app/view/Screens/Auth/Forgot_password/new_password.dart';
 import 'package:fitlip_app/view/Screens/Auth/Otp/otp_screen.dart';
 import 'package:fitlip_app/view/Screens/Auth/sign_in.dart';
 import 'package:fitlip_app/view/Screens/Dashboard/bottomnavbar.dart';
+import 'package:fitlip_app/view/Screens/Profile/edit_profile.dart';
 import 'package:fitlip_app/view/Screens/Profile/profile_screen.dart';
 import 'package:flutter/cupertino.dart';
 import '../controllers/auth_controller.dart';
@@ -22,6 +23,7 @@ class AppRoutes {
   static const String otp = '/otp';
   static const String newpassword = '/newpassword';
   static const String social = '/social';
+  static const String editprofile = '/edit';
   static final Map<String, WidgetBuilder> routes = {
     splash: (context) => SplashScreen(),
     onboarding: (context) => OnboardingScreen(),
@@ -31,6 +33,7 @@ class AppRoutes {
     profile: (context) => ProfileScreen(),
     social: (context) => SocialMediaProfile(),
     forgot: (context) => ForgotPasswordScreen(),
+    editprofile: (context) => EditProfileScreen(),
     otp: (context) => OtpVerificationScreen(email: '@hjgskdgsgds',),
     newpassword: (context) => NewPasswordScreen(email: "dhsgfjh@",otp: "546338",),
    

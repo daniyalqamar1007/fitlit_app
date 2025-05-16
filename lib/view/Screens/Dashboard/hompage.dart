@@ -5,9 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../../controllers/profile_controller.dart';
 import '../../../controllers/wardrobe_controller.dart';
 import '../../../controllers/outfit_controller.dart';
 import '../../../main.dart';
+import '../../../model/profile_model.dart';
 import '../../../model/wardrobe_model.dart';
 import '../../Utils/Colors.dart';
 import 'dart:io';
@@ -24,12 +26,18 @@ class WardrobeScreen extends StatefulWidget {
 
 class _WardrobeScreenState extends State<WardrobeScreen>
     with SingleTickerProviderStateMixin {
+  final ValueNotifier<UserProfileModel?> profileNotifier = ValueNotifier<UserProfileModel?>(null);
+  final ProfileController _profileController = ProfileController();
   DateTime _focusedDay = DateTime.now();
   WardrobeController controller=WardrobeController();
+  final ValueNotifier<String?> _avatarUrlNotifier = ValueNotifier<String?>(null);
+  final ValueNotifier<String?> _userProfileImageNotifier = ValueNotifier<String?>(null);
+  final ValueNotifier<bool> _isLoadingNotifier = ValueNotifier<bool>(false);
   DateTime? _selectedDay;
   CalendarFormat _calendarFormat = CalendarFormat.month;
   final ImagePicker _picker = ImagePicker();
   String? _avatarUrl;
+  String? userProfileImage;
   // Avatar control variables
   int _currentAvatarIndex = 0;
   final List<String> _avatarAssets = [
@@ -87,7 +95,8 @@ class _WardrobeScreenState extends State<WardrobeScreen>
       parent: _avatarAnimationController!,
       curve: Curves.easeInOut,
     ));
-    _getUserInfoAndLoadItems();
+     _loadUserProfile();
+
     _wardrobeController.statusNotifier.addListener(_handleStatusChange);
 
     // Check if there's an outfit for today
@@ -125,6 +134,12 @@ class _WardrobeScreenState extends State<WardrobeScreen>
         );
       }
     }
+  }
+  Future<void> _loadUserProfile() async {
+    // Get user profile data
+    await _profileController.getUserProfile();
+
+    _getUserInfoAndLoadItems();
   }
 
   // Check if there's an existing outfit for the selected date
@@ -406,22 +421,28 @@ class _WardrobeScreenState extends State<WardrobeScreen>
       children: [
         Expanded(
           flex: 1,
-          child: GestureDetector(
-            onTap: () {
+          child:
+          GestureDetector(
+            onTap: (){
               Navigator.pushNamed(context, AppRoutes.profile);
             },
-            child: Container(
-              width: Responsive.width(30),
-              height: Responsive.height(50),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(Responsive.radius(20)),
-                image: const DecorationImage(
-                  image: AssetImage('assets/Images/circle_image.png'),
-                ),
-              ),
+            child: ValueListenableBuilder<UserProfileModel?>(
+              valueListenable: _profileController.profileNotifier,
+              builder: (context, userProfile, _) {
+                if (userProfile == null) {
+                  return const CircularProgressIndicator(); // or fallback UI
+                }
+
+                return CircleAvatar(
+                  radius: 30,
+                  backgroundImage: userProfile.profileImage.isNotEmpty
+                      ? NetworkImage(userProfile.profileImage)
+                      : const AssetImage('assets/Images/circle_image.png') as ImageProvider,
+                );
+              },
             ),
-          ),
-        ),
+          )),
+
         SizedBox(
           width: Responsive.width(10),
         ),

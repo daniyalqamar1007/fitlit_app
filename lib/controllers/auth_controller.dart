@@ -24,7 +24,7 @@ class AuthController {
         'phone': phone ?? '',
         'gender': gender ?? '',
         'password': password ?? '',
-        'imageFile': imageFile,
+        'file': imageFile,
       };
     }
     return _instance;
@@ -59,6 +59,7 @@ class AuthController {
         password: _tempSignUpData['password'],
         phoneNumber: _tempSignUpData['phone'],
         gender: _tempSignUpData['gender'],
+        profilePhotoFile: _tempSignUpData['file']
       );
 
       final response = await _authService.signUp(request);

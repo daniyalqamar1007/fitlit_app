@@ -5,7 +5,7 @@ import '../model/outfit_model.dart';
 import '../view/Utils/globle_variable/globle.dart';
 
 class OutfitService {
-  final String baseUrl = "http://147.93.47.17:3099";
+
   final http.Client client = http.Client();
 
   // Save outfit selection API

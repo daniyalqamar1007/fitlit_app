@@ -1,5 +1,6 @@
 // auth_model.dart
 import 'dart:convert';
+import 'dart:io';
 
 class UserModel {
   final int? userId;
@@ -26,7 +27,7 @@ class UserModel {
       'name': name,
       'email': email,
       'phoneNumber': phoneNumber,
-      'profilePhoto': profilePhoto,
+      'profilePicture': profilePhoto,
       'gender': gender,
       'accessToken': accessToken,
     };
@@ -38,7 +39,7 @@ class UserModel {
       name: json['name'],
       email: json['email'],
       phoneNumber: json['phoneNumber'],
-      profilePhoto: json['profilePhoto'],
+      profilePhoto: json['profilePicture'],
       gender: json['gender'],
       accessToken: json['access_token'] ?? json['accessToken'],
     );
@@ -119,16 +120,16 @@ class SignUpRequest {
   final String email;
   final String password;
   final String phoneNumber;
-  final String? profilePhoto;
   final String gender;
+  final File? profilePhotoFile; // Store image file here
 
   SignUpRequest({
     required this.name,
     required this.email,
     required this.password,
     required this.phoneNumber,
-    this.profilePhoto,
     required this.gender,
+    this.profilePhotoFile,
   });
 
   Map<String, dynamic> toJson() {
@@ -137,11 +138,12 @@ class SignUpRequest {
       'email': email,
       'password': password,
       'phoneNumber': phoneNumber,
-      'profilePhoto': profilePhoto,
       'gender': gender.toLowerCase(),
+      // Don't include profilePhotoFile here
     };
   }
 }
+
 
 class SignInRequest {
   final String email;
