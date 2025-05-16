@@ -71,7 +71,7 @@ flutter:
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "assets/Images/splash_logo.png" # Make sure this file exists
+  image_path: "assets/Images/application_logo.png" # Make sure this file exists
   remove_alpha_ios: true
 
 
