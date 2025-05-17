@@ -1,4 +1,5 @@
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fitlip_app/routes/App_routes.dart';
 import 'package:fitlip_app/controllers/themecontroller.dart';
 import 'package:flutter/material.dart';
@@ -419,29 +420,49 @@ class _WardrobeScreenState extends State<WardrobeScreen>
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Expanded(
-          flex: 1,
-          child:
-          GestureDetector(
-            onTap: (){
-              Navigator.pushNamed(context, AppRoutes.profile);
-            },
-            child: ValueListenableBuilder<UserProfileModel?>(
-              valueListenable: _profileController.profileNotifier,
-              builder: (context, userProfile, _) {
-                if (userProfile == null) {
-                  return const CircularProgressIndicator(); // or fallback UI
-                }
 
-                return CircleAvatar(
-                  radius: 30,
-                  backgroundImage: userProfile.profileImage.isNotEmpty
-                      ? NetworkImage(userProfile.profileImage)
-                      : const AssetImage('assets/Images/circle_image.png') as ImageProvider,
-                );
-              },
-            ),
-          )),
+      Expanded(
+      flex: 1,
+      child: GestureDetector(
+        onTap: () {
+          Navigator.pushNamed(context, AppRoutes.profile);
+        },
+        child: ValueListenableBuilder<UserProfileModel?>(
+          valueListenable: _profileController.profileNotifier,
+          builder: (context, userProfile, _) {
+            if (userProfile == null) {
+              return const CircularProgressIndicator();
+            }
+
+            return ClipOval(
+              child: Container(
+                width: 40,
+                height: 50,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                ),
+                child: userProfile.profileImage.isNotEmpty
+                    ? CachedNetworkImage(
+                  imageUrl: userProfile.profileImage,
+                  fit: BoxFit.cover,
+                  alignment: Alignment.topCenter, // Focus on the top part (face)
+                  placeholderFadeInDuration: Duration(milliseconds: 300),
+                  placeholder: (context, url) => CircularProgressIndicator(),
+                  errorWidget: (context, url, error) => Image.asset(
+                    'assets/Images/circle_image.png',
+                    fit: BoxFit.cover,
+                  ),
+                )
+                    : Image.asset(
+                  'assets/Images/circle_image.png',
+                  fit: BoxFit.cover,
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    ),
 
         SizedBox(
           width: Responsive.width(10),

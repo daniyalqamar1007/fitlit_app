@@ -154,16 +154,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildProfileHeader(UserProfileModel userProfile) {
     return Row(
       children: [
-        CircleAvatar(
-          radius: 30,
-          backgroundImage: userProfile.profileImage.isNotEmpty
-              ? NetworkImage(userProfile.profileImage)
-              : const AssetImage('assets/Images/circle_image.png') as ImageProvider,
-          onBackgroundImageError: (_, __) {
-            // Handle image loading error silently
+      Container(
+      width: 60,
+      height: 60,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(color: Colors.grey.withOpacity(0.2), width: 0.5),
+      ),
+      child: ClipOval(
+        child: userProfile.profileImage.isNotEmpty
+            ? Image.network(
+          userProfile.profileImage,
+          fit: BoxFit.cover,
+          alignment: const Alignment(0, -1), // Shift up to focus on face area
+          errorBuilder: (context, error, stackTrace) {
+            return Image.asset(
+              'assets/Images/circle_image.png',
+              fit: BoxFit.cover,
+            );
           },
+        )
+            : Image.asset(
+          'assets/Images/circle_image.png',
+          fit: BoxFit.cover,
         ),
-        const SizedBox(width: 12),
+      ),
+    ),      const SizedBox(width: 12),
         Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,

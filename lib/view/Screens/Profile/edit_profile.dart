@@ -193,27 +193,48 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 valueListenable: _imageLinkNotifier,
                 builder: (context, imageLink, _) {
                   return Container(
-                    height: 120,
-                    width: 120,
+                    height: 100,
+                    width: 100,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      border: Border.all(color: Colors.grey.withOpacity(0.5), width: 0.5),
+                      border: Border.all(color: Colors.grey.withOpacity(0.5),
+                          width: 0.5),
                     ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(60),
+                    child: ClipOval( // Changed from ClipRRect for better circle cropping
                       child: imageFile != null
-                          ? Image.file(imageFile, fit: BoxFit.cover)
+                          ? Image.file(
+                        imageFile,
+                        fit: BoxFit.fitWidth,
+                        alignment: const Alignment(
+                            0, -0.2), // Shift up to focus on face area
+                      )
                           : (imageLink != null && imageLink.isNotEmpty)
-                          ? FadeInImage.assetNetwork(
-                        placeholder: 'assets/Images/circle_image.png',
-                        image: imageLink,
+                          ? Image.network(
+                        imageLink,
                         fit: BoxFit.cover,
-                        imageErrorBuilder: (context, error, stackTrace) {
+                        alignment: const Alignment(0, -1),
+                        // Shift up to focus on face area
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return Center(child: CircularProgressIndicator(
+                            value: loadingProgress.expectedTotalBytes != null
+                                ? loadingProgress.cumulativeBytesLoaded /
+                                loadingProgress.expectedTotalBytes!
+                                : null,
+                          ));
+                        },
+                        errorBuilder: (context, error, stackTrace) {
                           debugPrint("Error loading image: $error");
-                          return Image.asset('assets/Images/circle_image.png', fit: BoxFit.cover);
+                          return Image.asset(
+                            'assets/Images/circle_image.png',
+                            fit: BoxFit.cover,
+                          );
                         },
                       )
-                          : Image.asset('assets/Images/circle_image.png', fit: BoxFit.cover),
+                          : Image.asset(
+                        'assets/Images/circle_image.png',
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   );
                 },
@@ -230,7 +251,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: Colors.white,
-                  border: Border.all(color: Colors.grey.withOpacity(0.5), width: 0.5),
+                  border: Border.all(
+                      color: Colors.grey.withOpacity(0.5), width: 0.5),
                 ),
                 child: const Icon(
                   Icons.camera_alt_outlined,
@@ -244,7 +266,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       ),
     );
   }
-
   Widget _buildTextField({
     required String label,
     required TextEditingController controller,
