@@ -64,7 +64,7 @@ class AuthService {
       print('Phone: ${request.phoneNumber}');
       print('Has profile photo: ${request.profilePhotoFile != null}');
 
-      final uri = Uri.parse('$baseUrl/auth/signup');
+      final uri = Uri.parse('$baseUrl/auth/verify-otp');
       var requestMultipart = http.MultipartRequest('POST', uri);
 
       // Add text fields
@@ -85,7 +85,7 @@ class AuthService {
           ),
         );
       }
-
+print(request.email);
       final streamedResponse = await requestMultipart.send();
       final response = await http.Response.fromStream(streamedResponse);
 
