@@ -17,9 +17,9 @@ class AuthController {
     String? password,
     File? imageFile,
   }) {
-    if (name != null && email != null) {
+    if (email != null) {
       _instance._tempSignUpData = {
-        'name': name,
+        'name': name ?? '',
         'email': email,
         'phone': phone ?? '',
         'gender': gender ?? '',
@@ -42,30 +42,23 @@ class AuthController {
   ValueNotifier<bool> get isLoading => _authService.isLoading;
   ValueNotifier<String?> get error => _authService.error;
 
+  // Getter for temporary signup data
+  Map<String, dynamic> get tempSignUpData => _tempSignUpData;
+
   Future<void> init() async {
     await _authService.loadUserSession();
   }
 
-  // Sign Up - Updated for new response format
-  Future<Map<String, dynamic>> signUp() async {
-    if (_tempSignUpData.isEmpty) {
-      return {'success': false, 'message': 'No sign up data provided'};
-    }
-
+  // Step 1: Initial Sign Up - Only send email to get OTP
+  Future<Map<String, dynamic>> initialSignUp(String email) async {
     try {
-      final request = SignUpRequest(
-        name: _tempSignUpData['name'],
-        email: _tempSignUpData['email'],
-        password: _tempSignUpData['password'],
-        phoneNumber: _tempSignUpData['phone'],
-        gender: _tempSignUpData['gender'],
-        profilePhotoFile: _tempSignUpData['file']
-      );
+      // Clear previous data but keep the email
+      _tempSignUpData = {'email': email};
 
-      final response = await _authService.signUp(request);
+      final request = InitialSignupRequest(email: email);
+      final response = await _authService.initialSignup(request);
 
-      // Handle the new response format {otp, message}
-      if (response.otp != null) {
+      if (response.success == true && response.otp != null) {
         _verificationOtp = response.otp;
         return {
           'success': true,
@@ -83,33 +76,58 @@ class AuthController {
     }
   }
 
-  // Verify OTP for Sign Up - Updated for new response format
-  Future<Map<String, dynamic>> verifySignUpOtp(String userOtp) async {
+  // Step 2: Complete Sign Up after OTP verification
+  Future<Map<String, dynamic>> completeSignUp(String userOtp,String name,String email,String password,String phone,String gender,File file) async {
+    if (_tempSignUpData.isEmpty || _tempSignUpData['email'] == null) {
+      return {'success': false, 'message': 'No sign up data provided'};
+    }
+
+    // Verify OTP locally (as per your requirement)
+    if (_verificationOtp == null || userOtp != _verificationOtp) {
+      return {'success': false, 'message': 'Invalid OTP'};
+    }
+
     try {
-      final request = VerifyOtpRequest(
-        email: _tempSignUpData['email'],
-        otp: userOtp,
-        password: _tempSignUpData['password'],
-        name: _tempSignUpData['name'],
+      print(name);
+      print(email);
+      print(phone);
+      print(gender);
+      print(password);
+      print(file.path);
+      // Create SignUpRequest with all data
+      final signUpRequest = SignUpRequest(
+        name:name,
+        email: email,
+        password:password,
+        phoneNumber: phone,
+        gender:gender , // Default value
+        profilePhotoFile:file,
       );
 
-      final response = await _authService.verifyOtp(request);
 
-      // Assuming verify endpoint returns {message, user} on success
-      if (response.user != null) {
+      // Call the signUp method with all user data
+      final response = await _authService.signUp(signUpRequest);
+
+      if (response.success == true) {
+        // Clear temporary data after successful signup
         _tempSignUpData = {};
         _verificationOtp = null;
-      await savetoken(response.user?.accessToken??"");
+
+        // Save token if available
+        if (response.user?.accessToken != null) {
+          await savetoken(response.user!.accessToken!);
+        }
+
         return {
           'success': true,
-          'message': response.message ?? 'Verification successful',
+          'message': response.message ?? 'Registration successful',
           'userId': response.user?.userId,
           'token': response.user?.accessToken,
         };
       } else {
         return {
           'success': false,
-          'message': response.message ?? 'Verification failed'
+          'message': response.message ?? 'Registration failed',
         };
       }
     } catch (e) {
@@ -117,7 +135,7 @@ class AuthController {
     }
   }
 
-  // Sign In - Updated for new response format
+  // Sign In
   Future<Map<String, dynamic>> signIn(String email, String password) async {
     try {
       final request = SignInRequest(
@@ -126,11 +144,9 @@ class AuthController {
       );
 
       final response = await _authService.signIn(request);
-      print(response.message);
+      print('Sign in response message: ${response.message}');
 
-
-print(token);
-      if (response.user != null) {
+      if (response.user != null && response.user!.accessToken != null) {
         return {
           'success': true,
           'message': response.message ?? 'Login successful',
@@ -148,8 +164,7 @@ print(token);
     }
   }
 
-  // Forgot Password - Updated for new response format
-// Forgot Password - Fixed for API response format
+  // Forgot Password
   Future<Map<String, dynamic>> forgotPassword(String email) async {
     try {
       final request = ForgotPasswordRequest(email: email);
@@ -158,14 +173,20 @@ print(token);
       // Debug logs
       print('Controller received: OTP=${response.otp}, Message=${response.message}, Success=${response.success}');
 
-      // Important: If we have an OTP, consider it a success regardless of the success flag
-      final bool isSuccess = response.otp != null;
-
-      return {
-        'success': isSuccess,
-        'otp': response.otp,
-        'message': response.message ?? 'No message received',
-      };
+      if (response.otp != null) {
+        _verificationOtp = response.otp;
+        return {
+          'success': true,
+          'otp': response.otp,
+          'message': response.message ?? 'OTP sent successfully',
+        };
+      } else {
+        return {
+          'success': false,
+          'message': response.message ?? 'Failed to send OTP',
+          'otp': null,
+        };
+      }
     } catch (e) {
       print('Error in forgotPassword: ${e.toString()}');
       return {
@@ -174,7 +195,9 @@ print(token);
         'otp': null,
       };
     }
-  }// Reset Password - Updated for new response format
+  }
+
+  // Reset Password
   Future<Map<String, dynamic>> resetPassword(String email, String newPassword) async {
     try {
       final request = ResetPasswordRequest(
@@ -185,7 +208,7 @@ print(token);
       final response = await _authService.resetPassword(request);
 
       // Assuming reset password returns {message} on success
-      if (response.message != null) {
+      if (response.success == true) {
         _verificationOtp = null;
         return {
           'success': true,
@@ -202,11 +225,27 @@ print(token);
     }
   }
 
-  // Verify OTP for Password Reset
-  Future<bool> verifyResetOtp(String userOtp) async {
+  // Update temporary signup data
+  void updateSignUpData({
+    String? name,
+    String? phone,
+    String? gender,
+    String? password,
+    File? imageFile,
+  }) {
+    if (name != null) _tempSignUpData['name'] = name;
+    if (phone != null) _tempSignUpData['phone'] = phone;
+    if (gender != null) _tempSignUpData['gender'] = gender;
+    if (password != null) _tempSignUpData['password'] = password;
+    if (imageFile != null) _tempSignUpData['file'] = imageFile;
+  }
+
+  // Verify OTP locally
+  bool verifyOtp(String userOtp) {
     return userOtp == _verificationOtp;
   }
 
+  // Logout
   Future<void> logout() async {
     await _authService.logout();
   }

@@ -52,14 +52,14 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         setState(() => _isLoading = false);
 
         if (result['success'] == true && result['otp'] != null) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => OtpVerificationScreen(
-                email: _emailController.text,
-              ),
-            ),
-          );
+          // Navigator.pushReplacement(
+          //   context,
+          //   MaterialPageRoute(
+          //     builder: (context) => OtpVerificationScreen(
+          //       email: _emailController.text,
+          //     ),
+          //   ),
+          // );
         } else {
           setState(() {
             _errorMessage = result['message'] ?? 'Failed to send OTP';

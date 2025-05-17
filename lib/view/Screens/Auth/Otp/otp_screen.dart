@@ -1,157 +1,188 @@
+import 'dart:io';
+
 import 'package:fitlip_app/controllers/auth_controller.dart';
 import 'package:fitlip_app/routes/App_routes.dart';
 import 'package:fitlip_app/view/Utils/Colors.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:otp_text_field/otp_field.dart';
 import 'package:otp_text_field/style.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../main.dart';
-import '../../../../services/auth_services.dart';
-import '../../../Utils/globle_variable/globle.dart';
 import '../../../Utils/responsivness.dart';
-import '../Forgot_password/new_password.dart';
+import '../../../Widgets/Custom_buttons.dart';
+import '../sign_in.dart';
 
 class OtpVerificationScreen extends StatefulWidget {
-  String? email;
-  OtpVerificationScreen({Key? key, required this.email}) : super(key: key);
+  final String email;
+  final String gender;
+  final String name;
+  final String password;
+  final String phone;
+  final File file;
+
+  const OtpVerificationScreen({
+    Key? key,
+    required this.email, required this.gender, required this.name, required this.password, required this.phone,required this.file,
+
+  }) : super(key: key);
 
   @override
-  _OtpVerificationScreenState createState() => _OtpVerificationScreenState();
+  State<OtpVerificationScreen> createState() => _OtpVerificationScreenState();
 }
 
 class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
-  final OtpFieldController _otpController = OtpFieldController();
-  final AuthController _authController = AuthController();
+  String _enteredOtp = '';
   bool _isLoading = false;
   String? _errorMessage;
-  String _enteredOtp = '';
+  late AuthController _authController;
+  final OtpFieldController _otpController = OtpFieldController();
+
+  @override
+  void initState() {
+    super.initState();
+    _authController = AuthController();
+    // Retrieve existing signup data (to ensure we have the complete user details)
+    _validateExistingData();
+  }
+
+  void _validateExistingData() {
+    // Check if there's stored signup data with the email
+    final tempData = _authController.tempSignUpData;
+
+    // Debug: Print stored data
+    print('Stored signup data: $tempData');
+
+    if (tempData.isEmpty || tempData['email'] != widget.email) {
+      // If no data or email mismatch, update with the current email
+      _authController.updateSignUpData();
+      print('Email updated in temp data: ${widget.email}');
+    }
+  }
+
+  Future<void> _verifyOtp() async {
+    if (_enteredOtp.isEmpty || _enteredOtp.length != 4) {
+      setState(() {
+        _errorMessage = 'Please enter the complete OTP';
+      });
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      // Debug: Print before verification
+      print('Attempting OTP verification with: $_enteredOtp');
+      print('Current temp data before verification: ${_authController.tempSignUpData}');
+
+      // Call the completeSignUp method to verify OTP and register the user
+      final result = await _authController.completeSignUp(_enteredOtp,widget.name,widget.email,widget.password,widget.phone,widget.gender,widget.file);
+
+      setState(() {
+        _isLoading = false;
+      });
+
+      if (result['success']) {
+        // Show success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Registration successful'),
+            backgroundColor: Colors.green,
+          ),
+        );
+
+        // Navigate to sign in screen after successful registration
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => SignInScreen()),
+              (route) => false,
+        );
+      } else {
+        setState(() {
+          _errorMessage = result['message'] ?? 'Verification failed';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _errorMessage = 'An error occurred: ${e.toString()}';
+      });
+      print('Error in verification: ${e.toString()}');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: themeController.white,
       appBar: AppBar(
-        automaticallyImplyLeading: false,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: appcolor, size: Responsive.fontSize(20)),
+          icon: Icon(Icons.arrow_back_ios, color: themeController.black),
           onPressed: () => Navigator.pop(context),
         ),
-        backgroundColor: themeController.white,
-        title: Text(
-          'Verify OTP',
-          style: GoogleFonts.poppins(
-            color: appcolor,
-            fontSize: Responsive.fontSize(18),
-          ),
-        ),
-        elevation: 0,
       ),
       body: Stack(
         children: [
-          Padding(
-            padding: Responsive.allPadding(20),
+          SingleChildScrollView(
+            padding: EdgeInsets.all(20.w),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                /// Email Info
-                ValueListenableBuilder<String?>(
-                  valueListenable: _authController.email,
-                  builder: (context, email, _) {
-                    return Padding(
-                      padding: EdgeInsets.only(bottom: Responsive.height(24)),
-                      child: Text(
-                        'Enter the 4-digit code sent to ${email ?? 'your email'}',
-                        style: GoogleFonts.poppins(
-                          fontSize: Responsive.fontSize(16),
-                          color: themeController.black,
-                        ),
-                      ),
-                    );
-                  },
-                ),
-
-                /// OTP Input
+                SizedBox(height: 20.h),
+                _buildHeaderText(),
+                SizedBox(height: 40.h),
                 OTPTextField(
                   controller: _otpController,
                   length: 4,
                   width: MediaQuery.of(context).size.width,
-                  fieldWidth: Responsive.width(60),
+                  fieldWidth: 60.w,
                   style: GoogleFonts.poppins(
-                    fontSize: Responsive.fontSize(20),
+                    fontSize: 20.sp,
                     fontWeight: FontWeight.w600,
                   ),
                   textFieldAlignment: MainAxisAlignment.spaceAround,
                   fieldStyle: FieldStyle.box,
                   onChanged: (pin) {
-                    _enteredOtp = pin;
+                    setState(() {
+                      _enteredOtp = pin;
+                      _errorMessage = null;
+                    });
                   },
                   onCompleted: (pin) {
-                    _enteredOtp = pin;
-                    _verifyOtp();
+                    setState(() {
+                      _enteredOtp = pin;
+                      _errorMessage = null;
+                    });
+                    // Don't automatically verify when completed
+                    // Allow user to press the button for verification
                   },
                 ),
-
-                /// Error Message
+                SizedBox(height: 16.h),
                 if (_errorMessage != null)
                   Padding(
-                    padding: EdgeInsets.only(top: Responsive.height(16)),
+                    padding: EdgeInsets.only(bottom: 16.h),
                     child: Text(
                       _errorMessage!,
-                      style: GoogleFonts.poppins(
-                        color: Colors.red,
-                        fontSize: Responsive.fontSize(14),
-                      ),
+                      style: TextStyle(color: Colors.red, fontSize: 14.sp),
                       textAlign: TextAlign.center,
                     ),
                   ),
-
-                /// Verify Button
-                Padding(
-                  padding: EdgeInsets.only(top: Responsive.height(32)),
-                  child: ElevatedButton(
-                    onPressed: _isLoading ? null : _verifyOtp,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: appcolor,
-                      padding: EdgeInsets.symmetric(
-                        vertical: Responsive.height(12),
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(Responsive.radius(14)),
-                      ),
-                    ),
-                    child: Text(
-                      'Verify OTP',
-                      style: GoogleFonts.poppins(
-                        color: themeController.white,
-                        fontSize: Responsive.fontSize(16),
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
+                SizedBox(height: 30.h),
+                CustomButton(
+                  text: "Verify OTP",
+                  onPressed: _isLoading ? null : _verifyOtp,
                 ),
-
-                /// Resend Button
-                Padding(
-                  padding: EdgeInsets.only(top: Responsive.height(16)),
-                  child: TextButton(
-                    onPressed: _isLoading ? null : _resendOtp,
-                    child: Text(
-                      'Resend OTP',
-                      style: GoogleFonts.poppins(
-                        color: appcolor,
-                        fontSize: Responsive.fontSize(15),
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ),
+                SizedBox(height: 20.h),
+                _buildResendText(),
               ],
             ),
           ),
-
-          /// Loader Overlay
           if (_isLoading)
             Container(
               color: Colors.black.withOpacity(0.3),
@@ -166,91 +197,93 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     );
   }
 
-  Future<void> _verifyOtp() async {
-    if (_enteredOtp.length != 4) {
-      setState(() {
-        _errorMessage = 'Please enter all 4 digits';
-      });
-      return;
-    }
-
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
-
-    try {
-      final result = await _authController.verifySignUpOtp(_enteredOtp);
-
-      setState(() {
-        _isLoading = false;
-      });
-
-      if (result['success']) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(result['message'] ?? 'Verification successful')),
-        );
-
-        if (first_time) {
-          Navigator.pushReplacementNamed(context, AppRoutes.dashboard);
-        } else {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => NewPasswordScreen(
-                email: widget.email.toString(),
-                otp: _otpController.toString(),
-              ),
+  Widget _buildHeaderText() {
+    return Column(
+      children: [
+        Text(
+          'OTP Verification',
+          style: GoogleFonts.playfairDisplay(
+            fontSize: 30.sp,
+            fontWeight: FontWeight.w700,
+            color: themeController.black,
+          ),
+        ),
+        SizedBox(height: 12.h),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 30.w),
+          child: Text(
+            'Enter the verification code we just sent to ${widget.email}',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.poppins(
+              color: Colors.grey,
+              fontSize: 13.sp,
+              fontWeight: FontWeight.w400,
             ),
-          );
-        }
-      } else {
-        setState(() {
-          _errorMessage = result['message'] ?? 'Verification failed';
-        });
-      }
-    } catch (e) {
-      setState(() {
-        _isLoading = false;
-        _errorMessage = 'An error occurred: ${e.toString()}';
-      });
-    }
+          ),
+        ),
+      ],
+    );
   }
 
-  Future<void> _resendOtp() async {
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
+  Widget _buildResendText() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          "Didn't receive code? ",
+          style: GoogleFonts.poppins(
+            fontSize: 13.sp,
+            color: Colors.grey,
+          ),
+        ),
+        TextButton(
+          onPressed: () async {
+            try {
+              setState(() {
+                _isLoading = true;
+                _errorMessage = null;
+              });
 
-    try {
-      Map<String, dynamic> result;
+              // Re-request OTP
+              final result = await _authController.initialSignUp(widget.email);
 
-      if (first_time) {
-        result = await _authController.signUp();
-      } else {
-        final email = _authController.email.value ?? '';
-        result = await _authController.forgotPassword(email);
-      }
+              setState(() {
+                _isLoading = false;
+              });
 
-      setState(() {
-        _isLoading = false;
-      });
+              if (result['success']) {
+                // Debug log for OTP
+                print('New OTP received for testing: ${result['otp']}');
 
-      if (result['success']) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('OTP resent successfully')),
-        );
-      } else {
-        setState(() {
-          _errorMessage = result['message'] ?? 'Failed to resend OTP';
-        });
-      }
-    } catch (e) {
-      setState(() {
-        _isLoading = false;
-        _errorMessage = 'An error occurred: ${e.toString()}';
-      });
-    }
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('OTP sent again'),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+              } else {
+                setState(() {
+                  _errorMessage = result['message'];
+                });
+              }
+            } catch (e) {
+              setState(() {
+                _isLoading = false;
+                _errorMessage = 'Failed to resend OTP: ${e.toString()}';
+              });
+              print('Error in resend OTP: ${e.toString()}');
+            }
+          },
+          child: Text(
+            'Resend',
+            style: GoogleFonts.poppins(
+              fontSize: 13.sp,
+              color: appcolor,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }
