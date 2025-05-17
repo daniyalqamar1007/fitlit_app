@@ -151,7 +151,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
       });
 
       final outfit = await _outfitController.getOutfitByDate(
-        token: token,
+        token: token!,
         date: date,
       );
       print("coming ios $outfit");
@@ -268,7 +268,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
 
     try {
       final result = await _outfitController.saveOutfit(
-        token: token,
+        token: token!,
 
         shirtId: "1",
         pantId: "2",
