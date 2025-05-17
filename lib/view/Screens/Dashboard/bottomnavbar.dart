@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import '../../../main.dart';
@@ -23,9 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     double iconSize =
         MediaQuery.of(context).size.width * 0.06; // responsive icon size
-    double navBarHeight =
-        MediaQuery.of(context).size.height * 0.08; // responsive navbar height
-
+    double navBarHeight = min(MediaQuery.of(context).size.height * 0.08, 75.0); 
     return Scaffold(
       backgroundColor: Colors.white,
       body: _pages[_currentIndex],

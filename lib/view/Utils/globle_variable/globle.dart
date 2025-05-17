@@ -1,6 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
 bool first_time=true;
-final String baseUrl = "https://zqxct4xv-3099.inc1.devtunnels.ms";
+// final String baseUrl = "https://zqxct4xv-3099.inc1.devtunnels.ms";
+final String baseUrl = "http://147.93.47.17:3099";
 
 String token="";
 Future<bool> gettoken()async{
