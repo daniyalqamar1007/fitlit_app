@@ -12,8 +12,7 @@ import '../../../main.dart';
 import '../../Utils/globle_variable/globle.dart';
 import '../../Widgets/Custom_buttons.dart';
 import '../../Widgets/Custom_textfield.dart';
-
-// Import statements remain unchanged...
+import 'Otp/otp_screen.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -24,6 +23,7 @@ class SignUpScreen extends StatefulWidget {
 class _SignUpScreenState extends State<SignUpScreen> {
   final _formKey = GlobalKey<FormState>();
   String? _selectedGender;
+
   final List<String> _genderOptions = ['Male', 'Female', 'Other'];
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
@@ -33,6 +33,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   bool _obscurePassword = true;
   bool _isLoading = false;
   String? _errorMessage;
+  final AuthController _authController = AuthController();
 
   Future<void> _pickImage() async {
     final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
@@ -41,41 +42,74 @@ class _SignUpScreenState extends State<SignUpScreen> {
     }
   }
 
-  Future<void> _handleSignUp() async {
-    if (_formKey.currentState?.validate() ?? false) {
+  Future<void> _initiateSignUp() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    // Validate gender is selected
+    if (_selectedGender == null) {
       setState(() {
-        _isLoading = true;
-        _errorMessage = null;
+        _errorMessage = 'Please select a gender';
+      });
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      // First, store all user data in AuthController
+      _authController.updateSignUpData(
+        name: _nameController.text,
+        phone: _phoneController.text,
+        gender: _selectedGender,
+        password: _passwordController.text,
+        imageFile: _profileImage,
+      );
+
+      // Then initiate OTP verification process with email
+      final result = await _authController.initialSignUp(_emailController.text);
+
+      setState(() {
+        _isLoading = false;
       });
 
-      try {
-        final authController = AuthController(
-          name: _nameController.text,
-          email: _emailController.text,
-          phone: _phoneController.text,
-          gender: _selectedGender,
-          password: _passwordController.text,
-          imageFile: _profileImage,
+      if (result['success']) {
+        // Debug log for OTP
+        print('OTP received for testing: ${result['otp']}');
+
+        // Set the first_time flag to indicate this is a signup flow
+        first_time = true;
+
+        // Navigate to OTP verification screen
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => OtpVerificationScreen(
+              email: _emailController.text,
+              name: _nameController.text,
+              gender: _selectedGender.toString(),
+              phone: _phoneController.text,
+              password: _passwordController.text,
+              file: _profileImage!,
+
+            ),
+          ),
         );
-
-        final result = await authController.signUp();
-        setState(() => _isLoading = false);
-
-        if (result['success']) {
-          first_time = true;
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(result['message'] ?? 'OTP sent to your email')),
-          );
-          Navigator.pushNamed(context, AppRoutes.otp);
-        } else {
-          setState(() => _errorMessage = result['message'] ?? 'Sign up failed');
-        }
-      } catch (e) {
+      } else {
         setState(() {
-          _isLoading = false;
-          _errorMessage = 'An error occurred: ${e.toString()}';
+          _errorMessage = result['message'] ?? 'Failed to send OTP';
         });
       }
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _errorMessage = 'An error occurred: ${e.toString()}';
+      });
+      print('Error in _initiateSignUp: ${e.toString()}');
     }
   }
 
@@ -90,6 +124,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // UI Code remains unchanged
     return Scaffold(
       backgroundColor: themeController.white,
       body: Stack(
@@ -117,7 +152,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   SizedBox(height: 10.h),
                   CustomButton(
                     text: "Create Account",
-                    onPressed: _isLoading ? null : _handleSignUp,
+                    onPressed: _isLoading ? null : _initiateSignUp,
                   ),
                   _buildSignInText(),
                   SizedBox(height: 20.h),
@@ -231,11 +266,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
             ),
             filled: true,
             fillColor: Colors.grey.shade100,
-            border: InputBorder.none, // ✅ Removed border
+            border: InputBorder.none,
           ),
           style: GoogleFonts.poppins(color: themeController.black, fontSize: 12.sp),
           items: _genderOptions.map((gender) {
-            return DropdownMenuItem(
+            return DropdownMenuItem<String>(
               value: gender,
               child: Text(gender, style: GoogleFonts.poppins(fontSize: 12.sp)),
             );
@@ -269,35 +304,35 @@ class _SignUpScreenState extends State<SignUpScreen> {
           ),
         ),
         SizedBox(height: 8.h),
-    GestureDetector(
-    onTap: _showImageSourceSheet,
-    child: AbsorbPointer(
-    child: TextFormField(
-    readOnly: true,
-
-    decoration: InputDecoration(
-    hintText: _profileImage != null ? 'Image Selected' : 'Upload Photo',
-    hintStyle: GoogleFonts.poppins(color: hintextcolor, fontSize: 12.sp),
-    filled: true,
-    fillColor: Colors.grey[100],
-    border: InputBorder.none, // ✅ Removed border
-    suffixIcon: _profileImage != null
-    ? Container(
-    margin: EdgeInsets.all(10.sp),
-    decoration: BoxDecoration(
-    color: Colors.green,
-    shape: BoxShape.circle,
-    ),
-    padding: EdgeInsets.all(4.sp),
-    child: Icon(Icons.check, color: Colors.white, size: 16.sp),
-    )
-        : Image.asset(
-    'assets/Icons/camera_icon.png',
-    scale: 5.sp,
-    ),
-    ),
-    ),
-    ),)
+        GestureDetector(
+          onTap: _showImageSourceSheet,
+          child: AbsorbPointer(
+            child: TextFormField(
+              readOnly: true,
+              decoration: InputDecoration(
+                hintText: _profileImage != null ? 'Image Selected' : 'Upload Photo',
+                hintStyle: GoogleFonts.poppins(color: hintextcolor, fontSize: 12.sp),
+                filled: true,
+                fillColor: Colors.grey[100],
+                border: InputBorder.none,
+                suffixIcon: _profileImage != null
+                    ? Container(
+                  margin: EdgeInsets.all(10.sp),
+                  decoration: BoxDecoration(
+                    color: Colors.green,
+                    shape: BoxShape.circle,
+                  ),
+                  padding: EdgeInsets.all(4.sp),
+                  child: Icon(Icons.check, color: Colors.white, size: 16.sp),
+                )
+                    : Image.asset(
+                  'assets/Icons/camera_icon.png',
+                  scale: 5.sp,
+                ),
+              ),
+            ),
+          ),
+        )
       ],
     );
   }
@@ -325,10 +360,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
       ),
     );
   }
+
   Future<void> _pickImageFromGallery() async {
     final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
-      print("coming");
       setState(() => _profileImage = File(pickedFile.path));
     }
   }
@@ -336,7 +371,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
   Future<void> _pickImageFromCamera() async {
     final pickedFile = await ImagePicker().pickImage(source: ImageSource.camera);
     if (pickedFile != null) {
-      print("coming");
       setState(() => _profileImage = File(pickedFile.path));
     }
   }
@@ -374,5 +408,4 @@ class _SignUpScreenState extends State<SignUpScreen> {
       },
     );
   }
-
 }

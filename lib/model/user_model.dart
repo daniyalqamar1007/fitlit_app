@@ -35,7 +35,7 @@ class UserModel {
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
-      userId: json['userId'.toString()],
+      userId: json['userId'],
       name: json['name'],
       email: json['email'],
       phoneNumber: json['phoneNumber'],
@@ -54,11 +54,12 @@ class AuthResponse {
 
   AuthResponse({this.otp, this.message, this.user, this.success});
 
-  factory AuthResponse.fromSignUpResponse(Map<String, dynamic> json) {
+  // For initial signup (email only)
+  factory AuthResponse.fromInitialSignUpResponse(Map<String, dynamic> json) {
     return AuthResponse(
       success: true,
       message: json['message'] ?? 'OTP sent to your email',
-      otp: json['otp'],
+      otp: json['otp']?.toString(),
       user: null,
     );
   }
@@ -88,16 +89,12 @@ class AuthResponse {
   }
 
   factory AuthResponse.fromForgotPasswordResponse(Map<String, dynamic> json) {
-    // The key fix: If OTP exists in the response, consider it a success
-    final hasOtp = json['otp'] != null;
-
     return AuthResponse(
-      otp: hasOtp ? json['otp'].toString() : null,
+      otp: json['otp']?.toString(),
       message: json['message'],
-      success: hasOtp, // Explicitly set success based on OTP presence
+      success: json['otp'] != null,
     );
   }
-
 
   factory AuthResponse.fromResetPasswordResponse(Map<String, dynamic> json) {
     return AuthResponse(
@@ -115,13 +112,28 @@ class AuthResponse {
   }
 }
 
+// Initial signup request (email-only)
+class InitialSignUpRequest {
+  final String email;
+
+  InitialSignUpRequest({
+    required this.email,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'email': email,
+    };
+  }
+}
+
 class SignUpRequest {
   final String name;
   final String email;
   final String password;
   final String phoneNumber;
   final String gender;
-  final File? profilePhotoFile; // Store image file here
+  final File? profilePhotoFile;
 
   SignUpRequest({
     required this.name,
@@ -139,11 +151,10 @@ class SignUpRequest {
       'password': password,
       'phoneNumber': phoneNumber,
       'gender': gender.toLowerCase(),
-      // Don't include profilePhotoFile here
+      // profilePhotoFile will be handled separately in multipart request
     };
   }
 }
-
 
 class SignInRequest {
   final String email;
@@ -164,25 +175,29 @@ class SignInRequest {
 
 class VerifyOtpRequest {
   final String email;
-  final String otp;
   final String? password;
   final String? name;
+  final String? phoneNumber;
+  final String? gender;
 
   VerifyOtpRequest({
     required this.email,
-    required this.otp,
     this.password,
     this.name,
+    this.phoneNumber,
+    this.gender,
   });
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = {
       'email': email,
-      'otp': otp,
     };
 
     if (password != null) data['password'] = password;
     if (name != null) data['name'] = name;
+    if (phoneNumber != null) data['phoneNumber'] = phoneNumber;
+    final gender = this.gender;
+    if (gender != null) data['gender'] = gender.toLowerCase();
 
     return data;
   }
@@ -192,6 +207,20 @@ class ForgotPasswordRequest {
   final String email;
 
   ForgotPasswordRequest({
+    required this.email,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'email': email,
+    };
+  }
+}
+
+class InitialSignupRequest {
+  final String email;
+
+  InitialSignupRequest({
     required this.email,
   });
 

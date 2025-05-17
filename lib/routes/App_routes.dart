@@ -34,7 +34,7 @@ class AppRoutes {
     social: (context) => SocialMediaProfile(),
     forgot: (context) => ForgotPasswordScreen(),
     editprofile: (context) => EditProfileScreen(),
-    otp: (context) => OtpVerificationScreen(email: '@hjgskdgsgds',),
+    // otp: (context) => OtpVerificationScreen(email: '@hjgskdgsgds',),
     newpassword: (context) => NewPasswordScreen(email: "dhsgfjh@",otp: "546338",),
    
   };
