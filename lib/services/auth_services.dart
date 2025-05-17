@@ -129,10 +129,14 @@ print(request.email);
       isLoading.value = false;
 
       if (response.statusCode == 200) {
+
         final jsonResponse = jsonDecode(response.body);
         final authResponse = AuthResponse.fromSignInResponse(jsonResponse);
-        await savetoken(jsonResponse['access_token'] ?? "");
+        print(authResponse);
+        print(jsonResponse['access_token'] );
+        await savetoken(jsonResponse['access_token']);
         print("New token saved: $token");
+        await gettoken();
 
         if (authResponse.user != null && authResponse.user!.accessToken != null) {
           // Store user email since it's not returned in response

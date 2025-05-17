@@ -165,6 +165,7 @@ class WardrobeService {
 
       request.files.add(multipartFile);
       print("Request prepared, sending to server...");
+      print(request.fields);
 
       var streamedResponse = await request.send();
       print(streamedResponse.statusCode);
