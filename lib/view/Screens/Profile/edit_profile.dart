@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fitlip_app/routes/App_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -31,6 +32,47 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     super.initState();
     // Load profile data as soon as the widget initializes
     _loadUserProfile();
+  }
+  void _showFullScreenImage() {
+    final imageFile = _imageFileNotifier.value;
+    final imageLink = _imageLinkNotifier.value;
+
+    if (imageFile == null && (imageLink == null || imageLink.isEmpty)) {
+      return; // No image to show
+    }
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => Scaffold(
+          backgroundColor: Colors.black,
+          appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            iconTheme: const IconThemeData(color: Colors.white),
+          ),
+          body: Center(
+            child: InteractiveViewer(
+              panEnabled: true,
+              minScale: 0.5,
+              maxScale: 3.0,
+              child: imageFile != null
+                  ? Image.file(
+                imageFile,
+                fit: BoxFit.contain,
+              )
+                  : CachedNetworkImage(
+                imageUrl: imageLink!,
+                fit: BoxFit.contain,
+                placeholder: (context, url) =>
+                const CircularProgressIndicator(color: Colors.white),
+                errorWidget: (context, url, error) => const Icon(Icons.error, color: Colors.white),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -186,60 +228,65 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     return Center(
       child: Stack(
         children: [
-          ValueListenableBuilder<File?>(
-            valueListenable: _imageFileNotifier,
-            builder: (context, imageFile, _) {
-              return ValueListenableBuilder<String?>(
-                valueListenable: _imageLinkNotifier,
-                builder: (context, imageLink, _) {
-                  return Container(
-                    height: 100,
-                    width: 100,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.grey.withOpacity(0.5),
-                          width: 0.5),
-                    ),
-                    child: ClipOval( // Changed from ClipRRect for better circle cropping
-                      child: imageFile != null
-                          ? Image.file(
-                        imageFile,
-                        fit: BoxFit.fitWidth,
-                        alignment: const Alignment(
-                            0, -0.2), // Shift up to focus on face area
-                      )
-                          : (imageLink != null && imageLink.isNotEmpty)
-                          ? Image.network(
-                        imageLink,
-                        fit: BoxFit.cover,
-                        alignment: const Alignment(0, -1),
-                        // Shift up to focus on face area
-                        loadingBuilder: (context, child, loadingProgress) {
-                          if (loadingProgress == null) return child;
-                          return Center(child: CircularProgressIndicator(
-                            value: loadingProgress.expectedTotalBytes != null
-                                ? loadingProgress.cumulativeBytesLoaded /
-                                loadingProgress.expectedTotalBytes!
-                                : null,
-                          ));
-                        },
-                        errorBuilder: (context, error, stackTrace) {
-                          debugPrint("Error loading image: $error");
-                          return Image.asset(
-                            'assets/Images/circle_image.png',
-                            fit: BoxFit.cover,
-                          );
-                        },
-                      )
-                          : Image.asset(
-                        'assets/Images/circle_image.png',
-                        fit: BoxFit.cover,
+          GestureDetector(
+            onTap: _showFullScreenImage, // Add this line
+            child: ValueListenableBuilder<File?>(
+              valueListenable: _imageFileNotifier,
+              builder: (context, imageFile, _) {
+                return ValueListenableBuilder<String?>(
+                  valueListenable: _imageLinkNotifier,
+                  builder: (context, imageLink, _) {
+                    return Container(
+                      height: 100,
+                      width: 100,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: Colors.grey.withOpacity(0.5),
+                          width: 0.5,
+                        ),
                       ),
-                    ),
-                  );
-                },
-              );
-            },
+                      child: ClipOval(
+                        child: imageFile != null
+                            ? Image.file(
+                          imageFile,
+                          fit: BoxFit.fitWidth,
+                          alignment: const Alignment(0, -0.2),
+                        )
+                            : (imageLink != null && imageLink.isNotEmpty)
+                            ? Image.network(
+                          imageLink,
+                          fit: BoxFit.cover,
+                          alignment: const Alignment(0, -1),
+                          loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return Center(
+                              child: CircularProgressIndicator(
+                                value: loadingProgress.expectedTotalBytes != null
+                                    ? loadingProgress.cumulativeBytesLoaded /
+                                    loadingProgress.expectedTotalBytes!
+                                    : null,
+                              ),
+                            );
+                          },
+                          errorBuilder: (context, error, stackTrace) {
+                            debugPrint("Error loading image: $error");
+                            return Image.asset(
+                              'assets/Images/circle_image.png',
+                              fit: BoxFit.cover,
+                            );
+                          },
+                        )
+                            : Image.asset(
+                          'assets/Images/circle_image.png',
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
           ),
           Positioned(
             bottom: 0,

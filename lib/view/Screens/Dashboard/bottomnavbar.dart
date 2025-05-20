@@ -18,7 +18,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final List<Widget> _pages = [
     WardrobeScreen(),
-    ProfileScreen(),
+    Center(
+      child: Text("Branding"),
+    ),
     SocialMediaProfile(),
   ];
 

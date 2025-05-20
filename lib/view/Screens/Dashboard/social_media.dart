@@ -1,9 +1,15 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:fitlip_app/controllers/profile_controller.dart';
+import 'package:fitlip_app/view/Utils/Constants.dart';
+import 'package:flutter/material.dart';
+import 'package:fitlip_app/controllers/profile_controller.dart';
 import 'package:fitlip_app/view/Utils/Constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../../../controllers/outfit_controller.dart';
+import '../../../model/profile_model.dart';
 import '../../Utils/Colors.dart';
 import '../../Utils/globle_variable/globle.dart';
 import '../../Utils/responsivness.dart';
@@ -16,76 +22,87 @@ class SocialMediaProfile extends StatefulWidget {
   _SocialMediaProfileState createState() => _SocialMediaProfileState();
 }
 
+
+
+
 class _SocialMediaProfileState extends State<SocialMediaProfile> {
   bool isLiked = false;
+  bool status=true;
   int likeCount = 42;
-  String? avatarUrl = "assets/Icons/avatar3.png";
   final OutfitController _outfitController = OutfitController();
+  final ProfileController _profileController = ProfileController();
   DateTime selectedDate = DateTime.now();
   bool isLoading = false;
+  String? outfitImageUrl; // To store the fetched outfit image URL
   final List<Comment> dummyComments = [
-    Comment(
-      id: 1,
-      author: "Sarah Johnson",
-      avatar: "assets/Images/circle_image.png",
-      content: "This looks amazing! I love the colors.",
-      likes: 12,
-      time: "2h ago",
-    ),
-    Comment(
-      id: 2,
-      author: "Mike Peters",
-      avatar: "assets/Images/circle_image.png",
-      content: "Great work, keep it up buddy!",
-      likes: 5,
-      time: "3h ago",
-    ),
-    Comment(
-      id: 3,
-      author: "Emily Richards",
-      avatar: "assets/Images/circle_image.png",
-      content: "This is exactly what I was looking for. Mind sharing how you made this?",
-      likes: 8,
-      time: "5h ago",
-    ),
-    Comment(
-      id: 4,
-      author: "David Wong",
-      avatar: "assets/Images/circle_image.png",
-      content: "Inspiring work as always!",
-      likes: 3,
-      time: "7h ago",
-    ),
+    // ... (keep your existing dummy comments)
   ];
 
   @override
   void initState() {
     super.initState();
-    // Set up listeners for avatar URL
-    _outfitController.avatarUrlNotifier.addListener(_updateAvatarUrl);
     _outfitController.statusNotifier.addListener(_updateLoadingStatus);
+    _fetchOutfitForSelectedDate(); // Initial fetch
   }
 
   @override
   void dispose() {
-    _outfitController.avatarUrlNotifier.removeListener(_updateAvatarUrl);
     _outfitController.statusNotifier.removeListener(_updateLoadingStatus);
     _outfitController.dispose();
     super.dispose();
-  }
-
-  void _updateAvatarUrl() {
-    if (_outfitController.avatarUrlNotifier.value != null) {
-      setState(() {
-        avatarUrl = _outfitController.avatarUrlNotifier.value;
-      });
-    }
   }
 
   void _updateLoadingStatus() {
     setState(() {
       isLoading = _outfitController.statusNotifier.value == OutfitStatus.loading;
     });
+  }
+
+  Future<void> _fetchOutfitForSelectedDate() async {
+    try {
+      setState(() {
+        isLoading = true;
+        outfitImageUrl = null; // Clear previous image while loading
+      });
+
+      final response = await _outfitController.getOutfitByDate(
+        token: token!,
+        date: selectedDate,
+      );
+
+      setState(() {
+
+        outfitImageUrl = response;
+        isLoading = false;
+      });
+      if(response!=null){
+       setState(() {
+         status=true;
+       });
+      }
+
+      if (response == null || response.isEmpty) {
+       setState(() {
+         status=false;
+       });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('No outfit available for selected date'),
+            backgroundColor: appcolor,
+          ),
+        );
+      }
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error fetching outfit: ${e.toString()}'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   void _handleLike() {
@@ -99,35 +116,7 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
     });
   }
 
-  // Function to fetch the avatar based on date
-  Future<void> _fetchAvatarByDate(DateTime date) async {
-    // Get user token - you might need to retrieve this from shared preferences or another state management solution
-     // Replace with actual token retrieval
-
-    try {
-      final response = await _outfitController.getOutfitByDate(
-        token: token!,
-        date: date,
-      );
-
-      // If URL is returned and not null, update the state
-      if (response != null) {
-        setState(() {
-          avatarUrl = response;
-          selectedDate = date;
-        });
-      }
-    } catch (e) {
-      // Show error message
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to fetch avatar: ${e.toString()}')),
-      );
-    }
-  }
-
-  // Function to show date picker
   Future<void> _selectDate(BuildContext context) async {
-    // Set lastDate to at least a year from now to avoid date errors
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: selectedDate,
@@ -146,8 +135,10 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
     );
 
     if (picked != null && picked != selectedDate) {
-      // Call API with the selected date
-      _fetchAvatarByDate(picked);
+      setState(() {
+        selectedDate = picked;
+      });
+      _fetchOutfitForSelectedDate(); // Fetch outfit for new date
     }
   }
 
@@ -169,6 +160,32 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
             scrollController: scrollController,
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildNoOutfitAvailable() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+                    ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: appcolor.withOpacity(0.5),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+            ),
+            onPressed: () => _selectDate(context),
+            child: Text(
+              'No Outfit Available',
+              style: GoogleFonts.poppins(
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -198,51 +215,75 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
             ),
 
             // Profile Info
-            Padding(
-              padding: Responsive.allPadding(16),
-              child: Row(
-                children: [
-                  Container(
-                    width: Responsive.width(50),
-                    height: Responsive.height(50),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: const Color(0xFFB8860B),
-                        width: 1,
-                      ),
-                    ),
-                    child: ClipOval(
-                      child: Image.asset(
-                        'assets/Images/circle_image.png',
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
-                  Column(
+            ValueListenableBuilder<UserProfileModel?>(
+              valueListenable: _profileController.profileNotifier,
+              builder: (context, userProfile, _) {
+                return Padding(
+                  padding: Responsive.allPadding(16),
+                  child: Row(
                     children: [
-                      Text(
-                        '  Johnny Cage',
-                        style: GoogleFonts.poppins(
-                          fontSize: Responsive.fontSize(24),
-                          fontWeight: FontWeight.bold,
+                      Container(
+                        width: Responsive.width(50),
+                        height: Responsive.height(50),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: const Color(0xFFB8860B),
+                            width: 1,
+                          ),
+                        ),
+                        child: ClipOval(
+                          child: userProfile?.profileImage.isNotEmpty == true
+                              ? Padding(
+                            padding: EdgeInsets.all(2),
+                            child: CachedNetworkImage(
+                              imageUrl: userProfile!.profileImage,
+                              fit: BoxFit.cover,
+                              scale: 2,
+                              alignment: Alignment.topCenter,
+                              placeholderFadeInDuration: Duration(milliseconds: 300),
+                              placeholder: (context, url) => CircularProgressIndicator(),
+                              errorWidget: (context, url, error) => Image.asset(
+                                'assets/Images/circle_image.png',
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          )
+                              : Image.asset(
+                            'assets/Images/circle_image.png',
+                            fit: BoxFit.cover,
+                          ),
                         ),
                       ),
-                      Text(
-                        'Johnycage@gmail.com',
-                        style: GoogleFonts.poppins(
-                          color: Colors.grey,
-                          fontSize: Responsive.fontSize(14),
-                        ),
+                      SizedBox(width: Responsive.width(8),),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '${userProfile?.name ?? 'Loading...'}',
+                            style: GoogleFonts.poppins(
+                              fontSize: Responsive.fontSize(24),
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            userProfile?.email ?? '',
+                            style: GoogleFonts.poppins(
+                              color: Colors.grey,
+                              fontSize: Responsive.fontSize(14),
+                            ),
+                          ),
+                        ],
                       ),
+                      SizedBox(height: Responsive.height(8)),
                     ],
                   ),
-                  SizedBox(height: Responsive.height(8)),
-                ],
-              ),
+                );
+              },
             ),
 
-            // Post Content - Wrap with Expanded to prevent overflow
+            // Post Content
             Expanded(
               flex: 1,
               child: SingleChildScrollView(
@@ -263,10 +304,12 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
                               children: [
                                 Positioned.fill(
                                   child: ClipRRect(
-                                    borderRadius: BorderRadius.only(
+                                
+                                  borderRadius:   status?
+                                  BorderRadius.only(
                                       topLeft: Radius.circular(Responsive.radius(12)),
                                       topRight: Radius.circular(Responsive.radius(12)),
-                                    ),
+                                    ):BorderRadius.circular(12),
                                     child: Opacity(
                                       opacity: 0.7,
                                       child: Image.asset(
@@ -278,49 +321,39 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
                                 ),
                                 Container(
                                   margin: EdgeInsets.only(top: Responsive.height(15)),
+                                  height: Responsive.height(300),
+                                  width: double.infinity,
                                   child: isLoading
                                       ? Center(
                                     child: CircularProgressIndicator(
                                       color: appcolor,
                                     ),
                                   )
-                                      : ClipRRect(
+                                      : outfitImageUrl != null && outfitImageUrl!.isNotEmpty
+                                      ? ClipRRect(
                                     borderRadius: BorderRadius.vertical(
                                       top: Radius.circular(Responsive.radius(12)),
                                     ),
-                                    child: avatarUrl!.startsWith('http')
-                                        ? Image.network(
-                                      avatarUrl!,
-                                      height: Responsive.height(300),
-                                      width: double.infinity,
-                                      fit: BoxFit.contain,
-                                      loadingBuilder: (context, child, loadingProgress) {
-                                        if (loadingProgress == null) return child;
-                                        return Center(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: CachedNetworkImage(
+                                        imageUrl: outfitImageUrl!,
+                                        // height: Responsive.height(0),
+                                      scale: 4,
+                                        width: double.infinity,
+                                        fit: BoxFit.contain,
+                                        placeholder: (context, url) => Center(
                                           child: CircularProgressIndicator(
-                                            value: loadingProgress.expectedTotalBytes != null
-                                                ? loadingProgress.cumulativeBytesLoaded /
-                                                loadingProgress.expectedTotalBytes!
-                                                : null,
+                                            valueColor: AlwaysStoppedAnimation<Color>(appcolor),
                                           ),
-                                        );
-                                      },
-                                      errorBuilder: (context, error, stackTrace) {
-                                        return Image.asset(
-                                          "assets/Icons/avatar3.png",
-                                          height: Responsive.height(300),
-                                          width: double.infinity,
-                                          fit: BoxFit.contain,
-                                        );
-                                      },
-                                    )
-                                        : Image.asset(
-                                      avatarUrl!,
-                                      height: Responsive.height(300),
-                                      width: double.infinity,
-                                      fit: BoxFit.contain,
+                                        ),
+                                        errorWidget: (context, error, stackTrace) {
+                                          return _buildNoOutfitAvailable();
+                                        },
+                                      ),
                                     ),
-                                  ),
+                                  )
+                                      : _buildNoOutfitAvailable(),
                                 ),
                                 Positioned(
                                   top: Responsive.height(16),
@@ -360,7 +393,8 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
                                 ),
                               ],
                             ),
-                            const Divider(height: 1),
+
+                            status?
                             Row(
                               children: [
                                 Expanded(
@@ -388,7 +422,7 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
                                   ),
                                 ),
                               ],
-                            ),
+                            ):SizedBox(),
                           ],
                         ),
                       ),
@@ -404,6 +438,9 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
     );
   }
 }
+
+// ... (keep your existing ActionButton, CommentsBottomSheet, CommentTile, Comment classes)
+// Rest of the code remains the same (ActionButton, CommentsBottomSheet, CommentTile, Comment classes)
 
 class ActionButton extends StatelessWidget {
   final IconData icon;

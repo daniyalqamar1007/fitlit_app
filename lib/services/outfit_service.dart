@@ -16,8 +16,11 @@ class OutfitService {
     required String? shoeId,
     required String? accessoryId,
     required DateTime date,
+    required String avatarurl
   }) async {
     try {
+      print("saved avartar uel is ");
+      print(avatarurl);
       final formattedDate = DateFormat('dd/MM/yyyy').format(date);
       print(formattedDate);
       print("comihis");
@@ -33,7 +36,7 @@ final response = await http.post(
           'pant_id': "2",
           'shoe_id': "3",
           'index':avatarindex.toString(),
-          'avatarUrl': 'https://fitlit-assets.s3.us-east-2.amazonaws.com/1747230002356-undefined',
+          'avatarUrl': avatarurl,
           'accessory_id': "5",
           'date': formattedDate, // Now in dd/MM/yyyy format
         }),

@@ -35,8 +35,10 @@ class _WardrobeScreenState extends State<WardrobeScreen>
   final ImagePicker _picker = ImagePicker();
   String? _avatarUrl;
   String? userProfileImage;
+  String? profileImage;
   int _currentAvatarIndex = 0;
   final List<String> _avatarAssets = [
+
     'assets/Icons/avatar3.png',
     'assets/Icons/black.png',
     'assets/Icons/red.png',
@@ -65,29 +67,6 @@ class _WardrobeScreenState extends State<WardrobeScreen>
     super.initState();
     _selectedDay = _focusedDay;
 
-    // // Initialize animation controller
-    // _avatarAnimationController = AnimationController(
-    //   duration: const Duration(milliseconds: 300),
-    //   vsync: this,
-    // );
-    //
-    // // Slide out animation (current avatar exits)
-    // _slideOutAnimation = Tween<Offset>(
-    //   begin: Offset.zero,
-    //   end: const Offset(-1.5, 0.0),
-    // ).animate(CurvedAnimation(
-    //   parent: _avatarAnimationController!,
-    //   curve: Curves.easeInOut,
-    // ));
-    //
-    // // Slide in animation (new avatar enters)
-    // _slideInAnimation = Tween<Offset>(
-    //   begin: const Offset(1.5, 0.0),
-    //   end: Offset.zero,
-    // ).animate(CurvedAnimation(
-    //   parent: _avatarAnimationController!,
-    //   curve: Curves.easeInOut,
-    // ));
      _loadUserProfile();
 
     _wardrobeController.statusNotifier.addListener(_handleStatusChange);
@@ -242,6 +221,9 @@ class _WardrobeScreenState extends State<WardrobeScreen>
     });
 
     try {
+      if(profileImage==""){
+        return;
+      }
       final result = await _outfitController.saveOutfit(
         token: token!,
 
@@ -249,7 +231,9 @@ class _WardrobeScreenState extends State<WardrobeScreen>
         pantId: "2",
         shoeId: "3",
         accessoryId: "4",
+        avatarurl:profileImage!,
         date: _selectedDay ?? _focusedDay,
+
       );
 
       setState(() {
@@ -400,7 +384,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
       flex: 1,
       child: GestureDetector(
         onTap: () {
-          // Navigator.pushNamed(context, AppRoutes.profile);
+           Navigator.pushNamed(context, AppRoutes.profile);
         },
         child: ValueListenableBuilder<UserProfileModel?>(
           valueListenable: _profileController.profileNotifier,
@@ -413,7 +397,9 @@ class _WardrobeScreenState extends State<WardrobeScreen>
               child: Container(
                 width: 40,
                 height: 50,
+
                 decoration: BoxDecoration(
+                  color: Colors.white,
                   shape: BoxShape.circle,
                 ),
                 child: userProfile.profileImage.isNotEmpty
@@ -496,19 +482,19 @@ class _WardrobeScreenState extends State<WardrobeScreen>
         children: [
           // First Column - Date, Shirts, Accessories, Pants, Shoes
           Expanded(
-            flex: 2,
+            flex: 4,
             child: _buildFirstColumn(),
           ),
 
           // Second Column - Avatar
           Expanded(
-            flex: 3,
+            flex: 6,
             child: _buildAvatarColumn(),
           ),
 
           // Third Column - Similar to first column
           Expanded(
-            flex: 2,
+            flex: 3,
             child: _buildThirdColumn(),
           ),
         ],
@@ -1023,78 +1009,86 @@ class _WardrobeScreenState extends State<WardrobeScreen>
         return Icons.category;
     }
   }
-
   Widget _buildAvatarColumn() {
-    return GestureDetector(
-      onHorizontalDragEnd: (details) {
-        // Swipe logic
-        if (details.velocity.pixelsPerSecond.dx > 0) {
-          // Swiping Right
-          setState(() {
-            if (_currentAvatarIndex > 0) {
-              _currentAvatarIndex--;
-              _animateAvatarChange();
+    return ValueListenableBuilder<UserProfileModel?>(
+      valueListenable: _profileController.profileNotifier,
+      builder: (context, userProfile, _) {
+        if(userProfile?.profileImage.isNotEmpty==true){
+        profileImage=userProfile!.profileImage.toString();}
+        // // Use profile image if available, otherwise use default avatar
+        // final avatarImage = userProfile?.profileImage.isNotEmpty == true
+        //     ? userProfile!.profileImage
+        //     : _avatarAssets[_currentAvatarIndex];
+
+        return GestureDetector(
+          onHorizontalDragEnd: (details) {
+            // Swipe logic remains the same for cycling through avatars
+            if (details.velocity.pixelsPerSecond.dx > 0) {
+              setState(() {
+                if (_currentAvatarIndex > 0) {
+                  _currentAvatarIndex--;
+                  _animateAvatarChange();
+                }
+              });
+            } else if (details.velocity.pixelsPerSecond.dx < 0) {
+              setState(() {
+                if (_currentAvatarIndex < _avatarAssets.length - 1) {
+                  _currentAvatarIndex++;
+                  _animateAvatarChange();
+                }
+              });
             }
-          });
-        } else if (details.velocity.pixelsPerSecond.dx < 0) {
-          // Swiping Left
-          setState(() {
-            if (_currentAvatarIndex < _avatarAssets.length - 1) {
-              _currentAvatarIndex++;
-              _animateAvatarChange();
-            }
-          });
-        }
-      },
-      child: Container(
-        alignment: Alignment.center,
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            // Animated avatar
-            AnimatedSwitcher(
-              duration: const Duration(milliseconds: 500),
-              transitionBuilder: (Widget child, Animation<double> animation) {
-                return ScaleTransition(
-                  scale: animation,
-                  child: FadeTransition(
-                    opacity: animation,
-                    child: child,
-                  ),
-                );
-              },
-              child: _isLoading
-                  ? Center(
-                child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(appcolor),
-                ),
-              )
-                  : _avatarUrl != null
-                  ? Image.network(
-                _avatarUrl!,
-                key: ValueKey<String>(_avatarUrl!),
-                height: Responsive.height(350),
-                fit: BoxFit.contain,
-                errorBuilder: (context, error, stackTrace) {
-                  // Fallback to default avatar if network image fails
-                  return Image.asset(
+          },
+          child: Container(
+            alignment: Alignment.center,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                // Animated avatar
+                AnimatedSwitcher(
+
+                  duration: const Duration(milliseconds: 500),
+                  transitionBuilder: (Widget child, Animation<double> animation) {
+                    return ScaleTransition(
+
+                      scale: animation,
+                      child: FadeTransition(
+                        opacity: animation,
+                        child: child,
+                      ),
+                    );
+                  },
+                  child: _isLoading
+                      ? Center(
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(appcolor),
+                    ),
+                  )
+                      : userProfile?.profileImage.isNotEmpty == true
+                      ? CachedNetworkImage(
+                        imageUrl: userProfile!.profileImage,
+                        fit: BoxFit.cover,
+                        width: Responsive.height(350),
+                        height: Responsive.height(350),
+                        placeholder: (context, url) => Center(child: CircularProgressIndicator(color: appcolor,)),
+                        errorWidget: (context, url, error) => Image.asset(
+                          _avatarAssets[_currentAvatarIndex],
+                          height: Responsive.height(350),
+                          fit: BoxFit.contain,
+                        ),
+                      )
+                      : Image.asset(
                     _avatarAssets[_currentAvatarIndex],
                     key: ValueKey<int>(_currentAvatarIndex),
                     height: Responsive.height(350),
                     fit: BoxFit.contain,
-                  );
-                },
-              )
-                  : Image.asset(
-                _avatarAssets[_currentAvatarIndex],
-                key: ValueKey<int>(_currentAvatarIndex),
-                height: Responsive.height(350),
-                fit: BoxFit.contain,
-              ),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
   void _animateAvatarChange() {
@@ -1110,7 +1104,8 @@ class _WardrobeScreenState extends State<WardrobeScreen>
   }
   Widget _buildThirdColumn() {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.end,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.start,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
@@ -1119,7 +1114,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
               onTap: () => _showAnimatedCategoryDialog(),
               child: Container(
                 padding: EdgeInsets.symmetric(
-                    horizontal: Responsive.width(12),
+                    horizontal: Responsive.width(11),
                     vertical: Responsive.height(5)),
                 height: Responsive.height(30),
                 decoration: BoxDecoration(
@@ -1206,7 +1201,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                               });
                             }),
                             _buildAnimatedCategoryButton(
-                                'Assessries', selectedCategory, (category) {
+                                'Accessories', selectedCategory, (category) {
                               setState(() {
                                 selectedCategory = category;
                                 subcategories =
@@ -1376,7 +1371,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
           'Dress Shirt',
           'Polo Shirt'
         ];
-      case 'Assessries':
+      case 'Accessories':
         return [
           'Necklace',
           'Bracelet',

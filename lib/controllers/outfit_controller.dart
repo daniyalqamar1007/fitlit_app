@@ -24,6 +24,7 @@ class OutfitController {
     String? pantId,
     String? shoeId,
     String? accessoryId,
+    required String avatarurl,
     required DateTime date,
   }) async {
     statusNotifier.value = OutfitStatus.loading;
@@ -36,6 +37,7 @@ class OutfitController {
         shoeId: shoeId,
         accessoryId: accessoryId,
         date: date,
+        avatarurl: avatarurl
       );
 
       if (response.success) {
