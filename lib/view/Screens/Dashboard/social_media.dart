@@ -1,6 +1,11 @@
+import 'package:fitlip_app/view/Utils/Constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
+import '../../../controllers/outfit_controller.dart';
 import '../../Utils/Colors.dart';
+import '../../Utils/globle_variable/globle.dart';
 import '../../Utils/responsivness.dart';
 import '../../Widgets/Custom_buttons.dart';
 
@@ -14,7 +19,10 @@ class SocialMediaProfile extends StatefulWidget {
 class _SocialMediaProfileState extends State<SocialMediaProfile> {
   bool isLiked = false;
   int likeCount = 42;
-
+  String? avatarUrl = "assets/Icons/avatar3.png";
+  final OutfitController _outfitController = OutfitController();
+  DateTime selectedDate = DateTime.now();
+  bool isLoading = false;
   final List<Comment> dummyComments = [
     Comment(
       id: 1,
@@ -50,6 +58,36 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
     ),
   ];
 
+  @override
+  void initState() {
+    super.initState();
+    // Set up listeners for avatar URL
+    _outfitController.avatarUrlNotifier.addListener(_updateAvatarUrl);
+    _outfitController.statusNotifier.addListener(_updateLoadingStatus);
+  }
+
+  @override
+  void dispose() {
+    _outfitController.avatarUrlNotifier.removeListener(_updateAvatarUrl);
+    _outfitController.statusNotifier.removeListener(_updateLoadingStatus);
+    _outfitController.dispose();
+    super.dispose();
+  }
+
+  void _updateAvatarUrl() {
+    if (_outfitController.avatarUrlNotifier.value != null) {
+      setState(() {
+        avatarUrl = _outfitController.avatarUrlNotifier.value;
+      });
+    }
+  }
+
+  void _updateLoadingStatus() {
+    setState(() {
+      isLoading = _outfitController.statusNotifier.value == OutfitStatus.loading;
+    });
+  }
+
   void _handleLike() {
     setState(() {
       if (isLiked) {
@@ -59,6 +97,58 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
       }
       isLiked = !isLiked;
     });
+  }
+
+  // Function to fetch the avatar based on date
+  Future<void> _fetchAvatarByDate(DateTime date) async {
+    // Get user token - you might need to retrieve this from shared preferences or another state management solution
+     // Replace with actual token retrieval
+
+    try {
+      final response = await _outfitController.getOutfitByDate(
+        token: token!,
+        date: date,
+      );
+
+      // If URL is returned and not null, update the state
+      if (response != null) {
+        setState(() {
+          avatarUrl = response;
+          selectedDate = date;
+        });
+      }
+    } catch (e) {
+      // Show error message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to fetch avatar: ${e.toString()}')),
+      );
+    }
+  }
+
+  // Function to show date picker
+  Future<void> _selectDate(BuildContext context) async {
+    // Set lastDate to at least a year from now to avoid date errors
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: selectedDate,
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2030),
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            primaryColor: appcolor,
+            colorScheme: ColorScheme.light(primary: appcolor),
+            buttonTheme: ButtonThemeData(textTheme: ButtonTextTheme.primary),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (picked != null && picked != selectedDate) {
+      // Call API with the selected date
+      _fetchAvatarByDate(picked);
+    }
   }
 
   void _showCommentsBottomSheet() {
@@ -97,16 +187,12 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
                 children: [
                   Text(
                     'Social Media Page',
-                    style: TextStyle(
+                    style: GoogleFonts.poppins(
                       fontSize: Responsive.fontSize(20),
                       fontWeight: FontWeight.w600,
                       color: appcolor,
                     ),
                   ),
-                  // CustomButton(
-                  //   text: '+ Add Friends',
-                  //   onPressed: ()async {  },
-                  // ),
                 ],
               ),
             ),
@@ -137,14 +223,14 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
                     children: [
                       Text(
                         '  Johnny Cage',
-                        style: TextStyle(
+                        style: GoogleFonts.poppins(
                           fontSize: Responsive.fontSize(24),
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       Text(
                         'Johnycage@gmail.com',
-                        style: TextStyle(
+                        style: GoogleFonts.poppins(
                           color: Colors.grey,
                           fontSize: Responsive.fontSize(14),
                         ),
@@ -192,14 +278,45 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
                                 ),
                                 Container(
                                   margin: EdgeInsets.only(top: Responsive.height(15)),
-                                  child: ClipRRect(
+                                  child: isLoading
+                                      ? Center(
+                                    child: CircularProgressIndicator(
+                                      color: appcolor,
+                                    ),
+                                  )
+                                      : ClipRRect(
                                     borderRadius: BorderRadius.vertical(
                                       top: Radius.circular(Responsive.radius(12)),
                                     ),
-                                    child: Image.asset(
-                                      "assets/Icons/avatar3.png",
+                                    child: avatarUrl!.startsWith('http')
+                                        ? Image.network(
+                                      avatarUrl!,
                                       height: Responsive.height(300),
-                                      scale: 99,
+                                      width: double.infinity,
+                                      fit: BoxFit.contain,
+                                      loadingBuilder: (context, child, loadingProgress) {
+                                        if (loadingProgress == null) return child;
+                                        return Center(
+                                          child: CircularProgressIndicator(
+                                            value: loadingProgress.expectedTotalBytes != null
+                                                ? loadingProgress.cumulativeBytesLoaded /
+                                                loadingProgress.expectedTotalBytes!
+                                                : null,
+                                          ),
+                                        );
+                                      },
+                                      errorBuilder: (context, error, stackTrace) {
+                                        return Image.asset(
+                                          "assets/Icons/avatar3.png",
+                                          height: Responsive.height(300),
+                                          width: double.infinity,
+                                          fit: BoxFit.contain,
+                                        );
+                                      },
+                                    )
+                                        : Image.asset(
+                                      avatarUrl!,
+                                      height: Responsive.height(300),
                                       width: double.infinity,
                                       fit: BoxFit.contain,
                                     ),
@@ -208,40 +325,37 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
                                 Positioned(
                                   top: Responsive.height(16),
                                   left: Responsive.width(16),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: [
-                                      Container(
-                                        padding: EdgeInsets.symmetric(
-                                          vertical: Responsive.height(4),
-                                          horizontal: Responsive.width(12),
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: const Color(0xFFB8860B),
-                                          borderRadius: BorderRadius.circular(Responsive.radius(8)),
-                                        ),
-                                        child: Column(
-                                          children: [
-                                            Text(
-                                              '11',
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: Responsive.fontSize(14),
-                                              ),
-                                            ),
-                                            Text(
-                                              'July',
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: Responsive.fontSize(12),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
+                                  child: GestureDetector(
+                                    onTap: () => _selectDate(context),
+                                    child: Container(
+                                      padding: EdgeInsets.symmetric(
+                                        vertical: Responsive.height(4),
+                                        horizontal: Responsive.width(12),
                                       ),
-                                    ],
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFB8860B),
+                                        borderRadius: BorderRadius.circular(Responsive.radius(8)),
+                                      ),
+                                      child: Column(
+                                        children: [
+                                          Text(
+                                            DateFormat('dd').format(selectedDate),
+                                            style: GoogleFonts.poppins(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: Responsive.fontSize(14),
+                                            ),
+                                          ),
+                                          Text(
+                                            DateFormat('MMM').format(selectedDate),
+                                            style: GoogleFonts.poppins(
+                                              color: Colors.white,
+                                              fontSize: Responsive.fontSize(12),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ],
@@ -318,7 +432,7 @@ class ActionButton extends StatelessWidget {
             SizedBox(width: Responsive.width(8)),
             Text(
                 text,
-                style: TextStyle(
+                style: GoogleFonts.poppins(
                     color: color,
                     fontSize: Responsive.fontSize(14)
                 )
@@ -357,7 +471,7 @@ class CommentsBottomSheet extends StatelessWidget {
               children: [
                 Text(
                   'Comments',
-                  style: TextStyle(
+                  style: GoogleFonts.poppins(
                     fontSize: Responsive.fontSize(18),
                     fontWeight: FontWeight.bold,
                   ),
@@ -427,14 +541,14 @@ class CommentTile extends StatelessWidget {
                     children: [
                       Text(
                         comment.author,
-                        style: TextStyle(
+                        style: GoogleFonts.poppins(
                           fontWeight: FontWeight.bold,
                           fontSize: Responsive.fontSize(14),
                         ),
                       ),
                       Text(
                         comment.time,
-                        style: TextStyle(
+                        style: GoogleFonts.poppins(
                           fontSize: Responsive.fontSize(12),
                           color: Colors.grey,
                         ),
@@ -444,7 +558,7 @@ class CommentTile extends StatelessWidget {
                   SizedBox(height: Responsive.height(4)),
                   Text(
                     comment.content,
-                    style: TextStyle(fontSize: Responsive.fontSize(14)),
+                    style: GoogleFonts.poppins(fontSize: Responsive.fontSize(14)),
                   ),
                   SizedBox(height: Responsive.height(8)),
                   Row(
@@ -457,7 +571,7 @@ class CommentTile extends StatelessWidget {
                       SizedBox(width: Responsive.width(4)),
                       Text(
                         '${comment.likes}',
-                        style: TextStyle(
+                        style: GoogleFonts.poppins(
                           fontSize: Responsive.fontSize(12),
                           color: Colors.grey,
                         ),
@@ -465,7 +579,7 @@ class CommentTile extends StatelessWidget {
                       SizedBox(width: Responsive.width(16)),
                       Text(
                         'Reply',
-                        style: TextStyle(
+                        style: GoogleFonts.poppins(
                           fontSize: Responsive.fontSize(12),
                           color: Colors.grey,
                         ),
@@ -499,4 +613,3 @@ class Comment {
     required this.time,
   });
 }
-

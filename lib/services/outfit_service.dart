@@ -56,56 +56,100 @@ print(response.statusCode);
   }
 
   // Get outfit for a specific date
+  // Future<String?> getOutfitByDate({
+  //   required String token,
+  //   required DateTime date,
+  // }) async
+  // {
+  //   try {
+  //     final formattedDate = DateFormat('dd/MM/yyyy').format(date);
+  //     print("shjdgjh");
+  //
+  //
+  //     final response = await client.get(
+  //       Uri.parse('$baseUrl/avatar/check?date=${formattedDate}'),
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //         'Authorization': 'Bearer $token',
+  //       },
+  //     );
+  //     print(response.body);
+  //
+  //
+  //
+  //
+  //     if (response.statusCode == 200) {
+  //
+  //
+  //       final jsonResponse = jsonDecode(response.body);
+  //       print("now");
+  //
+  //       print(jsonResponse['avatarUrl']);
+  //       if(jsonResponse['success']==true){
+  //         print("now");
+  //         avatarindex= int.parse(jsonResponse['index'].toString());
+  //         print(avatarindex);
+  //
+  //       }
+  //       else{
+  //         avatarindex=3;
+  //
+  //       }
+  //
+  //
+  //       return jsonResponse['avatarUrl'].toString();
+  //     //  return OutfitResponse.fromJson(jsonResponse);
+  //     } else {
+  //       final errorMessage = getErrorMessage(response);
+  //       return errorMessage.toString();
+  //      // return OutfitResponse(success: false, message: errorMessage);
+  //     }
+  //   } catch (e) {
+  //     return "Issue on site";
+  //    // return OutfitResponse(success: false, message: 'Network error: ${e.toString()}');
+  //   }
+  // }
   Future<String?> getOutfitByDate({
     required String token,
     required DateTime date,
   }) async {
     try {
       final formattedDate = DateFormat('dd/MM/yyyy').format(date);
-      print("shjdgjh");
-
+      print("Fetching avatar for date: $formattedDate");
 
       final response = await client.get(
-        Uri.parse('$baseUrl/avatar/check?date=${formattedDate}'),
+        Uri.parse('$baseUrl/avatar/check?date=$formattedDate'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
       );
-      print(response.body);
-
-
-
+      print("API Response: ${response.body}");
 
       if (response.statusCode == 200) {
-
-
         final jsonResponse = jsonDecode(response.body);
-        print("now");
 
-        print(jsonResponse['avatarUrl']);
-        if(jsonResponse['success']==true){
-          print("now");
-          avatarindex= int.parse(jsonResponse['index'].toString());
-          print(avatarindex);
+        if (jsonResponse['success'] == true) {
+          avatarindex = int.parse(jsonResponse['index'].toString());
+          print("Avatar index: $avatarindex");
 
+          // Return the avatar URL
+          return jsonResponse['avatarUrl'].toString();
+        } else {
+          avatarindex = 3; // Default index for fallback
+          print("API returned success=false, using default avatar");
+
+          // You can return a default avatar URL here if needed
+          return null;
         }
-        else{
-          avatarindex=3;
-
-        }
-
-
-        return jsonResponse['avatarUrl'].toString();
-      //  return OutfitResponse.fromJson(jsonResponse);
       } else {
         final errorMessage = getErrorMessage(response);
-        return errorMessage.toString();
-       // return OutfitResponse(success: false, message: errorMessage);
+        print("API Error: $errorMessage");
+        return null;
       }
     } catch (e) {
-      return "Issue on site";
-     // return OutfitResponse(success: false, message: 'Network error: ${e.toString()}');
+      print("Exception during API call: ${e.toString()}");
+      return null;
     }
   }
 

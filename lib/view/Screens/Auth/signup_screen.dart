@@ -35,12 +35,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
   String? _errorMessage;
   final AuthController _authController = AuthController();
 
-  Future<void> _pickImage() async {
-    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      setState(() => _profileImage = File(pickedFile.path));
-    }
-  }
 
   Future<void> _initiateSignUp() async {
     if (!_formKey.currentState!.validate()) {

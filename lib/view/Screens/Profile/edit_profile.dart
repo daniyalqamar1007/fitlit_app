@@ -277,7 +277,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       children: [
         Text(
           label,
-          style: TextStyle(
+          style: GoogleFonts.poppins(
             color: Colors.grey.shade800,
             fontWeight: FontWeight.w600,
             fontSize: 14,
@@ -287,7 +287,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         TextFormField(
           controller: controller,
           enabled: enabled,
-          style: const TextStyle(fontSize: 14),
+          style:  GoogleFonts.poppins(fontSize: 14),
           decoration: InputDecoration(
             prefixIcon: Icon(icon, color: const Color(0xFFAA8A00)),
             contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
@@ -318,7 +318,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       children: [
         Text(
           'Gender',
-          style: TextStyle(
+          style: GoogleFonts.poppins(
             color: Colors.grey.shade800,
             fontWeight: FontWeight.w600,
             fontSize: 14,
@@ -382,9 +382,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 color: Colors.white,
               ),
             )
-                : const Text(
+                :  Text(
               'Save Changes',
-              style: TextStyle(
+              style: GoogleFonts.poppins(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,

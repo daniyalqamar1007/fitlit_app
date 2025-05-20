@@ -169,7 +169,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                     padding: EdgeInsets.only(bottom: 16.h),
                     child: Text(
                       _errorMessage!,
-                      style: TextStyle(color: Colors.red, fontSize: 14.sp),
+                      style: GoogleFonts.poppins(color: Colors.red, fontSize: 14.sp),
                       textAlign: TextAlign.center,
                     ),
                   ),

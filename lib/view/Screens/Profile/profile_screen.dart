@@ -53,9 +53,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Scaffold(
       backgroundColor: themeController.white,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: themeController.white,
         elevation: 0,
-        leading: const BackButton(color: Color(0xFFAA8A00)),
+
         centerTitle: true,
         title:  Text(
           AppConstants.profile,
@@ -86,11 +87,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   children: [
                     _buildProfileHeader(userProfile),
                     const SizedBox(height: 20),
-                    const Align(
+                     Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
                         AppConstants.settings,
-                        style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+                        style: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 16),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -186,7 +187,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           children: [
             Text(
               userProfile.name,
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              style:  GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 16),
             ),
             Text(userProfile.email,style:  GoogleFonts.poppins(fontWeight: FontWeight.w400, fontSize: 10),)
           ],
