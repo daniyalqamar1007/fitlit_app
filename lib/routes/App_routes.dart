@@ -10,6 +10,7 @@ import '../controllers/auth_controller.dart';
 import '../view/Screens/Auth/signup_screen.dart';
 import '../view/Screens/Dashboard/social_media.dart';
 import '../view/Screens/Onboarding_screen/Onboarding_screen.dart';
+import '../view/Screens/Profile/setting/privacypolicy.dart';
 import '../view/Screens/Splash_screen/Splash_screen.dart';
 
 class AppRoutes {
@@ -23,6 +24,7 @@ class AppRoutes {
   static const String otp = '/otp';
   static const String newpassword = '/newpassword';
   static const String social = '/social';
+  static const String privacypolicy = '/privacypolicy';
   static const String editprofile = '/edit';
   static final Map<String, WidgetBuilder> routes = {
     splash: (context) => SplashScreen(),
@@ -33,6 +35,7 @@ class AppRoutes {
     profile: (context) => ProfileScreen(),
     social: (context) => SocialMediaProfile(),
     forgot: (context) => ForgotPasswordScreen(),
+    privacypolicy: (context) => PrivacyPolicyScreen(),
     editprofile: (context) => EditProfileScreen(),
     // otp: (context) => OtpVerificationScreen(email: '@hjgskdgsgds',),
     newpassword: (context) => NewPasswordScreen(email: "dhsgfjh@",otp: "546338",),

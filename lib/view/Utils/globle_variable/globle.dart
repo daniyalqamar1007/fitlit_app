@@ -24,3 +24,7 @@ Future<void> remove()async {
 }
 int avatarindex=0;
 int storedindex=0;
+String? selectedShirtId;
+String? selectedPantId;
+String? selectedShoeId;
+String? selectedAccessoryId;

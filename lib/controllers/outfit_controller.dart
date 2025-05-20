@@ -24,6 +24,7 @@ class OutfitController {
     String? pantId,
     String? shoeId,
     String? accessoryId,
+    required String avatarurl,
     required DateTime date,
   }) async {
     statusNotifier.value = OutfitStatus.loading;
@@ -36,6 +37,7 @@ class OutfitController {
         shoeId: shoeId,
         accessoryId: accessoryId,
         date: date,
+        avatarurl: avatarurl
       );
 
       if (response.success) {
@@ -69,29 +71,25 @@ class OutfitController {
         date: date,
       );
 
-
-
-      // if (response.success) {
-      //   statusNotifier.value = OutfitStatus.loaded;
-      //   outfitNotifier.value = response.data;
-      //   avatarUrlNotifier.value = response.avatar_url;
-      //   errorNotifier.value = null;
-      //   return response.data;
-      // } else {
-      //   statusNotifier.value = OutfitStatus.error;
-      //   errorNotifier.value = response.message;
-      //   outfitNotifier.value = null;
-      //   avatarUrlNotifier.value = null;
-      //   return null;
-      // }
+      if (response != null) {
+        statusNotifier.value = OutfitStatus.loaded;
+        avatarUrlNotifier.value = response;
+        errorNotifier.value = null;
+        return response;
+      } else {
+        statusNotifier.value = OutfitStatus.error;
+        errorNotifier.value = "Failed to fetch avatar";
+        avatarUrlNotifier.value = null;
+        return null;
+      }
     } catch (e) {
       statusNotifier.value = OutfitStatus.error;
       errorNotifier.value = "An unexpected error occurred: ${e.toString()}";
-      outfitNotifier.value = null;
       avatarUrlNotifier.value = null;
       return null;
     }
   }
+
 
   void dispose() {
     statusNotifier.dispose();

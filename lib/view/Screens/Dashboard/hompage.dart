@@ -31,17 +31,14 @@ class _WardrobeScreenState extends State<WardrobeScreen>
   final ProfileController _profileController = ProfileController();
   DateTime _focusedDay = DateTime.now();
   WardrobeController controller=WardrobeController();
-  final ValueNotifier<String?> _avatarUrlNotifier = ValueNotifier<String?>(null);
-  final ValueNotifier<String?> _userProfileImageNotifier = ValueNotifier<String?>(null);
-  final ValueNotifier<bool> _isLoadingNotifier = ValueNotifier<bool>(false);
   DateTime? _selectedDay;
-  CalendarFormat _calendarFormat = CalendarFormat.month;
   final ImagePicker _picker = ImagePicker();
   String? _avatarUrl;
   String? userProfileImage;
-  // Avatar control variables
+  String? profileImage;
   int _currentAvatarIndex = 0;
   final List<String> _avatarAssets = [
+
     'assets/Icons/avatar3.png',
     'assets/Icons/black.png',
     'assets/Icons/red.png',
@@ -51,8 +48,6 @@ class _WardrobeScreenState extends State<WardrobeScreen>
   ];
   final WardrobeController _wardrobeController = WardrobeController();
   final OutfitController _outfitController = OutfitController();
-
-  // Animation controllers
   AnimationController? _avatarAnimationController;
   Animation<Offset>? _slideOutAnimation;
   Animation<Offset>? _slideInAnimation;
@@ -62,7 +57,6 @@ class _WardrobeScreenState extends State<WardrobeScreen>
   bool isLoadingItems = true;
   bool isSavingOutfit = false;
 
-  // Selected wardrobe items for outfit
   String? selectedShirtId;
   String? selectedPantId;
   String? selectedShoeId;
@@ -73,29 +67,6 @@ class _WardrobeScreenState extends State<WardrobeScreen>
     super.initState();
     _selectedDay = _focusedDay;
 
-    // Initialize animation controller
-    _avatarAnimationController = AnimationController(
-      duration: const Duration(milliseconds: 300),
-      vsync: this,
-    );
-
-    // Slide out animation (current avatar exits)
-    _slideOutAnimation = Tween<Offset>(
-      begin: Offset.zero,
-      end: const Offset(-1.5, 0.0),
-    ).animate(CurvedAnimation(
-      parent: _avatarAnimationController!,
-      curve: Curves.easeInOut,
-    ));
-
-    // Slide in animation (new avatar enters)
-    _slideInAnimation = Tween<Offset>(
-      begin: const Offset(1.5, 0.0),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _avatarAnimationController!,
-      curve: Curves.easeInOut,
-    ));
      _loadUserProfile();
 
     _wardrobeController.statusNotifier.addListener(_handleStatusChange);
@@ -158,7 +129,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
     if(url!=""){
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Update available for this date',style: TextStyle(color: Colors.white),),
+          content: Text('Update available for this date',style: GoogleFonts.poppins(color: Colors.white),),
           backgroundColor: appcolor,
           duration: Duration(seconds: 1),
         ),
@@ -171,27 +142,10 @@ class _WardrobeScreenState extends State<WardrobeScreen>
       // Show brief success message that an outfit was found
 
     }
-
-
-
-        // Update avatar based on outfit (optional, can use your existing logic)
-
-      // } else
-      //   {
-      //   // Reset selections if no outfit found
-      //   setState(() {
-      //     selectedShirtId = null;
-      //     selectedPantId = null;
-      //     selectedShoeId = null;
-      //     selectedAccessoryId = null;
-      //     _currentAvatarIndex = 0; // Reset to default avatar
-      //   });
-
-        // Show brief message that no outfit was found
         else{
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('No outfit available for this date',style: TextStyle(color: Colors.white),),
+          content: Text('No outfit available for this date',style: GoogleFonts.poppins(color: Colors.white),),
           backgroundColor: appcolor,
           duration: Duration(seconds: 1),
         ),
@@ -238,19 +192,19 @@ class _WardrobeScreenState extends State<WardrobeScreen>
   void _updateSelectedItemsFromCurrentOutfit() {
     // Update selected IDs based on first items in each category
     if (_wardrobeController.shirtsNotifier.value.isNotEmpty) {
-      selectedShirtId = _wardrobeController.shirtsNotifier.value.first.id;
+      selectedShirtId = _wardrobeController.shirtsNotifier.value.last.id;
     }
 
     if (_wardrobeController.pantsNotifier.value.isNotEmpty) {
-      selectedPantId = _wardrobeController.pantsNotifier.value.first.id;
+      selectedPantId = _wardrobeController.pantsNotifier.value.last.id;
     }
 
     if (_wardrobeController.shoesNotifier.value.isNotEmpty) {
-      selectedShoeId = _wardrobeController.shoesNotifier.value.first.id;
+      selectedShoeId = _wardrobeController.shoesNotifier.value.last.id;
     }
 
     if (_wardrobeController.accessoriesNotifier.value.isNotEmpty) {
-      selectedAccessoryId = _wardrobeController.accessoriesNotifier.value.first.id;
+      selectedAccessoryId = _wardrobeController.accessoriesNotifier.value.last.id;
     }
   }
 
@@ -267,6 +221,9 @@ class _WardrobeScreenState extends State<WardrobeScreen>
     });
 
     try {
+      if(profileImage==""){
+        return;
+      }
       final result = await _outfitController.saveOutfit(
         token: token!,
 
@@ -274,7 +231,9 @@ class _WardrobeScreenState extends State<WardrobeScreen>
         pantId: "2",
         shoeId: "3",
         accessoryId: "4",
+        avatarurl:profileImage!,
         date: _selectedDay ?? _focusedDay,
+
       );
 
       setState(() {
@@ -337,7 +296,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
             },
             child: Text(
               'Cancel',
-              style: TextStyle(color: Colors.grey),
+              style: GoogleFonts.poppins(color: Colors.grey),
             ),
           ),
           TextButton(
@@ -347,7 +306,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
             },
             child: Text(
               'Save',
-              style: TextStyle(
+              style: GoogleFonts.poppins(
                 color: appcolor,
                 fontWeight: FontWeight.bold,
               ),
@@ -425,7 +384,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
       flex: 1,
       child: GestureDetector(
         onTap: () {
-          Navigator.pushNamed(context, AppRoutes.profile);
+           Navigator.pushNamed(context, AppRoutes.profile);
         },
         child: ValueListenableBuilder<UserProfileModel?>(
           valueListenable: _profileController.profileNotifier,
@@ -438,7 +397,9 @@ class _WardrobeScreenState extends State<WardrobeScreen>
               child: Container(
                 width: 40,
                 height: 50,
+
                 decoration: BoxDecoration(
+                  color: Colors.white,
                   shape: BoxShape.circle,
                 ),
                 child: userProfile.profileImage.isNotEmpty
@@ -521,19 +482,19 @@ class _WardrobeScreenState extends State<WardrobeScreen>
         children: [
           // First Column - Date, Shirts, Accessories, Pants, Shoes
           Expanded(
-            flex: 2,
+            flex: 4,
             child: _buildFirstColumn(),
           ),
 
           // Second Column - Avatar
           Expanded(
-            flex: 3,
+            flex: 6,
             child: _buildAvatarColumn(),
           ),
 
           // Third Column - Similar to first column
           Expanded(
-            flex: 2,
+            flex: 3,
             child: _buildThirdColumn(),
           ),
         ],
@@ -591,7 +552,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
           ),
           child: Text(
             'Shirts',
-            style: TextStyle(
+            style: GoogleFonts.poppins(
               fontSize: Responsive.fontSize(10),
               color: Colors.white,
               fontWeight: FontWeight.w600,
@@ -614,7 +575,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
           ),
           child: Text(
             'Accessories',
-            style: TextStyle(
+            style: GoogleFonts.poppins(
               fontSize: Responsive.fontSize(10),
               color: Colors.white,
               fontWeight: FontWeight.w600,
@@ -637,7 +598,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
           ),
           child: Text(
             'Pants',
-            style: TextStyle(
+            style: GoogleFonts.poppins(
               fontSize: Responsive.fontSize(10),
               color: Colors.white,
               fontWeight: FontWeight.w600,
@@ -661,7 +622,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
           ),
           child: Text(
             'Shoes',
-            style: TextStyle(
+            style: GoogleFonts.poppins(
               fontSize: Responsive.fontSize(10),
               color: Colors.white,
               fontWeight: FontWeight.w600,
@@ -1022,7 +983,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                     },
                     child: Text(
                       'Cancel',
-                      style: TextStyle(color: Colors.grey),
+                      style: GoogleFonts.poppins(color: Colors.grey),
                     ),
                   ),
                 ],
@@ -1048,80 +1009,86 @@ class _WardrobeScreenState extends State<WardrobeScreen>
         return Icons.category;
     }
   }
-
-
-  // Continuing from where the code left off:
   Widget _buildAvatarColumn() {
-    return GestureDetector(
-      onHorizontalDragEnd: (details) {
-        // Swipe logic
-        if (details.velocity.pixelsPerSecond.dx > 0) {
-          // Swiping Right
-          setState(() {
-            if (_currentAvatarIndex > 0) {
-              _currentAvatarIndex--;
-              _animateAvatarChange();
+    return ValueListenableBuilder<UserProfileModel?>(
+      valueListenable: _profileController.profileNotifier,
+      builder: (context, userProfile, _) {
+        if(userProfile?.profileImage.isNotEmpty==true){
+        profileImage=userProfile!.profileImage.toString();}
+        // // Use profile image if available, otherwise use default avatar
+        // final avatarImage = userProfile?.profileImage.isNotEmpty == true
+        //     ? userProfile!.profileImage
+        //     : _avatarAssets[_currentAvatarIndex];
+
+        return GestureDetector(
+          onHorizontalDragEnd: (details) {
+            // Swipe logic remains the same for cycling through avatars
+            if (details.velocity.pixelsPerSecond.dx > 0) {
+              setState(() {
+                if (_currentAvatarIndex > 0) {
+                  _currentAvatarIndex--;
+                  _animateAvatarChange();
+                }
+              });
+            } else if (details.velocity.pixelsPerSecond.dx < 0) {
+              setState(() {
+                if (_currentAvatarIndex < _avatarAssets.length - 1) {
+                  _currentAvatarIndex++;
+                  _animateAvatarChange();
+                }
+              });
             }
-          });
-        } else if (details.velocity.pixelsPerSecond.dx < 0) {
-          // Swiping Left
-          setState(() {
-            if (_currentAvatarIndex < _avatarAssets.length - 1) {
-              _currentAvatarIndex++;
-              _animateAvatarChange();
-            }
-          });
-        }
-      },
-      child: Container(
-        alignment: Alignment.center,
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            // Animated avatar
-            AnimatedSwitcher(
-              duration: const Duration(milliseconds: 500),
-              transitionBuilder: (Widget child, Animation<double> animation) {
-                return ScaleTransition(
-                  scale: animation,
-                  child: FadeTransition(
-                    opacity: animation,
-                    child: child,
-                  ),
-                );
-              },
-              child: _isLoading
-                  ? Center(
-                child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(appcolor),
-                ),
-              )
-                  : _avatarUrl != null
-                  ? Image.network(
-                _avatarUrl!,
-                key: ValueKey<String>(_avatarUrl!),
-                height: Responsive.height(350),
-                fit: BoxFit.contain,
-                errorBuilder: (context, error, stackTrace) {
-                  // Fallback to default avatar if network image fails
-                  return Image.asset(
+          },
+          child: Container(
+            alignment: Alignment.center,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                // Animated avatar
+                AnimatedSwitcher(
+
+                  duration: const Duration(milliseconds: 500),
+                  transitionBuilder: (Widget child, Animation<double> animation) {
+                    return ScaleTransition(
+
+                      scale: animation,
+                      child: FadeTransition(
+                        opacity: animation,
+                        child: child,
+                      ),
+                    );
+                  },
+                  child: _isLoading
+                      ? Center(
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(appcolor),
+                    ),
+                  )
+                      : userProfile?.profileImage.isNotEmpty == true
+                      ? CachedNetworkImage(
+                        imageUrl: userProfile!.profileImage,
+                        fit: BoxFit.cover,
+                        width: Responsive.height(350),
+                        height: Responsive.height(350),
+                        placeholder: (context, url) => Center(child: CircularProgressIndicator(color: appcolor,)),
+                        errorWidget: (context, url, error) => Image.asset(
+                          _avatarAssets[_currentAvatarIndex],
+                          height: Responsive.height(350),
+                          fit: BoxFit.contain,
+                        ),
+                      )
+                      : Image.asset(
                     _avatarAssets[_currentAvatarIndex],
                     key: ValueKey<int>(_currentAvatarIndex),
                     height: Responsive.height(350),
                     fit: BoxFit.contain,
-                  );
-                },
-              )
-                  : Image.asset(
-                _avatarAssets[_currentAvatarIndex],
-                key: ValueKey<int>(_currentAvatarIndex),
-                height: Responsive.height(350),
-                fit: BoxFit.contain,
-              ),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
   void _animateAvatarChange() {
@@ -1137,7 +1104,8 @@ class _WardrobeScreenState extends State<WardrobeScreen>
   }
   Widget _buildThirdColumn() {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.end,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.start,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
@@ -1146,7 +1114,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
               onTap: () => _showAnimatedCategoryDialog(),
               child: Container(
                 padding: EdgeInsets.symmetric(
-                    horizontal: Responsive.width(12),
+                    horizontal: Responsive.width(11),
                     vertical: Responsive.height(5)),
                 height: Responsive.height(30),
                 decoration: BoxDecoration(
@@ -1180,17 +1148,6 @@ class _WardrobeScreenState extends State<WardrobeScreen>
     );
   }
 
-
-  void _navigateToUploadScreen(String category) {
-    // Navigator.pushNamed(
-    //     context,
-    //     AppRoutes.addWardrobe,
-    //     arguments: {'category': category}
-    // ).then((_) {
-    //   // Refresh data when returning from upload screen
-    //   _getUserInfoAndLoadItems();
-    // });
-  }
   void _showAnimatedCategoryDialog() {
     String? selectedCategory;
     String? selectedSubcategory;
@@ -1244,7 +1201,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                               });
                             }),
                             _buildAnimatedCategoryButton(
-                                'Assessries', selectedCategory, (category) {
+                                'Accessories', selectedCategory, (category) {
                               setState(() {
                                 selectedCategory = category;
                                 subcategories =
@@ -1322,7 +1279,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                     },
                     child: Text(
                       'Back',
-                      style: TextStyle(color: themeController.black),
+                      style: GoogleFonts.poppins(color: themeController.black),
                     ),
                   )
                 else
@@ -1332,7 +1289,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                     },
                     child: Text(
                       'Cancel',
-                      style: TextStyle(color: Colors.grey),
+                      style: GoogleFonts.poppins(color: Colors.grey),
                     ),
                   ),
                 TextButton(
@@ -1345,7 +1302,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                       : null,
                   child: Text(
                     'Open Camera',
-                    style: TextStyle(
+                    style: GoogleFonts.poppins(
                       color: (showSubcategories && selectedSubcategory != null)
                           ? appcolor
                           : Colors.grey,
@@ -1363,7 +1320,8 @@ class _WardrobeScreenState extends State<WardrobeScreen>
 
   // Helper method to build animated category buttons
   Widget _buildAnimatedCategoryButton(
-      String category, String? selectedCategory, Function(String) onSelect) {
+      String category, String? selectedCategory, Function(String) onSelect)
+  {
     bool isSelected = selectedCategory == category;
 
     return AnimatedContainer(
@@ -1391,7 +1349,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
           child: Center(
             child: Text(
               category,
-              style: TextStyle(
+              style: GoogleFonts.poppins(
                 color: isSelected ? Colors.white : Colors.black87,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               ),
@@ -1413,7 +1371,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
           'Dress Shirt',
           'Polo Shirt'
         ];
-      case 'Assessries':
+      case 'Accessories':
         return [
           'Necklace',
           'Bracelet',
@@ -1472,7 +1430,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                   SizedBox(height: Responsive.height(16)),
                   Text(
                     'Opening camera...',
-                    style: TextStyle(
+                    style: GoogleFonts.poppins(
                       color: Colors.black87,
                       fontWeight: FontWeight.w500,
                     ),
@@ -1524,7 +1482,8 @@ class _WardrobeScreenState extends State<WardrobeScreen>
 
   // Method to show confirmation dialog after image capture
   void _showImageCapturedDialog(
-      String category, String subcategory, File imageFile) {
+      String category, String subcategory, File imageFile)
+  {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -1542,7 +1501,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
             children: [
               Text(
                 'Your $subcategory has been successfully captured and identified using Google Vision AI.',
-                style: TextStyle(fontSize: 14),
+                style: GoogleFonts.poppins(fontSize: 14),
               ),
               SizedBox(height: 16),
               Container(
@@ -1563,7 +1522,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
               onPressed: () => Navigator.pop(context),
               child: Text(
                 'Cancel',
-                style: TextStyle(color: Colors.grey),
+                style: GoogleFonts.poppins(color: Colors.grey),
               ),
             ),
             TextButton(
@@ -1593,7 +1552,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
               },
               child: Text(
                 'Add to Wardrobe',
-                style: TextStyle(
+                style: GoogleFonts.poppins(
                   color: appcolor,
                   fontWeight: FontWeight.bold,
                 ),

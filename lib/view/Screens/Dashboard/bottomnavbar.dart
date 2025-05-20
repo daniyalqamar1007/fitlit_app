@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import 'package:fitlip_app/view/Screens/Profile/profile_screen.dart';
 import 'package:flutter/material.dart';
 import '../../../main.dart';
 import '../../Utils/Colors.dart';
@@ -17,7 +18,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final List<Widget> _pages = [
     WardrobeScreen(),
-    Center(child: Text("Branding")),
+    Center(
+      child: Text("Branding"),
+    ),
     SocialMediaProfile(),
   ];
 

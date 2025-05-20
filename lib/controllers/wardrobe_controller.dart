@@ -82,6 +82,7 @@ class WardrobeController {
       recentlyUploadedItem.value = newItem;
 
       statusNotifier.value = WardrobeStatus.success;
+      await loadWardrobeItems();
     } catch (e) {
       statusNotifier.value = WardrobeStatus.error;
       errorNotifier.value = e.toString();

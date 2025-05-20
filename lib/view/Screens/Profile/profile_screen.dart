@@ -48,14 +48,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   }
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: themeController.white,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: themeController.white,
         elevation: 0,
-        leading: const BackButton(color: Color(0xFFAA8A00)),
+leading: BackButton(color: appcolor,),
         centerTitle: true,
         title:  Text(
           AppConstants.profile,
@@ -86,11 +88,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   children: [
                     _buildProfileHeader(userProfile),
                     const SizedBox(height: 20),
-                    const Align(
+                     Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
                         AppConstants.settings,
-                        style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+                        style: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 16),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -100,19 +102,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       value: isNotificationEnabled,
                       onChanged: (val) => setState(() => isNotificationEnabled = val),
                     ),
-                    const SizedBox(height: 10),
-                    CustomSwitchTile(
-                      icon: Icons.dark_mode_outlined,
-                      title: AppConstants.darkMode,
-                      value: isDarkMode,
-                      onChanged: (val) {
-                        setState(() {
-                          isDarkMode = val;
-                          themeController.toggleTheme();
-                        });
-                      },
-                    ),
-                    const SizedBox(height: 10),
+                    // const SizedBox(height: 10),
+                    // CustomSwitchTile(
+                    //   icon: Icons.dark_mode_outlined,
+                    //   title: AppConstants.darkMode,
+                    //   value: isDarkMode,
+                    //   onChanged: (val) {
+                    //     setState(() {
+                    //       isDarkMode = val;
+                    //       themeController.toggleTheme();
+                    //     });
+                    //   },
+                    // ),
+                    // const SizedBox(height: 10),
                     CustomListTile(
                       image: "assets/Icons/language.png",
                       title: AppConstants.language,
@@ -121,7 +123,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     CustomListTile(
                       image: "assets/Icons/policy.png",
                       title: AppConstants.privacyPolicy,
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.pushNamed(context, AppRoutes.privacypolicy);
+                      },
                     ),
                     CustomListTile(
                       icon: Icons.mail_outline,
@@ -135,12 +139,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     CustomListTile(
                       icon: Icons.login_outlined,
-                      title: "logout",
+                      title: "Logout",
                       onTap: () async {
-                        await remove();
-                        Navigator.pushReplacementNamed(context, AppRoutes.signin);
+                        final shouldLogout = await showDialog<bool>(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            backgroundColor: Colors.white,
+                            title:  Text('Confirm Logout',style: GoogleFonts.poppins(color: appcolor),),
+                            content:  Text('Are you sure you want to logout?',style: GoogleFonts.poppins(color:appcolor)),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context, false),
+                                child:  Text('Cancel',style: GoogleFonts.poppins(color: appcolor)),
+                              ),
+                              TextButton(
+                                onPressed: () => Navigator.pop(context, true),
+                                child: const Text('Logout', style: TextStyle(color: Colors.red)),
+                              ),
+                            ],
+                          ),
+                        );
+
+                        if (shouldLogout ?? false) {
+                          await remove();
+                          Navigator.pushReplacementNamed(context, AppRoutes.signin);
+                        }
                       },
                     ),
+
                   ],
                 ),
               );
@@ -150,43 +176,78 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
     );
   }
+  void _showFullScreenImage() {
+    final userProfile = _profileController.profileNotifier.value;
+    if (userProfile == null || userProfile.profileImage.isEmpty) return;
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => Scaffold(
+          backgroundColor: Colors.black,
+          appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            iconTheme: const IconThemeData(color: Colors.white),
+            elevation: 0,
+          ),
+          body: Center(
+            child: InteractiveViewer(
+              child: Image.network(
+                userProfile.profileImage,
+                fit: BoxFit.contain,
+                errorBuilder: (context, error, stackTrace) {
+                  return Image.asset(
+                    'assets/Images/circle_image.png',
+                    fit: BoxFit.contain,
+                  );
+                },
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
   Widget _buildProfileHeader(UserProfileModel userProfile) {
     return Row(
       children: [
-      Container(
-      width: 60,
-      height: 60,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        border: Border.all(color: Colors.grey.withOpacity(0.2), width: 0.5),
-      ),
-      child: ClipOval(
-        child: userProfile.profileImage.isNotEmpty
-            ? Image.network(
-          userProfile.profileImage,
-          fit: BoxFit.cover,
-          alignment: const Alignment(0, -1), // Shift up to focus on face area
-          errorBuilder: (context, error, stackTrace) {
-            return Image.asset(
-              'assets/Images/circle_image.png',
-              fit: BoxFit.cover,
-            );
-          },
-        )
-            : Image.asset(
-          'assets/Images/circle_image.png',
-          fit: BoxFit.cover,
+      GestureDetector(
+        onTap:_showFullScreenImage,
+        child: Container(
+        width: 60,
+        height: 60,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.grey.withOpacity(0.2), width: 0.5),
         ),
-      ),
-    ),      const SizedBox(width: 12),
+        child: ClipOval(
+          child: userProfile.profileImage.isNotEmpty
+              ? Image.network(
+            userProfile.profileImage,
+            fit: BoxFit.cover,
+            alignment: const Alignment(0, -1), // Shift up to focus on face area
+            errorBuilder: (context, error, stackTrace) {
+              return Image.asset(
+                'assets/Images/circle_image.png',
+                fit: BoxFit.cover,
+              );
+            },
+          )
+              : Image.asset(
+            'assets/Images/circle_image.png',
+            fit: BoxFit.cover,
+          ),
+        ),
+            ),
+      ),      const SizedBox(width: 12),
         Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               userProfile.name,
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              style:  GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 16),
             ),
             Text(userProfile.email,style:  GoogleFonts.poppins(fontWeight: FontWeight.w400, fontSize: 10),)
           ],
