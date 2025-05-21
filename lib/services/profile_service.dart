@@ -54,7 +54,10 @@ class ProfileService {
             'Authorization': 'Bearer $token',
             'Content-Type': 'application/json',
           },
-          body: json.encode(profile.toJson()),
+          body: json.encode({
+            ...profile.toJson(),
+            'onProfileChange': isNewImageSelected==true?"yes":"no", // 👈 Add custom string attribute
+          }),
         );
         print(response.body);
         print(response.statusCode);
@@ -63,12 +66,16 @@ class ProfileService {
           final Map<String, dynamic> data = json.decode(response.body);
           return UserProfileModel.fromJson(data);
         } else {
+
           throw Exception('Failed to update profile: ${response.statusCode}');
         }
       }
       // If there's an image to upload, use multipart request
       else {
+        print(imageFile.path);
+        print("in else part");
         print("coming");
+        print(isNewImageSelected);
         var request = https.MultipartRequest(
           'Patch',
           Uri.parse('$baseUrl/user/profile'),
@@ -81,12 +88,14 @@ class ProfileService {
         request.fields['name'] = profile.name;
         request.fields['email'] = profile.email;
         request.fields['gender'] = profile.gender;
+        request.fields['onProfileChange'] = isNewImageSelected.value==true?"yes":"no";
 
         // Add file
         request.files.add(await https.MultipartFile.fromPath(
           'profilePicture',
           imageFile.path,
         ));
+        print(request.fields);
 
         final streamedResponse = await request.send();
         print(streamedResponse.statusCode);

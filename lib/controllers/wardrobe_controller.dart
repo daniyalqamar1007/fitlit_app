@@ -62,6 +62,7 @@ class WardrobeController {
     required String subCategory,
     required File imageFile,
     required String? token,
+    required String? avatarurl
   }) async {
     try {
       print("coming");
@@ -72,6 +73,7 @@ class WardrobeController {
         category: category,
         subCategory: subCategory,
         imageFile: imageFile,
+        avatarurl:avatarurl!,
         token: token,
       );
 

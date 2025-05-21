@@ -1,9 +1,31 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
+import 'package:path_provider/path_provider.dart';
 import '../model/wardrobe_model.dart';
 import '../view/Utils/globle_variable/globle.dart';
-
+import 'dart:io';
+import 'dart:convert';
+import 'dart:typed_data' as typed_data;
+import 'package:http/http.dart' as http;
+import 'package:image/image.dart' as img;
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as path;
+import 'package:http_parser/http_parser.dart';
+import 'package:image/image.dart' as img; // Import for image processing
+import 'package:path_provider/path_provider.dart'; // Import for temp directory access
+import 'package:path/path.dart' as path;
+import 'dart:io';
+import 'dart:convert';
+import 'dart:typed_data' as typed_data;
+import 'package:http/http.dart' as http;
+import 'package:image/image.dart' as img;
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as path;
+import 'package:http_parser/http_parser.dart';
 class WardrobeService {
 
   WardrobeService(); // Constructor with optional token parameter
@@ -116,78 +138,85 @@ class WardrobeService {
       throw Exception('Error retrieving wardrobe items: $e');
     }
   }
+ // Add this import for image processing
+// Add this for path manipulation
+ // For path manipulation
+  // Import for MediaType
+
+
+
 
   Future<WardrobeItem> uploadWardrobeItem({
     required String category,
     required String subCategory,
+    required String? avatarurl,
     required File imageFile,
     required String? token,
   }) async {
     try {
       print("Starting image upload process...");
       print("Category: $category, SubCategory: $subCategory");
-      print("Image file size: ${await imageFile.length()} bytes");
-      print("Image file path: ${imageFile.path}");
+      print("avatarurl: $avatarurl");
+      print("Original image file size: ${await imageFile.length()} bytes");
+      print("Original image file path: ${imageFile.path}");
       print("Token: ${token != null ? 'Present (${token.length} chars)' : 'NULL'}");
 
-      // Create multipart request
-      var request = http.MultipartRequest('POST', Uri.parse('$baseUrl/wardrobe-items'));
+      // Convert image to PNG format
+      File pngImageFile = await _convertImageToPng(imageFile);
+      print("Converted PNG image file size: ${await pngImageFile.length()} bytes");
+      print("Converted PNG image file path: ${pngImageFile.path}");
 
-      // Add headers
-      if (token != null && token.isNotEmpty) {
-        request.headers.addAll({
-          'Authorization': 'Bearer $token',
-          // Add content-type header explicitly
+      // Create multipart request with timeout
+      var request = http.MultipartRequest('POST', Uri.parse('$baseUrl/wardrobe-items'))
+        ..headers.addAll({
+          if (token != null && token.isNotEmpty)
+            'Authorization': 'Bearer $token',
           'Accept': 'application/json',
+        })
+        ..fields.addAll({
+          'category': category,
+          'sub_category': subCategory,
+          'avatar': avatarurl!,
         });
-      } else {
-        print("WARNING: Token is null or empty!");
-      }
 
-      // Log all request headers for debugging
-      print("Request headers: ${request.headers}");
-
-      // Add text fields
-      request.fields['category'] = category;
-      request.fields['sub_category'] = subCategory;
-
-      // Add file
-      var fileStream = http.ByteStream(imageFile.openRead());
-      var fileLength = await imageFile.length();
-
-      var multipartFile = http.MultipartFile(
-          'image',
-          fileStream,
-          fileLength,
-          filename: imageFile.path.split('/').last,
-          // contentType: MediaType('image', 'jpeg') // Explicitly set content type
-      );
-
+      // Add PNG file with timeout handling
+      var multipartFile = await http.MultipartFile.fromPath(
+          'file',
+          pngImageFile.path,
+          contentType: MediaType('image', 'png')
+      ).timeout(const Duration(seconds: 70));
       request.files.add(multipartFile);
+
       print("Request prepared, sending to server...");
       print(request.fields);
 
-      var streamedResponse = await request.send();
-      print(streamedResponse.statusCode);
+      // Send request with timeout
+      var streamedResponse = await request.send()
+          .timeout(const Duration(seconds: 90), onTimeout: () {
+        throw TimeoutException('The request timed out after 60 seconds');
+      });
 
-      var response = await http.Response.fromStream(streamedResponse);
+      print("Response status code: ${streamedResponse.statusCode}");
+
+      // Process response with timeout
+      var response = await http.Response.fromStream(streamedResponse)
+          .timeout(const Duration(seconds: 90), onTimeout: () {
+        throw TimeoutException('Response processing timed out after 10 seconds');
+      });
 
       print("Upload API response status code: ${response.statusCode}");
       print("Upload API response body: ${response.body}");
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         try {
-          // Parse response
           Map<String, dynamic> responseData = json.decode(response.body);
-
-          // Check if response contains the item directly or nested in a field
           Map<String, dynamic> itemData;
+
           if (responseData.containsKey('data')) {
             itemData = responseData['data'];
           } else if (responseData.containsKey('item')) {
             itemData = responseData['item'];
           } else {
-            // Assume the response is the item itself
             itemData = responseData;
           }
 
@@ -202,11 +231,54 @@ class WardrobeService {
         print("Response body: ${response.body}");
         throw Exception('Failed to upload wardrobe item. Status code: ${response.statusCode}, Response: ${response.body}');
       }
+    } on TimeoutException catch (e) {
+      print("Request timed out: $e");
+      throw Exception('The request took too long to complete. Please try again.');
     } catch (e) {
       print("Exception during image upload: $e");
       throw Exception('Error uploading wardrobe item: $e');
     }
   }
+
+  /// Helper function to convert image to PNG format
+  Future<File> _convertImageToPng(File inputFile) async {
+    try {
+      // Read file as bytes
+      final List<int> bytesList = await inputFile.readAsBytes();
+
+      // Convert to Uint8List explicitly
+      final typed_data.Uint8List bytes = typed_data.Uint8List.fromList(bytesList);
+
+      // Decode the image
+      final img.Image? decodedImage = img.decodeImage(bytes);
+
+      if (decodedImage == null) {
+        throw Exception('Failed to decode the image');
+      }
+
+      // Encode to PNG
+      final pngBytes = img.encodePng(decodedImage);
+
+      // Create a new file path with .png extension
+      final directory = await getTemporaryDirectory();
+      String fileName = path.basenameWithoutExtension(inputFile.path) + '.png';
+      final pngFilePath = path.join(directory.path, fileName);
+
+      // Write the converted PNG file
+      File pngFile = File(pngFilePath);
+      await pngFile.writeAsBytes(pngBytes);
+
+      print("Image successfully converted to PNG format");
+      return pngFile;
+    } catch (e) {
+      print("Error converting image to PNG: $e");
+      throw Exception('Failed to convert image to PNG format: $e');
+    }
+  }
+
+
+
+
   int min(int a, int b) {
     return a < b ? a : b;
   }

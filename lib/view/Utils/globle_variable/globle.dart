@@ -1,8 +1,9 @@
+import 'package:flutter/cupertino.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 bool first_time=true;
 
-final String baseUrl = "http://147.93.47.17:3099";
-
+final String baseUrl = "https://l8wlljm3-3099.inc1.devtunnels.ms";
+ ValueNotifier<bool?> isNewImageSelected = ValueNotifier<bool?>(false);
 String? token;
 Future<bool> gettoken()async{
   SharedPreferences prefs=await SharedPreferences.getInstance();
