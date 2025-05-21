@@ -1,4 +1,6 @@
 
+import 'dart:async';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fitlip_app/routes/App_routes.dart';
 import 'package:fitlip_app/controllers/themecontroller.dart';
@@ -34,6 +36,10 @@ class _WardrobeScreenState extends State<WardrobeScreen>
   DateTime? _selectedDay;
   final ImagePicker _picker = ImagePicker();
   String? _avatarUrl;
+  bool _isUploading = false;
+  double _uploadProgress = 0.0;
+  Timer? _uploadProgressTimer;
+
   String? userProfileImage;
   String? profileImage;
   int _currentAvatarIndex = 0;
@@ -69,6 +75,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
 
      _loadUserProfile();
 
+    _getUserInfoAndLoadItems();
     _wardrobeController.statusNotifier.addListener(_handleStatusChange);
 
     // Check if there's an outfit for today
@@ -232,6 +239,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
         shoeId: "3",
         accessoryId: "4",
         avatarurl:profileImage!,
+
         date: _selectedDay ?? _focusedDay,
 
       );
@@ -637,6 +645,54 @@ class _WardrobeScreenState extends State<WardrobeScreen>
       ],
     );
   }
+  void _showFullImageDialog(BuildContext context, String url) {
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: "Dismiss",
+      barrierColor: Colors.black.withOpacity(0.85),
+      transitionDuration: Duration(milliseconds: 300),
+      pageBuilder: (_, __, ___) {
+        return GestureDetector(
+          onTap: () => Navigator.of(context).pop(),
+          child: Scaffold(
+            backgroundColor: Colors.transparent,
+            body: Center(
+              child: Container(
+                margin: EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 15)],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: Image.network(
+                    url,
+                    fit: BoxFit.contain,
+                    errorBuilder: (context, error, stackTrace) => Icon(
+                      Icons.broken_image,
+                      color: Colors.white,
+                      size: 100,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+      transitionBuilder: (_, animation, __, child) {
+        return FadeTransition(
+          opacity: CurvedAnimation(parent: animation, curve: Curves.easeInOut),
+          child: ScaleTransition(
+            scale: CurvedAnimation(parent: animation, curve: Curves.easeInOut),
+            child: child,
+          ),
+        );
+      },
+    );
+  }
+
   String _getMonthName(int month) {
     const months = [
       'Jan',
@@ -676,9 +732,11 @@ class _WardrobeScreenState extends State<WardrobeScreen>
 
     return GestureDetector(
       onTap: () {
+
         // Show item selection dialog when container is tapped
         _showItemSelectionDialog(category, notifier);
       },
+
       child: Container(
         width: 60,
         height: 56,
@@ -934,19 +992,24 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                         child: Stack(
                           fit: StackFit.expand,
                           children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(6),
-                              child: Image.network(
-                                item.imageUrl ?? '',
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return Center(
-                                    child: Icon(
-                                      _getIconForCategory(category),
-                                      color: Colors.grey,
-                                    ),
-                                  );
-                                },
+                            GestureDetector(
+                              onLongPress: (){
+                                _showFullImageDialog(context, item.imageUrl!);
+                              },
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(6),
+                                child: Image.network(
+                                  item.imageUrl ?? '',
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Center(
+                                      child: Icon(
+                                        _getIconForCategory(category),
+                                        color: Colors.grey,
+                                      ),
+                                    );
+                                  },
+                                ),
                               ),
                             ),
                             if (isSelected)
@@ -1077,12 +1140,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                           fit: BoxFit.contain,
                         ),
                       )
-                      : Image.asset(
-                    _avatarAssets[_currentAvatarIndex],
-                    key: ValueKey<int>(_currentAvatarIndex),
-                    height: Responsive.height(350),
-                    fit: BoxFit.contain,
-                  ),
+                      : CircularProgressIndicator(color: appcolor,)
                 ),
               ],
             ),
@@ -1482,88 +1540,214 @@ class _WardrobeScreenState extends State<WardrobeScreen>
 
   // Method to show confirmation dialog after image capture
   void _showImageCapturedDialog(
-      String category, String subcategory, File imageFile)
-  {
+      String category, String subcategory, File imageFile) {
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(
-            'Item Captured',
-            style: GoogleFonts.poppins(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: appcolor,
-            ),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Your $subcategory has been successfully captured and identified using Google Vision AI.',
-                style: GoogleFonts.poppins(fontSize: 14),
-              ),
-              SizedBox(height: 16),
-              Container(
-                height: 150,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  image: DecorationImage(
-                    image: FileImage(imageFile),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(
-                'Cancel',
-                style: GoogleFonts.poppins(color: Colors.grey),
-              ),
-            ),
-            TextButton(
-              onPressed: () async {
-                print(category);
-                print(subcategory
-                );
-                await _wardrobeController.uploadWardrobeItem(
-                    category: category,
-                    subCategory: subcategory,
-                    imageFile: imageFile,
-                    token: token);
-                _getUserInfoAndLoadItems();
-
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      'Image successfully saved to wardrobe under "$category > $subcategory".',
-                    ),
-                    backgroundColor: Colors.green,
-                    behavior: SnackBarBehavior.floating,
-                    duration: Duration(seconds: 3),
-                  ),
-                );
-
-                Navigator.pop(context);
-              },
-              child: Text(
-                'Add to Wardrobe',
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Text(
+                _isUploading ? 'Uploading Item' : 'Item Captured',
                 style: GoogleFonts.poppins(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
                   color: appcolor,
-                  fontWeight: FontWeight.bold,
                 ),
               ),
-            ),
-          ],
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (!_isUploading)
+                    Text(
+                      'Your $subcategory has been successfully captured and identified using Google Vision AI.',
+                      style: GoogleFonts.poppins(fontSize: 14),
+                    ),
+                  SizedBox(height: 16),
+                  Container(
+                    height: 150,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      image: DecorationImage(
+                        image: FileImage(imageFile),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                  if (_isUploading) ...[
+                    SizedBox(height: 20),
+                    Column(
+                      children: [
+                        // Custom loading animation (similar to OTP screen)
+                        Container(
+                          width: 80,
+                          height: 80,
+                          decoration: BoxDecoration(
+                            color: appcolor.withOpacity(0.1),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Center(
+                            child: SizedBox(
+                              width: 50,
+                              height: 50,
+                              child: CircularProgressIndicator(
+                                value: _uploadProgress,
+                                backgroundColor: Colors.grey[300],
+                                valueColor: AlwaysStoppedAnimation<Color>(appcolor),
+                                strokeWidth: 5,
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 16),
+                        Text(
+                          'Adding to your wardrobe...',
+                          style: GoogleFonts.poppins(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          '${(_uploadProgress * 100).toInt()}%',
+                          style: GoogleFonts.poppins(
+                            fontSize: 12,
+                            color: appcolor,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  ],
+                ],
+              ),
+              actions: _isUploading
+                  ? [] // No buttons when loading
+                  : [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text(
+                    'Cancel',
+                    style: GoogleFonts.poppins(color: Colors.grey),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () async {
+                    // Start upload process with loading animation
+                    setState(() {
+                      _isUploading = true;
+                      _uploadProgress = 0.0;
+                    });
+
+                    // Start the progress animation
+                    _startUploadProgressAnimation(setState);
+
+                    try {
+                      await _wardrobeController.uploadWardrobeItem(
+                          category: category,
+                          subCategory: subcategory,
+                          imageFile: imageFile,
+                          avatarurl: profileImage!,
+                          token: token);
+
+                      // Complete the progress animation
+                      _completeUploadProgress(setState);
+
+                      // Slight delay to show 100% completion
+                      await Future.delayed(Duration(milliseconds: 500));
+
+                      _getUserInfoAndLoadItems();
+
+                      if (context.mounted) {
+                        _uploadProgressTimer?.cancel();
+                        Navigator.pop(context);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              'Image successfully saved to wardrobe under "$category > $subcategory".',
+                            ),
+                            backgroundColor: Colors.green,
+                            behavior: SnackBarBehavior.floating,
+                            duration: Duration(seconds: 3),
+                          ),
+                        );
+                      }
+                    } catch (e) {
+                      // Complete progress animation even on error
+                      _completeUploadProgress(setState);
+
+                      await Future.delayed(Duration(milliseconds: 500));
+
+                      if (context.mounted) {
+                        _uploadProgressTimer?.cancel();
+                        Navigator.pop(context);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              'Failed to save image: ${e.toString()}',
+                            ),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
+                    }
+                  },
+                  child: Text(
+                    'Add to Wardrobe',
+                    style: GoogleFonts.poppins(
+                      color: appcolor,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
         );
       },
     );
   }
 
+  void _startUploadProgressAnimation(StateSetter setState) {
+    // Cancel existing timer if any
+    _uploadProgressTimer?.cancel();
+
+    // Create a simulated loading animation
+    const totalDuration = 3000; // 3 seconds in milliseconds
+    const interval = 50; // Update every 50ms for smoother animation
+    const steps = totalDuration ~/ interval;
+    const incrementPerStep = 0.95 / steps; // Reach 95% in the given duration
+
+    _uploadProgressTimer = Timer.periodic(Duration(milliseconds: interval), (timer) {
+      if (_uploadProgress >= 0.95) {
+        timer.cancel();
+      } else {
+        setState(() {
+          _uploadProgress += incrementPerStep;
+          if (_uploadProgress > 0.95) _uploadProgress = 0.95; // Cap at 95%
+        });
+      }
+    });
+  }
+
+// Helper method to complete the progress animation
+  void _completeUploadProgress(StateSetter setState) {
+    _uploadProgressTimer?.cancel();
+
+    // Complete the progress to 100% with a smooth animation
+    _uploadProgressTimer = Timer.periodic(Duration(milliseconds: 30), (timer) {
+      if (_uploadProgress >= 1.0) {
+        timer.cancel();
+      } else {
+        setState(() {
+          _uploadProgress += 0.05;
+          if (_uploadProgress > 1.0) _uploadProgress = 1.0;
+        });
+      }
+    });
+  }
   Widget _buildCalendarSection(WardrobeController controller) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
