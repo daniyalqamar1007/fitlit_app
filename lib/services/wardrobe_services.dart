@@ -184,25 +184,19 @@ class WardrobeService {
           'file',
           pngImageFile.path,
           contentType: MediaType('image', 'png')
-      ).timeout(const Duration(seconds: 70));
+      ).timeout(const Duration(seconds: 360));
       request.files.add(multipartFile);
 
       print("Request prepared, sending to server...");
       print(request.fields);
 
       // Send request with timeout
-      var streamedResponse = await request.send()
-          .timeout(const Duration(seconds: 90), onTimeout: () {
-        throw TimeoutException('The request timed out after 60 seconds');
-      });
+      var streamedResponse = await request.send();
 
       print("Response status code: ${streamedResponse.statusCode}");
 
       // Process response with timeout
-      var response = await http.Response.fromStream(streamedResponse)
-          .timeout(const Duration(seconds: 90), onTimeout: () {
-        throw TimeoutException('Response processing timed out after 10 seconds');
-      });
+      var response = await http.Response.fromStream(streamedResponse);
 
       print("Upload API response status code: ${response.statusCode}");
       print("Upload API response body: ${response.body}");
