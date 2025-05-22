@@ -346,7 +346,8 @@ class _WardrobeScreenState extends State<WardrobeScreen>
       },
       child: Scaffold(
         backgroundColor: themeController.white,
-        body: SafeArea(
+        body:
+        SafeArea(
           child: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -379,6 +380,31 @@ class _WardrobeScreenState extends State<WardrobeScreen>
             ),
           ),
         ),
+        floatingActionButton: SizedBox(
+
+          width: 75,
+          height: 40,
+          child: RawMaterialButton(
+            onPressed: ()=>_showAnimatedCategoryDialog(),
+            fillColor: appcolor, // Change this to your desired color
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal:4.0),
+              child: Row(
+                children:[
+                  Icon(Icons.file_upload_outlined,color: Colors.white,size: 20,),
+                  Text(
+                  "Upload",
+                  style: TextStyle(color: Colors.white,fontSize: 12),
+                ),
+
+              ]),
+            ),
+          ),
+        ),
+
       ),
     );
   }
@@ -1169,10 +1195,10 @@ class _WardrobeScreenState extends State<WardrobeScreen>
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             GestureDetector(
-              onTap: () => _showAnimatedCategoryDialog(),
+              onTap: (){},
               child: Container(
                 padding: EdgeInsets.symmetric(
-                    horizontal: Responsive.width(11),
+                    horizontal: Responsive.width(5.5),
                     vertical: Responsive.height(5)),
                 height: Responsive.height(30),
                 decoration: BoxDecoration(
@@ -1188,7 +1214,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                       weight: 10,
                     ),
                     Text(
-                      "Upload",
+                      "Generate",
                       style: GoogleFonts.poppins(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
@@ -1540,7 +1566,8 @@ class _WardrobeScreenState extends State<WardrobeScreen>
 
   // Method to show confirmation dialog after image capture
   void _showImageCapturedDialog(
-      String category, String subcategory, File imageFile) {
+      String category, String subcategory, File imageFile)
+  {
     showDialog(
       context: context,
       barrierDismissible: false,
