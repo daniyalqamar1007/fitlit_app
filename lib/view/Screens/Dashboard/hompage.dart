@@ -6,8 +6,10 @@ import 'package:fitlip_app/routes/App_routes.dart';
 import 'package:fitlip_app/controllers/themecontroller.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../../controllers/avatar_controller.dart';
 import '../../../controllers/profile_controller.dart';
 import '../../../controllers/wardrobe_controller.dart';
 import '../../../controllers/outfit_controller.dart';
@@ -34,9 +36,14 @@ class _WardrobeScreenState extends State<WardrobeScreen>
   DateTime _focusedDay = DateTime.now();
   WardrobeController controller=WardrobeController();
   DateTime? _selectedDay;
+  final AvatarController _avatarController = AvatarController();
+  bool _isGeneratingAvatar = false;
   final ImagePicker _picker = ImagePicker();
   String? _avatarUrl;
   bool _isUploading = false;
+  List<String> _generatedAvatars = []; // Store generated avatars
+  int _currentGeneratedAvatarIndex = 0;
+  SharedPreferences? _prefs;
   double _uploadProgress = 0.0;
   Timer? _uploadProgressTimer;
 
@@ -73,15 +80,27 @@ class _WardrobeScreenState extends State<WardrobeScreen>
     super.initState();
     _selectedDay = _focusedDay;
 
-     _loadUserProfile();
-
+    _loadUserProfile();
     _getUserInfoAndLoadItems();
+    _loadGeneratedAvatars(); // Load saved avatars
     _wardrobeController.statusNotifier.addListener(_handleStatusChange);
-
-    // Check if there's an outfit for today
+    _avatarController.statusNotifier.addListener(_handleAvatarStatusChange);
     _checkExistingOutfit(_focusedDay);
   }
+  Future<void> _loadGeneratedAvatars() async {
+    _prefs = await SharedPreferences.getInstance();
+    final savedAvatars = _prefs?.getStringList('generated_avatars') ?? [];
+    final currentIndex = _prefs?.getInt('current_avatar_index') ?? 0;
 
+    setState(() {
+      _generatedAvatars = savedAvatars;
+      _currentGeneratedAvatarIndex = currentIndex < _generatedAvatars.length ? currentIndex : 0;
+    });
+  }
+  Future<void> _saveGeneratedAvatars() async {
+    await _prefs?.setStringList('generated_avatars', _generatedAvatars);
+    await _prefs?.setInt('current_avatar_index', _currentGeneratedAvatarIndex);
+  }
   void _handleStatusChange() {
     if (mounted) {
       setState(() {
@@ -90,6 +109,119 @@ class _WardrobeScreenState extends State<WardrobeScreen>
       });
     }
   }
+  void _handleAvatarStatusChange() {
+    if (mounted) {
+      setState(() {
+        _isGeneratingAvatar = _avatarController.statusNotifier.value == AvatarGenerationStatus.loading;
+      });
+    }
+  }
+  Future<void> _generateAvatar() async {
+    print("avatar generating");
+
+    if (selectedShirtId == null && selectedPantId == null && selectedShoeId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Please select at least one item to generate avatar'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    try {
+      setState(() {
+        _isGeneratingAvatar = true;
+      });
+
+      final response = await _avatarController.generateAvatar(
+        shirtId: selectedShirtId,
+        pantId: selectedPantId,
+        shoeId: selectedShoeId,
+        token: token,
+      );
+      print(response.avatar);
+
+      if (response.avatar != null) {
+        // Add to generated avatars list
+        setState(() {
+          _generatedAvatars.add(response.avatar!);
+          _currentGeneratedAvatarIndex = _generatedAvatars.length - 1; // Show latest generated
+          profileImage = response.avatar!;
+          _isGeneratingAvatar = false;
+        });
+
+        // Save to SharedPreferences
+        await _saveGeneratedAvatars();
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Avatar generated successfully!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } else {
+        setState(() {
+          _isGeneratingAvatar = false;
+        });
+
+
+      }
+    } catch (e) {
+      setState(() {
+        _isGeneratingAvatar = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error generating avatar: ${e.toString()}'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+  String? _getCurrentAvatarImage(UserProfileModel? userProfile) {
+    // If we have generated avatars, show the current one
+    if (_generatedAvatars.isNotEmpty && _currentGeneratedAvatarIndex < _generatedAvatars.length) {
+      return _generatedAvatars[_currentGeneratedAvatarIndex];
+    }
+
+    // Otherwise show profile image
+    if (userProfile?.profileImage.isNotEmpty == true) {
+      return userProfile!.profileImage;
+    }
+
+    return null;
+  }
+  void _handleAvatarSwipe(DragEndDetails details) {
+    if (_generatedAvatars.isEmpty) return;
+
+    if (details.velocity.pixelsPerSecond.dx > 0) {
+      // Swipe right - previous avatar
+      setState(() {
+        if (_currentGeneratedAvatarIndex > 0) {
+          _currentGeneratedAvatarIndex--;
+        } else {
+          _currentGeneratedAvatarIndex = _generatedAvatars.length - 1; // Loop to end
+        }
+        profileImage = _generatedAvatars[_currentGeneratedAvatarIndex];
+      });
+      _saveGeneratedAvatars();
+    } else if (details.velocity.pixelsPerSecond.dx < 0) {
+      // Swipe left - next avatar
+      setState(() {
+        if (_currentGeneratedAvatarIndex < _generatedAvatars.length - 1) {
+          _currentGeneratedAvatarIndex++;
+        } else {
+          _currentGeneratedAvatarIndex = 0; // Loop to beginning
+        }
+        profileImage = _generatedAvatars[_currentGeneratedAvatarIndex];
+      });
+      _saveGeneratedAvatars();
+    }
+    _animateAvatarChange();
+  }
+
 
   Future<void> _getUserInfoAndLoadItems() async {
     try {
@@ -332,6 +464,8 @@ class _WardrobeScreenState extends State<WardrobeScreen>
     _wardrobeController.statusNotifier.removeListener(_handleStatusChange);
     _wardrobeController.dispose();
     _outfitController.dispose();
+    _avatarController.statusNotifier.removeListener(_handleAvatarStatusChange);
+    _avatarController.dispose();
 
     super.dispose();
   }
@@ -528,7 +662,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
 
           // Third Column - Similar to first column
           Expanded(
-            flex: 3,
+            flex: 4,
             child: _buildThirdColumn(),
           ),
         ],
@@ -1102,44 +1236,25 @@ class _WardrobeScreenState extends State<WardrobeScreen>
     return ValueListenableBuilder<UserProfileModel?>(
       valueListenable: _profileController.profileNotifier,
       builder: (context, userProfile, _) {
-        if(userProfile?.profileImage.isNotEmpty==true){
-        profileImage=userProfile!.profileImage.toString();}
-        // // Use profile image if available, otherwise use default avatar
-        // final avatarImage = userProfile?.profileImage.isNotEmpty == true
-        //     ? userProfile!.profileImage
-        //     : _avatarAssets[_currentAvatarIndex];
+        // Get current avatar image
+        final currentAvatarImage = _getCurrentAvatarImage(userProfile);
+
+        // Update profileImage for saving outfit
+        if (currentAvatarImage != null) {
+          profileImage = currentAvatarImage;
+        }
 
         return GestureDetector(
-          onHorizontalDragEnd: (details) {
-            // Swipe logic remains the same for cycling through avatars
-            if (details.velocity.pixelsPerSecond.dx > 0) {
-              setState(() {
-                if (_currentAvatarIndex > 0) {
-                  _currentAvatarIndex--;
-                  _animateAvatarChange();
-                }
-              });
-            } else if (details.velocity.pixelsPerSecond.dx < 0) {
-              setState(() {
-                if (_currentAvatarIndex < _avatarAssets.length - 1) {
-                  _currentAvatarIndex++;
-                  _animateAvatarChange();
-                }
-              });
-            }
-          },
+          onHorizontalDragEnd: _handleAvatarSwipe,
           child: Container(
             alignment: Alignment.center,
             child: Stack(
               alignment: Alignment.center,
               children: [
-                // Animated avatar
                 AnimatedSwitcher(
-
                   duration: const Duration(milliseconds: 500),
                   transitionBuilder: (Widget child, Animation<double> animation) {
                     return ScaleTransition(
-
                       scale: animation,
                       child: FadeTransition(
                         opacity: animation,
@@ -1153,21 +1268,26 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                       valueColor: AlwaysStoppedAnimation<Color>(appcolor),
                     ),
                   )
-                      : userProfile?.profileImage.isNotEmpty == true
+                      : currentAvatarImage != null
                       ? CachedNetworkImage(
-                        imageUrl: userProfile!.profileImage,
-                        fit: BoxFit.cover,
-                        width: Responsive.height(350),
-                        height: Responsive.height(350),
-                        placeholder: (context, url) => Center(child: CircularProgressIndicator(color: appcolor,)),
-                        errorWidget: (context, url, error) => Image.asset(
-                          _avatarAssets[_currentAvatarIndex],
-                          height: Responsive.height(350),
-                          fit: BoxFit.contain,
-                        ),
-                      )
-                      : CircularProgressIndicator(color: appcolor,)
+                    key: ValueKey(currentAvatarImage), // Add key for AnimatedSwitcher
+                    imageUrl: currentAvatarImage,
+                    fit: BoxFit.cover,
+                    width: Responsive.height(350),
+                    height: Responsive.height(350),
+                    placeholder: (context, url) => Center(
+                      child: CircularProgressIndicator(color: appcolor),
+                    ),
+                    errorWidget: (context, url, error) => Image.asset(
+                      _avatarAssets[_currentAvatarIndex],
+                      height: Responsive.height(350),
+                      fit: BoxFit.contain,
+                    ),
+                  )
+                      : CircularProgressIndicator(color: appcolor),
                 ),
+                // Show indicators if there are multiple generated avatars
+
               ],
             ),
           ),
@@ -1175,6 +1295,83 @@ class _WardrobeScreenState extends State<WardrobeScreen>
       },
     );
   }
+  // Widget _buildAvatarColumn() {
+  //   return ValueListenableBuilder<UserProfileModel?>(
+  //     valueListenable: _profileController.profileNotifier,
+  //     builder: (context, userProfile, _) {
+  //       if(userProfile?.profileImage.isNotEmpty==true){
+  //       profileImage=userProfile!.profileImage.toString();}
+  //       // // Use profile image if available, otherwise use default avatar
+  //       // final avatarImage = userProfile?.profileImage.isNotEmpty == true
+  //       //     ? userProfile!.profileImage
+  //       //     : _avatarAssets[_currentAvatarIndex];
+  //
+  //       return GestureDetector(
+  //         onHorizontalDragEnd: (details) {
+  //           // Swipe logic remains the same for cycling through avatars
+  //           if (details.velocity.pixelsPerSecond.dx > 0) {
+  //             setState(() {
+  //               if (_currentAvatarIndex > 0) {
+  //                 _currentAvatarIndex--;
+  //                 _animateAvatarChange();
+  //               }
+  //             });
+  //           } else if (details.velocity.pixelsPerSecond.dx < 0) {
+  //             setState(() {
+  //               if (_currentAvatarIndex < _avatarAssets.length - 1) {
+  //                 _currentAvatarIndex++;
+  //                 _animateAvatarChange();
+  //               }
+  //             });
+  //           }
+  //         },
+  //         child: Container(
+  //           alignment: Alignment.center,
+  //           child: Stack(
+  //             alignment: Alignment.center,
+  //             children: [
+  //               // Animated avatar
+  //               AnimatedSwitcher(
+  //
+  //                 duration: const Duration(milliseconds: 500),
+  //                 transitionBuilder: (Widget child, Animation<double> animation) {
+  //                   return ScaleTransition(
+  //
+  //                     scale: animation,
+  //                     child: FadeTransition(
+  //                       opacity: animation,
+  //                       child: child,
+  //                     ),
+  //                   );
+  //                 },
+  //                 child: _isLoading
+  //                     ? Center(
+  //                   child: CircularProgressIndicator(
+  //                     valueColor: AlwaysStoppedAnimation<Color>(appcolor),
+  //                   ),
+  //                 )
+  //                     : userProfile?.profileImage.isNotEmpty == true
+  //                     ? CachedNetworkImage(
+  //                       imageUrl: userProfile!.profileImage,
+  //                       fit: BoxFit.cover,
+  //                       width: Responsive.height(350),
+  //                       height: Responsive.height(350),
+  //                       placeholder: (context, url) => Center(child: CircularProgressIndicator(color: appcolor,)),
+  //                       errorWidget: (context, url, error) => Image.asset(
+  //                         _avatarAssets[_currentAvatarIndex],
+  //                         height: Responsive.height(350),
+  //                         fit: BoxFit.contain,
+  //                       ),
+  //                     )
+  //                     : CircularProgressIndicator(color: appcolor,)
+  //               ),
+  //             ],
+  //           ),
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
   void _animateAvatarChange() {
     _avatarAnimationController?.reset();
     setState(() {
@@ -1195,30 +1392,43 @@ class _WardrobeScreenState extends State<WardrobeScreen>
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             GestureDetector(
-              onTap: (){},
+              onTap: _isGeneratingAvatar ? null : _generateAvatar, // Call the generate avatar method
               child: Container(
                 padding: EdgeInsets.symmetric(
-                    horizontal: Responsive.width(5.5),
+                    horizontal: Responsive.width(5),
                     vertical: Responsive.height(5)),
                 height: Responsive.height(30),
                 decoration: BoxDecoration(
-                  color: appcolor.withOpacity(0.7),
+                  color: _isGeneratingAvatar
+                      ? Colors.grey
+                      : appcolor.withOpacity(0.7),
                   borderRadius: BorderRadius.circular(Responsive.radius(30)),
                 ),
                 child: Row(
                   children: [
-                    Icon(
-                      Icons.file_upload_outlined,
-                      color: Colors.white,
-                      size: Responsive.fontSize(14),
-                      weight: 10,
-                    ),
+                    if (_isGeneratingAvatar)
+                      SizedBox(
+                        width: 14,
+                        height: 14,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(appcolor),
+                        ),
+                      )
+                    else
+                      Icon(
+                        Icons.file_upload_outlined,
+                        color: Colors.white,
+                        size: Responsive.fontSize(14),
+                        weight: 10,
+                      ),
+                    SizedBox(width: 2),
                     Text(
-                      "Generate",
+                      _isGeneratingAvatar ? "Generating..." : "Generate",
                       style: GoogleFonts.poppins(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
-                          fontSize: Responsive.fontSize(10)),
+                          fontSize: Responsive.fontSize(9)),
                     ),
                   ],
                 ),
@@ -1227,10 +1437,54 @@ class _WardrobeScreenState extends State<WardrobeScreen>
           ],
         ),
         SizedBox(height: 10),
-
       ],
     );
   }
+  // Widget _buildThirdColumn() {
+  //   return Column(
+  //     crossAxisAlignment: CrossAxisAlignment.start,
+  //     mainAxisAlignment: MainAxisAlignment.start,
+  //     children: [
+  //       Row(
+  //         mainAxisAlignment: MainAxisAlignment.end,
+  //         children: [
+  //           GestureDetector(
+  //             onTap: (){},
+  //             child: Container(
+  //               padding: EdgeInsets.symmetric(
+  //                   horizontal: Responsive.width(5.5),
+  //                   vertical: Responsive.height(5)),
+  //               height: Responsive.height(30),
+  //               decoration: BoxDecoration(
+  //                 color: appcolor.withOpacity(0.7),
+  //                 borderRadius: BorderRadius.circular(Responsive.radius(30)),
+  //               ),
+  //               child: Row(
+  //                 children: [
+  //                   Icon(
+  //                     Icons.file_upload_outlined,
+  //                     color: Colors.white,
+  //                     size: Responsive.fontSize(14),
+  //                     weight: 10,
+  //                   ),
+  //                   Text(
+  //                     "Generate",
+  //                     style: GoogleFonts.poppins(
+  //                         color: Colors.white,
+  //                         fontWeight: FontWeight.bold,
+  //                         fontSize: Responsive.fontSize(10)),
+  //                   ),
+  //                 ],
+  //               ),
+  //             ),
+  //           ),
+  //         ],
+  //       ),
+  //       SizedBox(height: 10),
+  //
+  //     ],
+  //   );
+  // }
 
   void _showAnimatedCategoryDialog() {
     String? selectedCategory;
@@ -1575,6 +1829,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
+              backgroundColor: Colors.white,
               title: Text(
                 _isUploading ? 'Uploading Item' : 'Item Captured',
                 style: GoogleFonts.poppins(
