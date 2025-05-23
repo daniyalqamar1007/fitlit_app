@@ -5,6 +5,9 @@ import 'package:fitlip_app/view/Screens/Auth/sign_in.dart';
 import 'package:fitlip_app/view/Screens/Dashboard/bottomnavbar.dart';
 import 'package:fitlip_app/view/Screens/Profile/edit_profile.dart';
 import 'package:fitlip_app/view/Screens/Profile/profile_screen.dart';
+import 'package:fitlip_app/view/Screens/Profile/setting/contact_us.dart';
+import 'package:fitlip_app/view/Screens/Profile/setting/language_screen.dart';
+import 'package:fitlip_app/view/Screens/Profile/setting/rate_app_dialog.dart';
 import 'package:flutter/cupertino.dart';
 import '../controllers/auth_controller.dart';
 import '../view/Screens/Auth/signup_screen.dart';
@@ -26,6 +29,9 @@ class AppRoutes {
   static const String social = '/social';
   static const String privacypolicy = '/privacypolicy';
   static const String editprofile = '/edit';
+  static const String language = '/language';
+
+  static const String contact = '/contact';
   static final Map<String, WidgetBuilder> routes = {
     splash: (context) => SplashScreen(),
     onboarding: (context) => OnboardingScreen(),
@@ -35,6 +41,9 @@ class AppRoutes {
     profile: (context) => ProfileScreen(),
     social: (context) => SocialMediaProfile(),
     forgot: (context) => ForgotPasswordScreen(),
+    contact: (context) => ContactUsScreen(),
+    language: (context) => LanguageScreen(),
+
     privacypolicy: (context) => PrivacyPolicyScreen(),
     editprofile: (context) => EditProfileScreen(),
     // otp: (context) => OtpVerificationScreen(email: '@hjgskdgsgds',),

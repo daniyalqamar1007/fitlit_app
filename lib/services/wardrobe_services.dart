@@ -43,12 +43,14 @@ class WardrobeService {
       );
 
       print("API Response Status Code: ${response.statusCode}");
+      print(response.body);
+      print("Response preview: ${response.body.substring(0, min(5000000, response.body.length))}...");
 
       if (response.statusCode == 200) {
         print("Successfully received response from API");
 
         // Print a small sample of the response for debugging
-        print("Response preview: ${response.body.substring(0, min(5000, response.body.length))}...");
+        print("Response preview: ${response.body.substring(0, min(5000000, response.body.length))}...");
 
         try {
           // Parse the response body
@@ -199,7 +201,11 @@ class WardrobeService {
       var response = await http.Response.fromStream(streamedResponse);
 
       print("Upload API response status code: ${response.statusCode}");
-      print("Upload API response body: ${response.body}");
+      print("Upload API response body:");
+      response.body.replaceAllMapped(RegExp('.{1,15000}', dotAll: true), (match) {
+        print(match.group(0));
+        return ''; // Required to satisfy the function's return type
+      });
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         try {
