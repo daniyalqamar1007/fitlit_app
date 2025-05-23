@@ -19,6 +19,7 @@ class AppConstants {
   static const String accountControl = 'Account Control';
   static const String settings = 'Settings';
   static const String edit = 'Edit';
+  static const String Delete='Delete this Account';
   static const List<Map<String, String>> onboardingData = [
     {
       'title': 'Fashion that speaks for itself',

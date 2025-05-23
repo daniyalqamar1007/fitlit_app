@@ -11,6 +11,9 @@ class AvatarService {
     String? shoeId,
     required String? token,
   }) async {
+    print(shirtId);
+    print(pantId);
+    print(shoeId);
     Future<http.Response> callApi() async {
       final request = AvatarGenerationRequest(
         shirtId: shirtId,
