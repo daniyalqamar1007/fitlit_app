@@ -1,273 +1,6 @@
-// import 'package:fitlip_app/main.dart';
-// import 'package:fitlip_app/routes/App_routes.dart';
-// import 'package:fitlip_app/view/Utils/Constants.dart';
-// import 'package:flutter/material.dart';
-// import 'package:fitlip_app/controllers/profile_controller.dart';
-// import 'package:google_fonts/google_fonts.dart';
-//
-// import '../../../model/profile_model.dart';
-// import '../../Utils/Colors.dart';
-// import '../../Utils/globle_variable/globle.dart';
-// import '../../Widgets/custom_switch.dart';
-// import '../../Widgets/custom_tile.dart';
-// import 'edit_profile.dart';
-//
-// class ProfileScreen extends StatefulWidget {
-//   const ProfileScreen({Key? key}) : super(key: key);
-//
-//   @override
-//   State<ProfileScreen> createState() => _ProfileScreenState();
-// }
-//
-// class _ProfileScreenState extends State<ProfileScreen> {
-//   bool isNotificationEnabled = true;
-//   bool isDarkMode = false;
-//   final ProfileController _profileController = ProfileController();
-//
-//   @override
-//   void initState() {
-//     super.initState();
-//     if (_profileController.profileNotifier.value == null) {
-//       _loadUserProfile();
-//     }
-//   }
-//
-//   // @override
-//   // void dispose() {
-//   //   _profileController.dispose();
-//   //   super.dispose();
-//   // }
-//
-//   Future<void> _loadUserProfile() async {
-//     await _profileController.getUserProfile();
-//   }
-//
-//   Future<void> _navigateToEditProfile() async {
-//    Navigator.pushNamed(context, AppRoutes.editprofile);
-//
-//
-//   }
-//
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       backgroundColor: themeController.white,
-//       appBar: AppBar(
-//         automaticallyImplyLeading: false,
-//         backgroundColor: themeController.white,
-//         elevation: 0,
-// leading: BackButton(color: appcolor,),
-//         centerTitle: true,
-//         title:  Text(
-//           AppConstants.profile,
-//           style: GoogleFonts.playfairDisplay(
-//             fontWeight: FontWeight.bold,
-//             color: Color(0xFFAA8A00),
-//             fontSize: 20,
-//           ),
-//         ),
-//       ),
-//       body: ValueListenableBuilder<bool>(
-//         valueListenable: _profileController.isLoadingNotifier,
-//         builder: (context, isLoading, _) {
-//           if (isLoading) {
-//             return const Center(child: CircularProgressIndicator(color: Color(0xFFAA8A00)));
-//           }
-//
-//           return ValueListenableBuilder<UserProfileModel?>(
-//             valueListenable: _profileController.profileNotifier,
-//             builder: (context, userProfile, _) {
-//               if (userProfile == null) {
-//                 return const Center(child: Text('Failed to load profile data'));
-//               }
-//
-//               return Padding(
-//                 padding: const EdgeInsets.all(20),
-//                 child: Column(
-//                   children: [
-//                     _buildProfileHeader(userProfile),
-//                     const SizedBox(height: 20),
-//                      Align(
-//                       alignment: Alignment.centerLeft,
-//                       child: Text(
-//                         AppConstants.settings,
-//                         style: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 16),
-//                       ),
-//                     ),
-//                     const SizedBox(height: 16),
-//                     CustomSwitchTile(
-//                       image: "assets/Icons/notification.png",
-//                       title: AppConstants.notifications,
-//                       value: isNotificationEnabled,
-//                       onChanged: (val) => setState(() => isNotificationEnabled = val),
-//                     ),
-//                     // const SizedBox(height: 10),
-//                     // CustomSwitchTile(
-//                     //   icon: Icons.dark_mode_outlined,
-//                     //   title: AppConstants.darkMode,
-//                     //   value: isDarkMode,
-//                     //   onChanged: (val) {
-//                     //     setState(() {
-//                     //       isDarkMode = val;
-//                     //       themeController.toggleTheme();
-//                     //     });
-//                     //   },
-//                     // ),
-//                     // const SizedBox(height: 10),
-//                     CustomListTile(
-//                       image: "assets/Icons/language.png",
-//                       title: AppConstants.language,
-//                       onTap: () {},
-//                     ),
-//                     CustomListTile(
-//                       image: "assets/Icons/policy.png",
-//                       title: AppConstants.privacyPolicy,
-//                       onTap: () {
-//                         Navigator.pushNamed(context, AppRoutes.privacypolicy);
-//                       },
-//                     ),
-//                     CustomListTile(
-//                       icon: Icons.mail_outline,
-//                       title: AppConstants.contactUs,
-//                       onTap: () {},
-//                     ),
-//                     CustomListTile(
-//                       icon: Icons.star_border,
-//                       title: AppConstants.rateApp,
-//                       onTap: () {},
-//                     ),
-//                     CustomListTile(
-//                       icon: Icons.login_outlined,
-//                       title: "Logout",
-//                       onTap: () async {
-//                         final shouldLogout = await showDialog<bool>(
-//                           context: context,
-//                           builder: (context) => AlertDialog(
-//                             backgroundColor: Colors.white,
-//                             title:  Text('Confirm Logout',style: GoogleFonts.poppins(color: appcolor),),
-//                             content:  Text('Are you sure you want to logout?',style: GoogleFonts.poppins(color:appcolor)),
-//                             actions: [
-//                               TextButton(
-//                                 onPressed: () => Navigator.pop(context, false),
-//                                 child:  Text('Cancel',style: GoogleFonts.poppins(color: appcolor)),
-//                               ),
-//                               TextButton(
-//                                 onPressed: () => Navigator.pop(context, true),
-//                                 child: const Text('Logout', style: TextStyle(color: Colors.red)),
-//                               ),
-//                             ],
-//                           ),
-//                         );
-//
-//                         if (shouldLogout ?? false) {
-//                           await remove();
-//                           Navigator.pushReplacementNamed(context, AppRoutes.signin);
-//                         }
-//                       },
-//                     ),
-//
-//                   ],
-//                 ),
-//               );
-//             },
-//           );
-//         },
-//       ),
-//     );
-//   }
-//   void _showFullScreenImage() {
-//     final userProfile = _profileController.profileNotifier.value;
-//     if (userProfile == null || userProfile.profileImage.isEmpty) return;
-//
-//     Navigator.push(
-//       context,
-//       MaterialPageRoute(
-//         builder: (_) => Scaffold(
-//           backgroundColor: Colors.black,
-//           appBar: AppBar(
-//             backgroundColor: Colors.transparent,
-//             iconTheme: const IconThemeData(color: Colors.white),
-//             elevation: 0,
-//           ),
-//           body: Center(
-//             child: InteractiveViewer(
-//               child: Image.network(
-//                 userProfile.profileImage,
-//                 fit: BoxFit.contain,
-//                 errorBuilder: (context, error, stackTrace) {
-//                   return Image.asset(
-//                     'assets/Images/circle_image.png',
-//                     fit: BoxFit.contain,
-//                   );
-//                 },
-//               ),
-//             ),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-//
-//   Widget _buildProfileHeader(UserProfileModel userProfile) {
-//     return Row(
-//       children: [
-//       GestureDetector(
-//         onTap:_showFullScreenImage,
-//         child: Container(
-//         width: 60,
-//         height: 60,
-//         decoration: BoxDecoration(
-//           shape: BoxShape.circle,
-//           border: Border.all(color: Colors.grey.withOpacity(0.2), width: 0.5),
-//         ),
-//         child: ClipOval(
-//           child: userProfile.profileImage.isNotEmpty
-//               ? Image.network(
-//             userProfile.profileImage,
-//             fit: BoxFit.cover,
-//             alignment: const Alignment(0, -1), // Shift up to focus on face area
-//             errorBuilder: (context, error, stackTrace) {
-//               return Image.asset(
-//                 'assets/Images/circle_image.png',
-//                 fit: BoxFit.cover,
-//               );
-//             },
-//           )
-//               : Image.asset(
-//             'assets/Images/circle_image.png',
-//             fit: BoxFit.cover,
-//           ),
-//         ),
-//             ),
-//       ),      const SizedBox(width: 12),
-//         Column(
-//           mainAxisAlignment: MainAxisAlignment.start,
-//           crossAxisAlignment: CrossAxisAlignment.start,
-//           children: [
-//             Text(
-//               userProfile.name,
-//               style:  GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 16),
-//             ),
-//             Text(userProfile.email,style:  GoogleFonts.poppins(fontWeight: FontWeight.w400, fontSize: 10),)
-//           ],
-//         ),
-//         const Spacer(),
-//         GestureDetector(
-//           onTap: _navigateToEditProfile,
-//           child: Container(
-//             padding: const EdgeInsets.all(10),
-//             decoration: BoxDecoration(
-//                 shape: BoxShape.circle,
-//                 border: Border.all(color: Colors.grey.withOpacity(0.5), width: 0.5)
-//             ),
-//             child: Image.asset('assets/Icons/edit_icon.png', scale: 4),
-//           ),
-//         )
-//       ],
-//     );
-//   }
-// }
+
+import 'dart:convert';
+
 import 'package:fitlip_app/main.dart';
 import 'package:fitlip_app/routes/App_routes.dart';
 import 'package:fitlip_app/view/Screens/Profile/setting/contact_us.dart';
@@ -282,6 +15,7 @@ import '../../Utils/globle_variable/globle.dart';
 import '../../Widgets/custom_switch.dart';
 import '../../Widgets/custom_tile.dart';
 import 'edit_profile.dart';
+import 'package:http/http.dart' as http;
 
 
 class ProfileScreen extends StatefulWidget {
@@ -297,8 +31,11 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
   final ProfileController _profileController = ProfileController();
   late AnimationController _ratingAnimationController;
   late Animation<double> _starAnimation;
-  bool _isRatingDialogLoading = false;
-  int _selectedRating = 0;
+
+  // Rating state management using ValueNotifier
+  final ValueNotifier<bool> _isRatingDialogLoadingNotifier = ValueNotifier<bool>(false);
+  final ValueNotifier<int> _selectedRatingNotifier = ValueNotifier<int>(0);
+  final ValueNotifier<String?> _ratingErrorNotifier = ValueNotifier<String?>(null);
 
   @override
   void initState() {
@@ -318,6 +55,9 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
   @override
   void dispose() {
     _ratingAnimationController.dispose();
+    _isRatingDialogLoadingNotifier.dispose();
+    _selectedRatingNotifier.dispose();
+    _ratingErrorNotifier.dispose();
     super.dispose();
   }
 
@@ -349,74 +89,316 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
     }
   }
 
+
+
+  Future<void> _submitRating(int rating) async {
+    _isRatingDialogLoadingNotifier.value = true;
+    _ratingErrorNotifier.value = null;
+
+    try {
+
+
+      if (token == null) {
+        throw Exception('Authentication token not found');
+      }
+
+      final response = await http.post(
+        Uri.parse('https://zqxct4xv-3099.inc1.devtunnels.ms/rating'), // Replace with your actual API endpoint
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({
+          'rating': rating,
+          'message': _getRatingMessage(rating),
+        }),
+      );
+
+      print('Rating API Response status code: ${response.statusCode}');
+      print('Rating API Response body: ${response.body}');
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final responseData = jsonDecode(response.body);
+
+        // Check for success in response
+        if (responseData['success'] == true || responseData['status'] == 'success') {
+          // Rating submitted successfully
+          Navigator.pop(context);
+
+          // Show success message
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                responseData['message'] ?? 'Thank you for rating us $rating star${rating > 1 ? 's' : ''}!',
+                style: GoogleFonts.poppins(color: Colors.white),
+              ),
+              backgroundColor: Colors.green,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+          );
+        } else {
+          throw Exception(responseData['message'] ?? 'Failed to submit rating');
+        }
+      } else {
+        final errorData = jsonDecode(response.body);
+        throw Exception(errorData['message'] ?? 'Server error occurred');
+      }
+    } catch (e) {
+      _ratingErrorNotifier.value = e.toString().replaceFirst('Exception: ', '');
+      print('Error submitting rating: $e');
+    } finally {
+      _isRatingDialogLoadingNotifier.value = false;
+    }
+  }
+  Future<void> _deleteAccount() async {
+    try {
+      // Get the stored token (assuming you have a method to get it)
+
+      if (token == null) {
+        throw Exception('Authentication token not found');
+      }
+
+      final response = await http.delete(
+        Uri.parse('$baseUrl/auth/delete-account'), // Replace with your actual API endpoint
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      print('Delete Account API Response status code: ${response.statusCode}');
+      print('Delete Account API Response body: ${response.body}');
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final responseData = jsonDecode(response.body);
+
+        // Check for success in response
+        if (responseData['success'] == true || responseData['status'] == 'success') {
+          // Account deleted successfully
+          // Clear any stored data
+          await remove(); // Clear stored token/data
+
+          // Show success message
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                responseData['message'] ?? 'Account deleted successfully',
+                style: GoogleFonts.poppins(color: Colors.white),
+              ),
+              backgroundColor: Colors.green,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+          );
+
+          // Navigate to signin screen
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            AppRoutes.signin,
+                (route) => false,
+          );
+        } else {
+          throw Exception(responseData['message'] ?? 'Failed to delete account');
+        }
+      } else {
+        final errorData = jsonDecode(response.body);
+        throw Exception(errorData['message'] ?? 'Server error occurred');
+      }
+    } catch (e) {
+      print('Error deleting account: $e');
+
+      // Show error message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            e.toString().replaceFirst('Exception: ', ''),
+            style: GoogleFonts.poppins(color: Colors.white),
+          ),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+      );
+    }
+  }
+
+// Add this method to show confirmation dialog
+  void _showDeleteAccountDialog() {
+    showDialog(
+
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: Row(
+            children: [
+              Icon(Icons.warning, color: Colors.red, size: 24),
+              SizedBox(width: 8),
+              Text(
+                'Delete Account',
+                style: GoogleFonts.poppins(
+                  color: Colors.red,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          content: Text(
+            'Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently removed.',
+            style: GoogleFonts.poppins(
+              color: Colors.grey.shade700,
+              height: 1.4,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                'Cancel',
+                style: GoogleFonts.poppins(
+                  color: Colors.grey.shade600,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                _deleteAccount();
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: Text(
+                'Delete',
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   void _showRateAppDialog() {
-    setState(() {
-      _selectedRating = 0;
-      _isRatingDialogLoading = false;
-    });
+    // Reset values
+    _selectedRatingNotifier.value = 0;
+    _isRatingDialogLoadingNotifier.value = false;
+    _ratingErrorNotifier.value = null;
 
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (context, setDialogState) {
-            return AlertDialog(
-              backgroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-              contentPadding: EdgeInsets.zero,
-              content: Container(
-                width: double.maxFinite,
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Header
-                    Container(
-                      width: 80,
-                      height: 80,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: appcolor.withOpacity(0.1),
-                      ),
-                      child: Icon(
-                        Icons.star,
-                        size: 40,
-                        color: appcolor,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    Text(
-                      'Rate Our App',
-                      style: GoogleFonts.playfairDisplay(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: appcolor,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'We\'d love to hear your feedback!\nHow would you rate your experience?',
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.poppins(
-                        fontSize: 14,
-                        color: Colors.grey.shade600,
-                        height: 1.4,
-                      ),
-                    ),
-                    const SizedBox(height: 30),
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          contentPadding: EdgeInsets.zero,
+          content: Container(
+            width: double.maxFinite,
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Header
+                Container(
+                  width: 80,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: appcolor.withOpacity(0.1),
+                  ),
+                  child: Icon(
+                    Icons.star,
+                    size: 40,
+                    color: appcolor,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  'Rate Our App',
+                  style: GoogleFonts.playfairDisplay(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: appcolor,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'We\'d love to hear your feedback!\nHow would you rate your experience?',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    color: Colors.grey.shade600,
+                    height: 1.4,
+                  ),
+                ),
+                const SizedBox(height: 30),
 
-                    // Star Rating
-                    Row(
+                // Error Message
+                ValueListenableBuilder<String?>(
+                  valueListenable: _ratingErrorNotifier,
+                  builder: (context, errorMessage, _) {
+                    if (errorMessage != null) {
+                      return Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(12),
+                        margin: const EdgeInsets.only(bottom: 20),
+                        decoration: BoxDecoration(
+                          color: Colors.red.shade50,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.red.shade200),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.error_outline, color: Colors.red.shade600, size: 20),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                errorMessage,
+                                style: GoogleFonts.poppins(
+                                  fontSize: 12,
+                                  color: Colors.red.shade700,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+                    return const SizedBox.shrink();
+                  },
+                ),
+
+                // Star Rating
+                ValueListenableBuilder<int>(
+                  valueListenable: _selectedRatingNotifier,
+                  builder: (context, selectedRating, _) {
+                    return Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: List.generate(5, (index) {
                         return GestureDetector(
                           onTap: () {
-                            setDialogState(() {
-                              _selectedRating = index + 1;
-                            });
+                            _selectedRatingNotifier.value = index + 1;
                             _ratingAnimationController.forward().then((_) {
                               _ratingAnimationController.reverse();
                             });
@@ -425,11 +407,11 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
                             animation: _starAnimation,
                             builder: (context, child) {
                               return Transform.scale(
-                                scale: _selectedRating == index + 1 ? _starAnimation.value : 1.0,
+                                scale: selectedRating == index + 1 ? _starAnimation.value : 1.0,
                                 child: Icon(
                                   Icons.star,
                                   size: 40,
-                                  color: index < _selectedRating
+                                  color: index < selectedRating
                                       ? Colors.amber
                                       : Colors.grey.shade300,
                                 ),
@@ -438,107 +420,104 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
                           ),
                         );
                       }),
-                    ),
+                    );
+                  },
+                ),
 
-                    if (_selectedRating > 0) ...[
-                      const SizedBox(height: 20),
-                      Text(
-                        _getRatingText(_selectedRating),
-                        style: GoogleFonts.poppins(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: appcolor,
-                        ),
-                      ),
-                    ],
+                ValueListenableBuilder<int>(
+                  valueListenable: _selectedRatingNotifier,
+                  builder: (context, selectedRating, _) {
+                    if (selectedRating > 0) {
+                      return Column(
+                        children: [
+                          const SizedBox(height: 20),
+                          Text(
+                            _getRatingText(selectedRating),
+                            style: GoogleFonts.poppins(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                              color: appcolor,
+                            ),
+                          ),
+                        ],
+                      );
+                    }
+                    return const SizedBox.shrink();
+                  },
+                ),
 
-                    const SizedBox(height: 30),
+                const SizedBox(height: 30),
 
-                    // Action Buttons
-                    if (_isRatingDialogLoading)
-                      Container(
+                // Action Buttons
+                ValueListenableBuilder<bool>(
+                  valueListenable: _isRatingDialogLoadingNotifier,
+                  builder: (context, isLoading, _) {
+                    if (isLoading) {
+                      return Container(
                         height: 50,
                         child: Center(
                           child: CircularProgressIndicator(
                             color: appcolor,
                           ),
                         ),
-                      )
-                    else
-                      Row(
-                        children: [
-                          Expanded(
-                            child: TextButton(
-                              onPressed: () => Navigator.pop(context),
-                              style: TextButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(vertical: 12),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  side: BorderSide(color: Colors.grey.shade300),
-                                ),
-                              ),
-                              child: Text(
-                                'Cancel',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.grey.shade600,
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: ElevatedButton(
-                              onPressed: _selectedRating > 0 ? () async {
-                                setDialogState(() {
-                                  _isRatingDialogLoading = true;
-                                });
+                      );
+                    }
 
-                                // Simulate API call
-                                await Future.delayed(const Duration(seconds: 2));
-
-                                Navigator.pop(context);
-
-                                // Show thank you message
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      'Thank you for rating us $_selectedRating star${_selectedRating > 1 ? 's' : ''}!',
-                                      style: GoogleFonts.poppins(color: Colors.white),
-                                    ),
-                                    backgroundColor: Colors.green,
-                                    behavior: SnackBarBehavior.floating,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
+                    return ValueListenableBuilder<int>(
+                      valueListenable: _selectedRatingNotifier,
+                      builder: (context, selectedRating, _) {
+                        return Row(
+                          children: [
+                            Expanded(
+                              child: TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                style: TextButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    side: BorderSide(color: Colors.grey.shade300),
                                   ),
-                                );
-                              } : null,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: _selectedRating > 0 ? appcolor : Colors.grey.shade300,
-                                padding: const EdgeInsets.symmetric(vertical: 12),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
                                 ),
-                              ),
-                              child: Text(
-                                'Submit',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  color: _selectedRating > 0 ? Colors.white : Colors.grey.shade500,
+                                child: Text(
+                                  'Cancel',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.grey.shade600,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                  ],
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: ElevatedButton(
+                                onPressed: selectedRating > 0 ? () => _submitRating(selectedRating) : null,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: selectedRating > 0 ? appcolor : Colors.grey.shade300,
+                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                child: Text(
+                                  'Submit',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: selectedRating > 0 ? Colors.white : Colors.grey.shade500,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
                 ),
-              ),
-            );
-          },
+              ],
+            ),
+          ),
         );
       },
     );
@@ -561,6 +540,22 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
     }
   }
 
+  String _getRatingMessage(int rating) {
+    switch (rating) {
+      case 1:
+        return "User rated 1 star - needs improvement";
+      case 2:
+        return "User rated 2 stars - room for improvement";
+      case 3:
+        return "User rated 3 stars - average experience";
+      case 4:
+        return "User rated 4 stars - good experience";
+      case 5:
+        return "User rated 5 stars - excellent experience";
+      default:
+        return "User submitted a rating";
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -673,7 +668,7 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
 
                       title: AppConstants.Delete,
                       onTap: (){
-
+                        _showDeleteAccountDialog();
                       },
                     ),
                   ],
