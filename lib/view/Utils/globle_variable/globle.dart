@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 bool first_time=true;
 
-final String baseUrl = "https://zqxct4xv-3099.inc1.devtunnels.ms";
+final String baseUrl = "https://nnl056zh-3099.inc1.devtunnels.ms";
  ValueNotifier<bool?> isNewImageSelected = ValueNotifier<bool?>(false);
 String? token;
 Future<bool> gettoken()async{

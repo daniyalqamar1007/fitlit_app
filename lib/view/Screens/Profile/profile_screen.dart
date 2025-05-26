@@ -8,7 +8,7 @@ import 'package:fitlip_app/view/Utils/Constants.dart';
 import 'package:flutter/material.dart';
 import 'package:fitlip_app/controllers/profile_controller.dart';
 import 'package:google_fonts/google_fonts.dart';
-
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../../model/profile_model.dart';
 import '../../Utils/Colors.dart';
 import '../../Utils/globle_variable/globle.dart';
@@ -103,7 +103,7 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
       }
 
       final response = await http.post(
-        Uri.parse('https://zqxct4xv-3099.inc1.devtunnels.ms/rating'), // Replace with your actual API endpoint
+        Uri.parse('$baseUrl/rating'), // Replace with your actual API endpoint
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -160,13 +160,14 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
       if (token == null) {
         throw Exception('Authentication token not found');
       }
-
+print(token);
       final response = await http.delete(
-        Uri.parse('$baseUrl/auth/delete-account'), // Replace with your actual API endpoint
+        Uri.parse('https://zqxct4xv-3099.inc1.devtunnels.ms/auth/delete-account'), // Replace with your actual API endpoint
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
+
       );
 
       print('Delete Account API Response status code: ${response.statusCode}');
@@ -298,6 +299,7 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
   }
 
   void _showRateAppDialog() {
+    final localizations = AppLocalizations.of(context)!;
     // Reset values
     _selectedRatingNotifier.value = 0;
     _isRatingDialogLoadingNotifier.value = false;
@@ -335,7 +337,7 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
                 ),
                 const SizedBox(height: 20),
                 Text(
-                  'Rate Our App',
+                  localizations.rateOurApp,
                   style: GoogleFonts.playfairDisplay(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -344,7 +346,7 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'We\'d love to hear your feedback!\nHow would you rate your experience?',
+                  localizations.rateAppDescription,
                   textAlign: TextAlign.center,
                   style: GoogleFonts.poppins(
                     fontSize: 14,
@@ -479,7 +481,7 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
                                   ),
                                 ),
                                 child: Text(
-                                  'Cancel',
+                                  localizations.cancel,
                                   style: GoogleFonts.poppins(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w500,
@@ -500,7 +502,7 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
                                   ),
                                 ),
                                 child: Text(
-                                  'Submit',
+                                  localizations.submit,
                                   style: GoogleFonts.poppins(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
@@ -541,23 +543,25 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
   }
 
   String _getRatingMessage(int rating) {
+    final localizations = AppLocalizations.of(context)!;
     switch (rating) {
       case 1:
-        return "User rated 1 star - needs improvement";
+        return localizations.ratingResponse1;
       case 2:
-        return "User rated 2 stars - room for improvement";
+        return localizations.ratingResponse2;
       case 3:
-        return "User rated 3 stars - average experience";
+        return localizations.ratingResponse3;
       case 4:
-        return "User rated 4 stars - good experience";
+        return localizations.ratingResponse4;
       case 5:
-        return "User rated 5 stars - excellent experience";
+        return localizations.ratingResponse5;
       default:
-        return "User submitted a rating";
+        return "";
     }
   }
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: themeController.white,
       appBar: AppBar(
@@ -567,7 +571,7 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
         leading: BackButton(color: appcolor),
         centerTitle: true,
         title: Text(
-          AppConstants.profile,
+          localizations.profile,
           style: GoogleFonts.playfairDisplay(
             fontWeight: FontWeight.bold,
             color: Color(0xFFAA8A00),
@@ -598,60 +602,60 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
                     Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        AppConstants.settings,
+                        localizations.settings,
                         style: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 16),
                       ),
                     ),
-                    const SizedBox(height: 16),
-                    CustomSwitchTile(
-                      image: "assets/Icons/notification.png",
-                      title: AppConstants.notifications,
-                      value: isNotificationEnabled,
-                      onChanged: (val) => setState(() => isNotificationEnabled = val),
-                    ),
+                    // const SizedBox(height: 16),
+                    // CustomSwitchTile(
+                    //   image: "assets/Icons/notification.png",
+                    //   title: AppConstants.notifications,
+                    //   value: isNotificationEnabled,
+                    //   onChanged: (val) => setState(() => isNotificationEnabled = val),
+                    // ),
                     CustomListTile(
                       image: "assets/Icons/language.png",
-                      title: AppConstants.language,
+                      title:localizations.language,
                       onTap: () {
                         Navigator.pushNamed(context, AppRoutes.language);
                       },
                     ),
                     CustomListTile(
                       image: "assets/Icons/policy.png",
-                      title: AppConstants.privacyPolicy,
+                      title:localizations.privacyPolicy,
                       onTap: () {
                         Navigator.pushNamed(context, AppRoutes.privacypolicy);
                       },
                     ),
                     CustomListTile(
                       icon: Icons.mail_outline,
-                      title: AppConstants.contactUs,
+                      title:localizations.contactUs,
                       onTap: _navigateToContactUs,
                     ),
                     CustomListTile(
                       icon: Icons.star_border,
-                      title: AppConstants.rateApp,
+                      title: localizations.rateApp,
                       onTap: _showRateAppDialog,
                     ),
 
                     CustomListTile(
                       icon: Icons.login_outlined,
-                      title: "Logout",
+                      title: localizations.logout,
                       onTap: () async {
                         final shouldLogout = await showDialog<bool>(
                           context: context,
                           builder: (context) => AlertDialog(
                             backgroundColor: Colors.white,
-                            title: Text('Confirm Logout', style: GoogleFonts.poppins(color: appcolor)),
-                            content: Text('Are you sure you want to logout?', style: GoogleFonts.poppins(color: appcolor)),
+                            title: Text(localizations.confirmLogout, style: GoogleFonts.poppins(color: appcolor)),
+                            content: Text(localizations.areYouSureLogout, style: GoogleFonts.poppins(color: appcolor)),
                             actions: [
                               TextButton(
                                 onPressed: () => Navigator.pop(context, false),
-                                child: Text('Cancel', style: GoogleFonts.poppins(color: appcolor)),
+                                child: Text(localizations.cancel, style: GoogleFonts.poppins(color: appcolor)),
                               ),
                               TextButton(
                                 onPressed: () => Navigator.pop(context, true),
-                                child: const Text('Logout', style: TextStyle(color: Colors.red)),
+                                child:  Text(localizations.logout, style: TextStyle(color: Colors.red)),
                               ),
                             ],
                           ),
@@ -666,7 +670,7 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
                     CustomListTile(
                       icon: Icons.delete_outline_outlined,
 
-                      title: AppConstants.Delete,
+                      title: localizations.delete,
                       onTap: (){
                         _showDeleteAccountDialog();
                       },
@@ -682,6 +686,7 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
   }
 
   void _showFullScreenImage() {
+
     final userProfile = _profileController.profileNotifier.value;
     if (userProfile == null || userProfile.profileImage.isEmpty) return;
 
@@ -715,6 +720,7 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
   }
 
   Widget _buildProfileHeader(UserProfileModel userProfile) {
+
     return Row(
       children: [
         GestureDetector(

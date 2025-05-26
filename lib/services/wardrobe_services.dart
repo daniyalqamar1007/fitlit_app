@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:dio/dio.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:path_provider/path_provider.dart';
@@ -32,6 +33,7 @@ class WardrobeService {
 
   Future<List<WardrobeItem>> getWardrobeItems() async {
     try {
+      print("nbwo working");
       print("Fetching wardrobe items from API...");
 
       final response = await http.get(
@@ -41,6 +43,7 @@ class WardrobeService {
           'Authorization': 'Bearer $token',
         },
       );
+
 
       print("API Response Status Code: ${response.statusCode}");
       print(response.body);
@@ -140,13 +143,14 @@ class WardrobeService {
       throw Exception('Error retrieving wardrobe items: $e');
     }
   }
- // Add this import for image processing
-// Add this for path manipulation
- // For path manipulation
-  // Import for MediaType
-
-
-
+  final Dio _dio = Dio(BaseOptions(
+    baseUrl: baseUrl,
+    connectTimeout: const Duration(seconds: 360),
+    receiveTimeout: const Duration(seconds: 360),
+    headers: {
+      'Accept': 'application/json',
+    },
+  ));
 
   Future<WardrobeItem> uploadWardrobeItem({
     required String category,
@@ -168,69 +172,54 @@ class WardrobeService {
       print("Converted PNG image file size: ${await pngImageFile.length()} bytes");
       print("Converted PNG image file path: ${pngImageFile.path}");
 
-      // Create multipart request with timeout
-      var request = http.MultipartRequest('POST', Uri.parse('$baseUrl/wardrobe-items'))
-        ..headers.addAll({
-          if (token != null && token.isNotEmpty)
-            'Authorization': 'Bearer $token',
-          'Accept': 'application/json',
-        })
-        ..fields.addAll({
-          'category': category,
-          'sub_category': subCategory,
-          'avatar': avatarurl!,
-        });
-
-      // Add PNG file with timeout handling
-      var multipartFile = await http.MultipartFile.fromPath(
-          'file',
+      // Prepare multipart form data
+      FormData formData = FormData.fromMap({
+        'category': category,
+        'sub_category': subCategory,
+        'avatar': avatarurl!,
+        'file': await MultipartFile.fromFile(
           pngImageFile.path,
-          contentType: MediaType('image', 'png')
-      ).timeout(const Duration(seconds: 360));
-      request.files.add(multipartFile);
+          filename: 'upload.png',
+          contentType: MediaType('image', 'png'),
+        ),
+      });
 
-      print("Request prepared, sending to server...");
-      print(request.fields);
-
-      // Send request with timeout
-      var streamedResponse = await request.send();
-
-      print("Response status code: ${streamedResponse.statusCode}");
-
-      // Process response with timeout
-      var response = await http.Response.fromStream(streamedResponse);
+      // Send request
+      final response = await _dio.post(
+        '/wardrobe-items',
+        data: formData,
+        options: Options(
+          headers: {
+            if (token != null && token.isNotEmpty)
+              'Authorization': 'Bearer $token',
+          },
+        ),
+      );
 
       print("Upload API response status code: ${response.statusCode}");
       print("Upload API response body:");
-      response.body.replaceAllMapped(RegExp('.{1,15000}', dotAll: true), (match) {
-        print(match.group(0));
-        return ''; // Required to satisfy the function's return type
-      });
+      print(response.data.toString());
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        try {
-          Map<String, dynamic> responseData = json.decode(response.body);
-          Map<String, dynamic> itemData;
+        final responseData = response.data;
 
-          if (responseData.containsKey('data')) {
-            itemData = responseData['data'];
-          } else if (responseData.containsKey('item')) {
-            itemData = responseData['item'];
-          } else {
-            itemData = responseData;
-          }
-
-          return WardrobeItem.fromJson(itemData);
-        } catch (e) {
-          print("Error parsing upload response: $e");
-          print("Raw response: ${response.body}");
-          throw Exception('Failed to parse upload response: $e');
+        Map<String, dynamic> itemData;
+        if (responseData.containsKey('data')) {
+          itemData = responseData['data'];
+        } else if (responseData.containsKey('item')) {
+          itemData = responseData['item'];
+        } else {
+          itemData = responseData;
         }
+
+        return WardrobeItem.fromJson(itemData);
       } else {
-        print("Upload failed with status ${response.statusCode}");
-        print("Response body: ${response.body}");
-        throw Exception('Failed to upload wardrobe item. Status code: ${response.statusCode}, Response: ${response.body}');
+        throw Exception(
+            'Failed to upload wardrobe item. Status code: ${response.statusCode}, Response: ${response.data}');
       }
+    } on DioException catch (e) {
+      print("Dio error during image upload: ${e.message}");
+      throw Exception('Dio error uploading wardrobe item: ${e.message}');
     } on TimeoutException catch (e) {
       print("Request timed out: $e");
       throw Exception('The request took too long to complete. Please try again.');

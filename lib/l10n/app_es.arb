@@ -1,0 +1,427 @@
+{
+  "@@locale": "es",
+  "language": "Idioma",
+  "chooseLanguage": "Elegir Idioma",
+  "selectLanguageDescription": "Selecciona tu idioma preferido para personalizar tu experiencia en la aplicación. Puedes cambiar esto en cualquier momento en la configuración.",
+  "availableLanguages": "Idiomas Disponibles",
+  "saveLanguage": "Guardar Idioma",
+  "languageChangedTo": "Idioma cambiado a {language}",
+  "@languageChangedTo": {
+    "description": "Mensaje mostrado después de cambiar idioma",
+    "placeholders": {
+      "language": {}
+    }
+  },
+  "socialMediaPage": "Página de Redes Sociales",
+  "@socialMediaPage": {
+    "description": "Título de página de redes sociales"
+  },
+  "loading": "Cargando...",
+  "@loading": {
+    "description": "Texto de carga"
+  },
+  "noOutfitAvailable": "No Hay Outfit Disponible",
+  "@noOutfitAvailable": {
+    "description": "Mensaje de no hay outfit disponible"
+  },
+  "errorFetchingOutfit": "Error al obtener outfit",
+  "@errorFetchingOutfit": {
+    "description": "Mensaje de error cuando falla la obtención del outfit"
+  },
+  "like": "Me Gusta",
+  "@like": {
+    "description": "Texto del botón me gusta"
+  },
+  "comment": "Comentar",
+  "@comment": {
+    "description": "Texto del botón comentar"
+  },
+  "share": "Compartir",
+  "@share": {
+    "description": "Texto del botón compartir"
+  },
+  "comments": "Comentarios",
+  "@comments": {
+    "description": "Título de sección de comentarios"
+  },
+  "reply": "Responder",
+  "@reply": {
+    "description": "Texto para responder comentario"
+  },
+  "editProfile": "Editar Perfil",
+  "@editProfile": {
+    "description": "Título de pantalla editar perfil"
+  },
+  "profile": "Perfil",
+  "@profile": {
+    "description": "Título de pantalla perfil"
+  },
+  "settings": "Configuración",
+  "@settings": {
+    "description": "Título de sección configuración"
+  },
+  "name": "Nombre",
+  "@name": {
+    "description": "Etiqueta del campo nombre"
+  },
+  "email": "Correo Electrónico",
+  "@email": {
+    "description": "Etiqueta del campo email"
+  },
+  "gender": "Género",
+  "@gender": {
+    "description": "Etiqueta del campo género"
+  },
+   "calendarTitle": "Calendario",
+  "selectGender": "Seleccionar Género",
+  "@selectGender": {
+    "description": "Sugerencia del dropdown de género"
+  },
+  "male": "Masculino",
+  "@male": {
+    "description": "Opción de género masculino"
+  },
+  "female": "Femenino",
+  "@female": {
+    "description": "Opción de género femenino"
+  },
+  "other": "Otro",
+  "@other": {
+    "description": "Opción de género otro"
+  },
+  "saveChanges": "Guardar Cambios",
+  "@saveChanges": {
+    "description": "Texto del botón guardar cambios"
+  },
+  "nameCannotBeEmpty": "El nombre no puede estar vacío",
+  "@nameCannotBeEmpty": {
+    "description": "Mensaje de error para nombre vacío"
+  },
+  "failedToProcessImage": "Error al procesar imagen",
+  "@failedToProcessImage": {
+    "description": "Mensaje de error para fallo en procesamiento de imagen"
+  },
+  "profileUpdatedSuccessfully": "Perfil actualizado exitosamente",
+  "@profileUpdatedSuccessfully": {
+    "description": "Mensaje de éxito para actualización de perfil"
+  },
+  "updatingYourProfile": "Actualizando tu perfil...",
+  "@updatingYourProfile": {
+    "description": "Mensaje de carga durante actualización de perfil"
+  },
+  "failedToLoadProfileData": "Error al cargar datos del perfil",
+  "@failedToLoadProfileData": {
+    "description": "Mensaje de error cuando fallan los datos del perfil"
+  },
+  "notifications": "Notificaciones",
+  "@notifications": {
+    "description": "Configuración de notificaciones"
+  },
+  "privacyPolicy": "Política de Privacidad",
+  "@privacyPolicy": {
+    "description": "Elemento del menú política de privacidad"
+  },
+  "contactUs": "Contáctanos",
+  "@contactUs": {
+    "description": "Elemento del menú contáctanos"
+  },
+  "rateApp": "Calificar App",
+  "@rateApp": {
+    "description": "Elemento del menú calificar app"
+  },
+  "logout": "Cerrar Sesión",
+  "@logout": {
+    "description": "Elemento del menú cerrar sesión"
+  },
+  "delete": "Eliminar Cuenta",
+  "@delete": {
+    "description": "Elemento del menú eliminar cuenta"
+  },
+  "confirmLogout": "Confirmar Cierre de Sesión",
+  "@confirmLogout": {
+    "description": "Título del diálogo de confirmación de cierre de sesión"
+  },
+  "areYouSureLogout": "¿Estás seguro de que quieres cerrar sesión?",
+  "@areYouSureLogout": {
+    "description": "Mensaje de confirmación de cierre de sesión"
+  },
+  "cancel": "Cancelar",
+  "@cancel": {
+    "description": "Texto del botón cancelar"
+  },
+  "deleteAccount": "Eliminar Cuenta",
+  "@deleteAccount": {
+    "description": "Título del diálogo eliminar cuenta"
+  },
+  "deleteAccountConfirmation": "¿Estás seguro de que quieres eliminar tu cuenta? Esta acción no se puede deshacer y todos tus datos serán eliminados permanentemente.",
+  "@deleteAccountConfirmation": {
+    "description": "Mensaje de confirmación de eliminación de cuenta"
+  },
+  "rateOurApp": "Califica Nuestra App",
+  "@rateOurApp": {
+    "description": "Título del diálogo calificar app"
+  },
+  "rateAppDescription": "¡Nos encantaría escuchar tu opinión!\n¿Cómo calificarías tu experiencia?",
+  "@rateAppDescription": {
+    "description": "Descripción del diálogo calificar app"
+  },
+  "submit": "Enviar",
+  "@submit": {
+    "description": "Texto del botón enviar"
+  },
+  "profileDataNotAvailable": "Datos del perfil no disponibles. Por favor intenta de nuevo.",
+  "@profileDataNotAvailable": {
+    "description": "Mensaje de error cuando los datos del perfil no están disponibles"
+  },
+  "authTokenNotFound": "Token de autenticación no encontrado",
+  "@authTokenNotFound": {
+    "description": "Mensaje de error para token de autenticación faltante"
+  },
+  "thankYouForRating": "¡Gracias por calificarnos con {rating} estrella{plural}!",
+  "@thankYouForRating": {
+    "description": "Mensaje de agradecimiento por calificación",
+    "placeholders": {
+      "rating": {},
+      "plural": {}
+    }
+  },
+  "accountDeletedSuccessfully": "Cuenta eliminada exitosamente",
+  "@accountDeletedSuccessfully": {
+    "description": "Mensaje de éxito para eliminación de cuenta"
+  },
+  "ratingResponse1": "Lamentamos escuchar eso 😔",
+  "@ratingResponse1": {
+    "description": "Respuesta para calificación de 1 estrella"
+  },
+  "ratingResponse2": "Trabajaremos para mejorar 😐",
+  "@ratingResponse2": {
+    "description": "Respuesta para calificación de 2 estrellas"
+  },
+  "ratingResponse3": "¡Gracias por la retroalimentación! 😊",
+  "@ratingResponse3": {
+    "description": "Respuesta para calificación de 3 estrellas"
+  },
+  "ratingResponse4": "¡Genial! Nos alegra que te guste 😄",
+  "@ratingResponse4": {
+    "description": "Respuesta para calificación de 4 estrellas"
+  },
+  "ratingResponse5": "¡Increíble! ¡Eres genial! 🎉",
+  "@ratingResponse5": {
+    "description": "Respuesta para calificación de 5 estrellas"
+  },
+
+  "pleaseSelectAtLeastOneItem": "Por favor selecciona al menos un artículo para generar el avatar",
+  "@pleaseSelectAtLeastOneItem": {
+    "description": "Mensaje de error cuando no se seleccionan artículos para generar avatar"
+  },
+  "avatarGeneratedSuccessfully": "¡Avatar generado exitosamente!",
+  "@avatarGeneratedSuccessfully": {
+    "description": "Mensaje de éxito para generación de avatar"
+  },
+  "errorGeneratingAvatar": "Error generando avatar: {error}",
+  "@errorGeneratingAvatar": {
+    "description": "Mensaje de error para fallo en generación de avatar",
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "failedToLoadWardrobeItems": "Error al cargar artículos del guardarropa",
+  "@failedToLoadWardrobeItems": {
+    "description": "Mensaje de error cuando fallan los artículos del guardarropa"
+  },
+  "updateAvailableForThisDate": "Actualización disponible para esta fecha",
+  "@updateAvailableForThisDate": {
+    "description": "Mensaje mostrado cuando hay actualización de outfit disponible"
+  },
+  "noOutfitAvailableForThisDate": "No hay outfit disponible para esta fecha",
+  "@noOutfitAvailableForThisDate": {
+    "description": "Mensaje mostrado cuando no existe outfit para la fecha seleccionada"
+  },
+  "saveOutfit": "Guardar Outfit",
+  "@saveOutfit": {
+    "description": "Título del diálogo guardar outfit"
+  },
+  "doYouWantToSaveThisOutfit": "¿Quieres guardar este outfit para {date}?",
+  "@doYouWantToSaveThisOutfit": {
+    "description": "Mensaje de confirmación para guardar outfit",
+    "placeholders": {
+      "date": {}
+    }
+  },
+  "save": "Guardar",
+  "@save": {
+    "description": "Texto del botón guardar"
+  },
+  "outfitSavedSuccessfully": "Outfit guardado exitosamente para {date}",
+  "@outfitSavedSuccessfully": {
+    "description": "Mensaje de éxito para guardar outfit",
+    "placeholders": {
+      "date": {}
+    }
+  },
+  "failedToSaveOutfit": "Error al guardar outfit",
+  "@failedToSaveOutfit": {
+    "description": "Mensaje de error cuando falla el guardado del outfit"
+  },
+  "error": "Error: {error}",
+  "@error": {
+    "description": "Mensaje de error genérico",
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "fitlit": "FITLIT",
+  "@fitlit": {
+    "description": "Nombre/título de la app"
+  },
+  "upload": "Subir",
+  "@upload": {
+    "description": "Texto del botón subir"
+  },
+  "shirts": "Camisas",
+  "@shirts": {
+    "description": "Etiqueta de categoría camisas"
+  },
+  "accessories": "Accesorios",
+  "@accessories": {
+    "description": "Etiqueta de categoría accesorios"
+  },
+  "pants": "Pantalones",
+  "@pants": {
+    "description": "Etiqueta de categoría pantalones"
+  },
+  "shoes": "Zapatos",
+  "@shoes": {
+    "description": "Etiqueta de categoría zapatos"
+  },
+   "january": "Enero",
+    "february": "Febrero",
+    "march": "Marzo",
+    "april": "Abril",
+    "may": "Mayo",
+    "june": "Junio",
+    "july": "Julio",
+    "august": "Agosto",
+    "september": "Septiembre",
+    "october": "Octubre",
+    "november": "Noviembre",
+    "december": "Diciembre",
+
+    "jan": "Ene",
+    "feb": "Feb",
+    "mar": "Mar",
+    "apr": "Abr",
+    "mayShort": "May",
+    "jun": "Jun",
+    "jul": "Jul",
+    "aug": "Ago",
+    "sep": "Sep",
+    "oct": "Oct",
+    "nov": "Nov",
+    "dec": "Dic",
+
+    "shirt": "Camisa",
+    "pant": "Pantalón",
+    "shoe": "Zapato",
+    "accessory": "Accesorio",
+    "shirts": "Camisas",
+    "pants": "Pantalones",
+    "shoes": "Zapatos",
+    "accessories": "Accesorios",
+
+    "selectCategory": "Seleccionar Categoría",
+    "selectSubcategory": "Seleccionar Tipo de {category}",
+    "@selectSubcategory": {
+      "placeholders": {
+        "category": {
+          "type": "String"
+        }
+      }
+    },
+
+    "tShirt": "Camiseta",
+    "halfShirt": "Camisa Corta",
+    "casualShirt": "Camisa Casual",
+    "dressShirt": "Camisa de Vestir",
+    "poloShirt": "Camisa Polo",
+
+    "necklace": "Collar",
+    "bracelet": "Pulsera",
+    "earring": "Pendiente",
+    "watch": "Reloj",
+    "belt": "Cinturón",
+    "hat": "Sombrero",
+    "scarf": "Bufanda",
+
+    "jeans": "Vaqueros",
+    "trousers": "Pantalón",
+    "shorts": "Pantalones Cortos",
+    "cargo": "Pantalón Cargo",
+    "trackPants": "Pantalón de Chándal",
+    "formalPants": "Pantalón Formal",
+
+
+    "sneakers": "Zapatillas",
+    "formalShoes": "Zapatos Formales",
+    "boots": "Botas",
+    "loafers": "Mocasines",
+    "sandals": "Sandalias",
+    "sportsShoes": "Zapatos Deportivos",
+
+    "generate": "Generar",
+    "generating": "Generando...",
+    "openCamera": "Abrir Cámara",
+    "addToWardrobe": "Agregar al Guardarropa",
+    "cancel": "Cancelar",
+    "back": "Atrás",
+    "ok": "Aceptar",
+
+    "noItemsAvailable": "No hay {category}s disponibles. Por favor, sube algunos primero.",
+    "@noItemsAvailable": {
+      "placeholders": {
+        "category": {
+          "type": "String"
+        }
+      }
+    },
+    "openingCamera": "Abriendo cámara...",
+    "itemCaptured": "Artículo Capturado",
+    "uploadingItem": "Subiendo Artículo",
+    "addingToWardrobe": "Agregando a tu guardarropa...",
+    "itemSuccessfullyCaptured": "Tu {subcategory} ha sido capturado e identificado exitosamente usando Google Vision AI.",
+    "@itemSuccessfullyCaptured": {
+      "placeholders": {
+        "subcategory": {
+          "type": "String"
+        }
+      }
+    },
+    "imageSuccessfullySaved": "Imagen guardada exitosamente en el guardarropa bajo \"{category} > {subcategory}\".",
+    "@imageSuccessfullySaved": {
+      "placeholders": {
+        "category": {
+          "type": "String"
+        },
+        "subcategory": {
+          "type": "String"
+        }
+      }
+    },
+    "failedToSaveImage": "Error al guardar imagen: {error}",
+    "@failedToSaveImage": {
+      "placeholders": {
+        "error": {
+          "type": "String"
+        }
+      }
+    },
+    "failedToOpenCamera": "Error al abrir cámara: {error}",
+    "@failedToOpenCamera": {
+      "placeholders": {
+        "error": {
+          "type": "String"
+        }
+      }
+    },
+    "error": "Error"
+}

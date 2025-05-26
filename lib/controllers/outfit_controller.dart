@@ -70,6 +70,7 @@ class OutfitController {
         token: token,
         date: date,
       );
+      print(response);
 
       if (response != null) {
         statusNotifier.value = OutfitStatus.loaded;

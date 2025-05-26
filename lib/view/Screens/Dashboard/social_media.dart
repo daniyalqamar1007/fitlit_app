@@ -1,13 +1,12 @@
+
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:fitlip_app/controllers/profile_controller.dart';
-import 'package:fitlip_app/view/Utils/Constants.dart';
-import 'package:flutter/material.dart';
 import 'package:fitlip_app/controllers/profile_controller.dart';
 import 'package:fitlip_app/view/Utils/Constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../../controllers/outfit_controller.dart';
 import '../../../model/profile_model.dart';
 import '../../Utils/Colors.dart';
@@ -22,12 +21,9 @@ class SocialMediaProfile extends StatefulWidget {
   _SocialMediaProfileState createState() => _SocialMediaProfileState();
 }
 
-
-
-
 class _SocialMediaProfileState extends State<SocialMediaProfile> {
   bool isLiked = false;
-  bool status=true;
+  bool status = true;
   int likeCount = 42;
   final OutfitController _outfitController = OutfitController();
   final ProfileController _profileController = ProfileController();
@@ -35,7 +31,22 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
   bool isLoading = false;
   String? outfitImageUrl; // To store the fetched outfit image URL
   final List<Comment> dummyComments = [
-    // ... (keep your existing dummy comments)
+    Comment(
+      id: 1,
+      author: "Sarah Johnson",
+      avatar: "assets/Images/circle_image.png",
+      content: "Love this outfit! Where did you get that jacket?",
+      likes: 12,
+      time: "2h ago",
+    ),
+    Comment(
+      id: 2,
+      author: "Mike Chen",
+      avatar: "assets/Images/circle_image.png",
+      content: "Perfect color combination! 👌",
+      likes: 8,
+      time: "4h ago",
+    ),
   ];
 
   @override
@@ -64,6 +75,8 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
         isLoading = true;
         outfitImageUrl = null; // Clear previous image while loading
       });
+      print(token);
+      print(selectedDate);
 
       final response = await _outfitController.getOutfitByDate(
         token: token!,
@@ -71,23 +84,23 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
       );
 
       setState(() {
-
         outfitImageUrl = response;
         isLoading = false;
       });
-      if(response!=null){
-       setState(() {
-         status=true;
-       });
+
+      if (response != null) {
+        setState(() {
+          status = true;
+        });
       }
 
       if (response == null || response.isEmpty) {
-       setState(() {
-         status=false;
-       });
+        setState(() {
+          status = false;
+        });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('No outfit available for selected date'),
+            content: Text(AppLocalizations.of(context)!.noOutfitAvailable),
             backgroundColor: appcolor,
           ),
         );
@@ -98,7 +111,7 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
       });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error fetching outfit: ${e.toString()}'),
+          content: Text('${AppLocalizations.of(context)!.errorFetchingOutfit}: ${e.toString()}'),
           backgroundColor: Colors.red,
         ),
       );
@@ -170,7 +183,7 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-                    ElevatedButton(
+          ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: appcolor.withOpacity(0.5),
               shape: RoundedRectangleBorder(
@@ -179,7 +192,7 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
             ),
             onPressed: () => _selectDate(context),
             child: Text(
-              'No Outfit Available',
+              AppLocalizations.of(context)!.noOutfitAvailable,
               style: GoogleFonts.poppins(
                 color: Colors.white,
               ),
@@ -203,7 +216,7 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Social Media Page',
+                    AppLocalizations.of(context)!.socialMediaPage,
                     style: GoogleFonts.poppins(
                       fontSize: Responsive.fontSize(20),
                       fontWeight: FontWeight.w600,
@@ -255,13 +268,13 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
                           ),
                         ),
                       ),
-                      SizedBox(width: Responsive.width(8),),
+                      SizedBox(width: Responsive.width(8)),
                       Column(
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            '${userProfile?.name ?? 'Loading...'}',
+                            '${userProfile?.name ?? AppLocalizations.of(context)!.loading}',
                             style: GoogleFonts.poppins(
                               fontSize: Responsive.fontSize(24),
                               fontWeight: FontWeight.bold,
@@ -304,12 +317,12 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
                               children: [
                                 Positioned.fill(
                                   child: ClipRRect(
-                                
-                                  borderRadius:   status?
-                                  BorderRadius.only(
+                                    borderRadius: status
+                                        ? BorderRadius.only(
                                       topLeft: Radius.circular(Responsive.radius(12)),
                                       topRight: Radius.circular(Responsive.radius(12)),
-                                    ):BorderRadius.circular(12),
+                                    )
+                                        : BorderRadius.circular(12),
                                     child: Opacity(
                                       opacity: 0.7,
                                       child: Image.asset(
@@ -338,8 +351,7 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
                                       padding: const EdgeInsets.all(8.0),
                                       child: CachedNetworkImage(
                                         imageUrl: outfitImageUrl!,
-                                        // height: Responsive.height(0),
-                                      scale: 4,
+                                        scale: 4,
                                         width: double.infinity,
                                         fit: BoxFit.contain,
                                         placeholder: (context, url) => Center(
@@ -393,16 +405,13 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
                                 ),
                               ],
                             ),
-
-                            status?
-                            Row(
+                            status
+                                ? Row(
                               children: [
                                 Expanded(
                                   child: ActionButton(
-                                    icon: isLiked
-                                        ? Icons.favorite
-                                        : Icons.favorite_border,
-                                    text: 'Like',
+                                    icon: isLiked ? Icons.favorite : Icons.favorite_border,
+                                    text: AppLocalizations.of(context)!.like,
                                     color: isLiked ? Colors.red : Colors.grey,
                                     onPressed: _handleLike,
                                   ),
@@ -410,19 +419,20 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
                                 Expanded(
                                   child: ActionButton(
                                     icon: Icons.comment_outlined,
-                                    text: 'Comment',
+                                    text: AppLocalizations.of(context)!.comment,
                                     onPressed: _showCommentsBottomSheet,
                                   ),
                                 ),
                                 Expanded(
                                   child: ActionButton(
                                     icon: Icons.share_outlined,
-                                    text: 'Share',
+                                    text: AppLocalizations.of(context)!.share,
                                     onPressed: () {},
                                   ),
                                 ),
                               ],
-                            ):SizedBox(),
+                            )
+                                : SizedBox(),
                           ],
                         ),
                       ),
@@ -438,9 +448,6 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
     );
   }
 }
-
-// ... (keep your existing ActionButton, CommentsBottomSheet, CommentTile, Comment classes)
-// Rest of the code remains the same (ActionButton, CommentsBottomSheet, CommentTile, Comment classes)
 
 class ActionButton extends StatelessWidget {
   final IconData icon;
@@ -468,11 +475,11 @@ class ActionButton extends StatelessWidget {
             Icon(icon, color: color, size: Responsive.fontSize(20)),
             SizedBox(width: Responsive.width(8)),
             Text(
-                text,
-                style: GoogleFonts.poppins(
-                    color: color,
-                    fontSize: Responsive.fontSize(14)
-                )
+              text,
+              style: GoogleFonts.poppins(
+                color: color,
+                fontSize: Responsive.fontSize(10),
+              ),
             ),
           ],
         ),
@@ -507,7 +514,7 @@ class CommentsBottomSheet extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Comments',
+                  AppLocalizations.of(context)!.comments,
                   style: GoogleFonts.poppins(
                     fontSize: Responsive.fontSize(18),
                     fontWeight: FontWeight.bold,
@@ -615,7 +622,7 @@ class CommentTile extends StatelessWidget {
                       ),
                       SizedBox(width: Responsive.width(16)),
                       Text(
-                        'Reply',
+                        AppLocalizations.of(context)!.reply,
                         style: GoogleFonts.poppins(
                           fontSize: Responsive.fontSize(12),
                           color: Colors.grey,

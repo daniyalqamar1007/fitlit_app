@@ -1,0 +1,422 @@
+{
+  "@@locale": "en",
+  "language": "Language",
+  "chooseLanguage": "Choose Language",
+  "selectLanguageDescription": "Select your preferred language to personalize your app experience. You can change this anytime in settings.",
+  "availableLanguages": "Available Languages",
+  "saveLanguage": "Save Language",
+  "languageChangedTo": "Language changed to {language}",
+  "@languageChangedTo": {
+    "description": "Message shown after changing language",
+    "placeholders": {
+      "language": {}
+    }
+  },
+  "socialMediaPage": "Social Media Page",
+  "@socialMediaPage": {
+    "description": "Social media page title"
+  },
+  "loading": "Loading...",
+  "@loading": {
+    "description": "Loading text"
+  },
+  "noOutfitAvailable": "No Outfit Available",
+  "@noOutfitAvailable": {
+    "description": "No outfit available message"
+  },
+  "errorFetchingOutfit": "Error fetching outfit",
+  "@errorFetchingOutfit": {
+    "description": "Error message when fetching outfit fails"
+  },
+  "like": "Like",
+  "@like": {
+    "description": "Like button text"
+  },
+  "comment": "Comment",
+  "@comment": {
+    "description": "Comment button text"
+  },
+  "share": "Share",
+  "@share": {
+    "description": "Share button text"
+  },
+  "comments": "Comments",
+  "@comments": {
+    "description": "Comments section title"
+  },
+  "reply": "Reply",
+  "@reply": {
+    "description": "Reply to comment text"
+  },
+  "editProfile": "Edit Profile",
+  "@editProfile": {
+    "description": "Edit profile screen title"
+  },
+  "profile": "Profile",
+  "@profile": {
+    "description": "Profile screen title"
+  },
+  "settings": "Settings",
+  "@settings": {
+    "description": "Settings section title"
+  },
+  "name": "Name",
+  "@name": {
+    "description": "Name field label"
+  },
+  "email": "Email",
+  "@email": {
+    "description": "Email field label"
+  },
+  "gender": "Gender",
+  "@gender": {
+    "description": "Gender field label"
+  },
+  "selectGender": "Select Gender",
+  "@selectGender": {
+    "description": "Gender dropdown hint"
+  },
+  "male": "Male",
+  "@male": {
+    "description": "Male gender option"
+  },
+  "female": "Female",
+  "@female": {
+    "description": "Female gender option"
+  },
+  "other": "Other",
+  "@other": {
+    "description": "Other gender option"
+  },
+  "saveChanges": "Save Changes",
+  "@saveChanges": {
+    "description": "Save changes button text"
+  },
+  "nameCannotBeEmpty": "Name cannot be empty",
+  "@nameCannotBeEmpty": {
+    "description": "Error message for empty name"
+  },
+  "failedToProcessImage": "Failed to process image",
+  "@failedToProcessImage": {
+    "description": "Error message for image processing failure"
+  },
+  "profileUpdatedSuccessfully": "Profile updated successfully",
+  "@profileUpdatedSuccessfully": {
+    "description": "Success message for profile update"
+  },
+  "updatingYourProfile": "Updating your profile...",
+  "@updatingYourProfile": {
+    "description": "Loading message during profile update"
+  },
+  "failedToLoadProfileData": "Failed to load profile data",
+  "@failedToLoadProfileData": {
+    "description": "Error message when profile data fails to load"
+  },
+  "notifications": "Notifications",
+  "@notifications": {
+    "description": "Notifications setting"
+  },
+  "privacyPolicy": "Privacy Policy",
+  "@privacyPolicy": {
+    "description": "Privacy policy menu item"
+  },
+  "contactUs": "Contact Us",
+  "@contactUs": {
+    "description": "Contact us menu item"
+  },
+  "rateApp": "Rate App",
+  "@rateApp": {
+    "description": "Rate app menu item"
+  },
+  "logout": "Logout",
+  "@logout": {
+    "description": "Logout menu item"
+  },
+  "delete": "Delete Account",
+  "@delete": {
+    "description": "Delete account menu item"
+  },
+  "confirmLogout": "Confirm Logout",
+  "@confirmLogout": {
+    "description": "Logout confirmation dialog title"
+  },
+  "areYouSureLogout": "Are you sure you want to logout?",
+  "@areYouSureLogout": {
+    "description": "Logout confirmation message"
+  },
+  "cancel": "Cancel",
+  "@cancel": {
+    "description": "Cancel button text"
+  },
+  "calendarTitle": "Calendar",
+  "deleteAccount": "Delete Account",
+  "@deleteAccount": {
+    "description": "Delete account dialog title"
+  },
+  "deleteAccountConfirmation": "Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently removed.",
+  "@deleteAccountConfirmation": {
+    "description": "Delete account confirmation message"
+  },
+  "rateOurApp": "Rate Our App",
+  "@rateOurApp": {
+    "description": "Rate app dialog title"
+  },
+  "rateAppDescription": "We'd love to hear your feedback!\nHow would you rate your experience?",
+  "@rateAppDescription": {
+    "description": "Rate app dialog description"
+  },
+  "submit": "Submit",
+  "@submit": {
+    "description": "Submit button text"
+  },
+  "profileDataNotAvailable": "Profile data not available. Please try again.",
+  "@profileDataNotAvailable": {
+    "description": "Error message when profile data is not available"
+  },
+  "authTokenNotFound": "Authentication token not found",
+  "@authTokenNotFound": {
+    "description": "Error message for missing auth token"
+  },
+  "thankYouForRating": "Thank you for rating us {rating} star{plural}!",
+  "@thankYouForRating": {
+    "description": "Thank you message for rating",
+    "placeholders": {
+      "rating": {},
+      "plural": {}
+    }
+  },
+  "accountDeletedSuccessfully": "Account deleted successfully",
+  "@accountDeletedSuccessfully": {
+    "description": "Success message for account deletion"
+  },
+  "ratingResponse1": "We're sorry to hear that 😔",
+  "@ratingResponse1": {
+    "description": "Response for 1-star rating"
+  },
+  "ratingResponse2": "We'll work to improve 😐",
+  "@ratingResponse2": {
+    "description": "Response for 2-star rating"
+  },
+  "ratingResponse3": "Thanks for the feedback! 😊",
+  "@ratingResponse3": {
+    "description": "Response for 3-star rating"
+  },
+  "ratingResponse4": "Great! We're glad you like it 😄",
+  "@ratingResponse4": {
+    "description": "Response for 4-star rating"
+  },
+  "ratingResponse5": "Awesome! You're amazing! 🎉",
+  "@ratingResponse5": {
+    "description": "Response for 5-star rating"
+  },
+
+  "pleaseSelectAtLeastOneItem": "Please select at least one item to generate avatar",
+  "@pleaseSelectAtLeastOneItem": {
+    "description": "Error message when no items selected for avatar generation"
+  },
+  "avatarGeneratedSuccessfully": "Avatar generated successfully!",
+  "@avatarGeneratedSuccessfully": {
+    "description": "Success message for avatar generation"
+  },
+  "errorGeneratingAvatar": "Error generating avatar: {error}",
+  "@errorGeneratingAvatar": {
+    "description": "Error message for avatar generation failure",
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "failedToLoadWardrobeItems": "Failed to load wardrobe items",
+  "@failedToLoadWardrobeItems": {
+    "description": "Error message when wardrobe items fail to load"
+  },
+  "updateAvailableForThisDate": "Update available for this date",
+  "@updateAvailableForThisDate": {
+    "description": "Message shown when outfit update is available"
+  },
+  "noOutfitAvailableForThisDate": "No outfit available for this date",
+  "@noOutfitAvailableForThisDate": {
+    "description": "Message shown when no outfit exists for selected date"
+  },
+  "saveOutfit": "Save Outfit",
+  "@saveOutfit": {
+    "description": "Save outfit dialog title"
+  },
+  "doYouWantToSaveThisOutfit": "Do you want to save this outfit for {date}?",
+  "@doYouWantToSaveThisOutfit": {
+    "description": "Save outfit confirmation message",
+    "placeholders": {
+      "date": {}
+    }
+  },
+  "save": "Save",
+  "@save": {
+    "description": "Save button text"
+  },
+  "outfitSavedSuccessfully": "Outfit saved successfully for {date}",
+  "@outfitSavedSuccessfully": {
+    "description": "Success message for outfit save",
+    "placeholders": {
+      "date": {}
+    }
+  },
+  "failedToSaveOutfit": "Failed to save outfit",
+  "@failedToSaveOutfit": {
+    "description": "Error message when outfit save fails"
+  },
+  "error": "Error: {error}",
+  "@error": {
+    "description": "Generic error message",
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "fitlit": "FITLIT",
+  "@fitlit": {
+    "description": "App name/title"
+  },
+  "upload": "Upload",
+  "@upload": {
+    "description": "Upload button text"
+  },
+  "shirts": "Shirts",
+  "@shirts": {
+    "description": "Shirts category label"
+  },
+  "accessories": "Accessories",
+  "@accessories": {
+    "description": "Accessories category label"
+  },
+  "pants": "Pants",
+  "@pants": {
+    "description": "Pants category label"
+  },
+  "shoes": "Shoes",
+  "@shoes": {
+    "description": "Shoes category label"
+  },
+  "january": "January",
+    "february": "February",
+    "march": "March",
+    "april": "April",
+    "may": "May",
+    "june": "June",
+    "july": "July",
+    "august": "August",
+    "september": "September",
+    "october": "October",
+    "november": "November",
+    "december": "December",
+    "jan": "Jan",
+    "feb": "Feb",
+    "mar": "Mar",
+    "apr": "Apr",
+    "mayShort": "May",
+    "jun": "Jun",
+    "jul": "Jul",
+    "aug": "Aug",
+    "sep": "Sep",
+    "oct": "Oct",
+    "nov": "Nov",
+    "dec": "Dec",
+    "shirt": "Shirt",
+    "pant": "Pant",
+    "shoe": "Shoe",
+    "accessory": "Accessory",
+    "shirts": "Shirts",
+    "pants": "Pants",
+    "shoes": "Shoes",
+    "accessories": "Accessories",
+    "selectCategory": "Select Category",
+    "selectSubcategory": "Select {category} Type",
+    "@selectSubcategory": {
+      "placeholders": {
+        "category": {
+          "type": "String"
+        }
+      }
+    },
+    "tShirt": "T-Shirt",
+    "halfShirt": "Half Shirt",
+    "casualShirt": "Casual Shirt",
+    "dressShirt": "Dress Shirt",
+    "poloShirt": "Polo Shirt",
+
+    "necklace": "Necklace",
+    "bracelet": "Bracelet",
+    "earring": "Earring",
+    "watch": "Watch",
+    "belt": "Belt",
+    "hat": "Hat",
+    "scarf": "Scarf",
+
+    "jeans": "Jeans",
+    "trousers": "Trousers",
+    "shorts": "Shorts",
+    "cargo": "Cargo",
+    "trackPants": "Track Pants",
+    "formalPants": "Formal Pants",
+
+    "sneakers": "Sneakers",
+    "formalShoes": "Formal Shoes",
+    "boots": "Boots",
+    "loafers": "Loafers",
+    "sandals": "Sandals",
+    "sportsShoes": "Sports Shoes",
+
+    "generate": "Generate",
+    "generating": "Generating...",
+    "openCamera": "Open Camera",
+    "addToWardrobe": "Add to Wardrobe",
+    "cancel": "Cancel",
+    "back": "Back",
+    "ok": "OK",
+
+    "noItemsAvailable": "No {category}s available. Please upload some first.",
+    "@noItemsAvailable": {
+      "placeholders": {
+        "category": {
+          "type": "String"
+        }
+      }
+    },
+    "openingCamera": "Opening camera...",
+    "itemCaptured": "Item Captured",
+    "uploadingItem": "Uploading Item",
+    "addingToWardrobe": "Adding to your wardrobe...",
+    "itemSuccessfullyCaptured": "Your {subcategory} has been successfully captured and identified using Google Vision AI.",
+    "@itemSuccessfullyCaptured": {
+      "placeholders": {
+        "subcategory": {
+          "type": "String"
+        }
+      }
+    },
+    "imageSuccessfullySaved": "Image successfully saved to wardrobe under \"{category} > {subcategory}\".",
+    "@imageSuccessfullySaved": {
+      "placeholders": {
+        "category": {
+          "type": "String"
+        },
+        "subcategory": {
+          "type": "String"
+        }
+      }
+    },
+    "failedToSaveImage": "Failed to save image: {error}",
+    "@failedToSaveImage": {
+      "placeholders": {
+        "error": {
+          "type": "String"
+        }
+      }
+    },
+    "failedToOpenCamera": "Failed to open camera: {error}",
+    "@failedToOpenCamera": {
+      "placeholders": {
+        "error": {
+          "type": "String"
+        }
+      }
+    },
+    "error": "Error"
+}

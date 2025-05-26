@@ -32,12 +32,12 @@ final response = await http.post(
           'Authorization': 'Bearer $token',
         },
         body: jsonEncode({
-          'shirt_id': "1",
-          'pant_id': "2",
-          'shoe_id': "3",
-          'index':avatarindex.toString(),
+          'shirt_id':shirtId,
+          'pant_id': pantId,
+          'shoe_id': shoeId,
+          // 'index':avatarindex.toString(),
           'avatarUrl': avatarurl,
-          'accessory_id': "5",
+          'accessory_id': shirtId,
           'date': formattedDate, // Now in dd/MM/yyyy format
         }),
 
@@ -120,6 +120,7 @@ print(response.statusCode);
       final formattedDate = DateFormat('dd/MM/yyyy').format(date);
       print("Fetching avatar for date: $formattedDate");
 
+
       final response = await client.get(
         Uri.parse('$baseUrl/avatar/check?date=$formattedDate'),
         headers: {
@@ -133,10 +134,7 @@ print(response.statusCode);
         final jsonResponse = jsonDecode(response.body);
 
         if (jsonResponse['success'] == true) {
-          avatarindex = int.parse(jsonResponse['index'].toString());
-          print("Avatar index: $avatarindex");
 
-          // Return the avatar URL
           return jsonResponse['avatarUrl'].toString();
         } else {
           avatarindex = 3; // Default index for fallback
