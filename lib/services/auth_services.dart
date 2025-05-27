@@ -3,8 +3,10 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../model/user_model.dart';
+import '../view/Utils/connection.dart';
 import '../view/Utils/globle_variable/globle.dart';
 
 class AuthService {
@@ -21,9 +23,14 @@ class AuthService {
   }
 
   // Initial signup with email only
-  Future<AuthResponse> initialSignup(InitialSignupRequest request) async {
+  Future<AuthResponse> initialSignup(InitialSignupRequest request,context) async {
     isLoading.value = true;
     error.value = null;
+    bool hasInternet = await checkInternetAndShowDialog(context);
+    if (!hasInternet) {
+      isLoading.value = false;
+      return AuthResponse.error("No internet connection");
+    }
 
     try {
       final response = await http.post(
@@ -52,10 +59,14 @@ class AuthService {
   }
 
   // Complete signup with all user details
-  Future<AuthResponse> signUp(SignUpRequest request) async {
+  Future<AuthResponse> signUp(SignUpRequest request,BuildContext context) async {
     isLoading.value = true;
     error.value = null;
-
+    bool hasInternet = await checkInternetAndShowDialog(context);
+    if (!hasInternet) {
+      isLoading.value = false;
+      return AuthResponse.error("No internet connection");
+    }
     try {
       print('SignUp request details:');
       print('Name: ${request.name}');
@@ -111,11 +122,15 @@ print(request.email);
   }
 
   // Sign In API Call
-  Future<AuthResponse> signIn(SignInRequest request) async {
+  Future<AuthResponse> signIn(SignInRequest request,BuildContext context) async {
     isLoading.value = true;
     error.value = null;
     print("Signing in...");
-
+    bool hasInternet = await checkInternetAndShowDialog(context);
+    if (!hasInternet) {
+      isLoading.value = false;
+      return AuthResponse.error("No internet connection");
+    }
     try {
       print(request.email);
       print(request.password);
@@ -168,7 +183,11 @@ print(request.email);
   Future<AuthResponse> forgotPassword(ForgotPasswordRequest request) async {
     isLoading.value = true;
     error.value = null;
-
+    bool hasInternet = await checkInternetAndShowDialog(context as BuildContext);
+    if (!hasInternet) {
+      isLoading.value = false;
+      return AuthResponse.error("No internet connection");
+    }
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/auth/forgot-Password'),
@@ -201,7 +220,11 @@ print(request.email);
   Future<AuthResponse> resetPassword(ResetPasswordRequest request) async {
     isLoading.value = true;
     error.value = null;
-
+    bool hasInternet = await checkInternetAndShowDialog(context as BuildContext);
+    if (!hasInternet) {
+      isLoading.value = false;
+      return AuthResponse.error("No internet connection");
+    }
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/auth/reset-password'),

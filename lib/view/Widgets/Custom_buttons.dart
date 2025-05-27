@@ -34,17 +34,17 @@ class CustomButton extends StatelessWidget {
           ),
           child: isLoading
               ? const CircularProgressIndicator(
-            color: Colors.white,
-            strokeWidth: 2,
-          )
+                  color: Colors.white,
+                  strokeWidth: 2,
+                )
               : Text(
-            text,
-            style: GoogleFonts.poppins(
-              color: themeController.white,
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
+                  text,
+                  style: GoogleFonts.poppins(
+                    color: themeController.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
         ),
       ),
     );

@@ -1,4 +1,3 @@
-
 import 'dart:io';
 import 'dart:async';
 
@@ -26,8 +25,12 @@ class OtpVerificationScreen extends StatefulWidget {
 
   const OtpVerificationScreen({
     Key? key,
-    required this.email, required this.gender, required this.name, required this.password, required this.phone,required this.file,
-
+    required this.email,
+    required this.gender,
+    required this.name,
+    required this.password,
+    required this.phone,
+    required this.file,
   }) : super(key: key);
 
   @override
@@ -122,7 +125,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     });
   }
 
-  Future<void> _verifyOtp() async {
+  Future<void> _verifyOtp(BuildContext context) async {
     if (_enteredOtp.isEmpty || _enteredOtp.length != 4) {
       setState(() {
         _errorMessage = 'Please enter the complete OTP';
@@ -141,10 +144,19 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     try {
       // Debug: Print before verification
       print('Attempting OTP verification with: $_enteredOtp');
-      print('Current temp data before verification: ${_authController.tempSignUpData}');
+      print(
+          'Current temp data before verification: ${_authController.tempSignUpData}');
 
       // Call the completeSignUp method to verify OTP and register the user
-      final result = await _authController.completeSignUp(_enteredOtp,widget.name,widget.email,widget.password,widget.phone,widget.gender,widget.file);
+      final result = await _authController.completeSignUp(
+          _enteredOtp,
+          widget.name,
+          widget.email,
+          widget.password,
+          widget.phone,
+          widget.gender,
+          context,
+          widget.file);
 
       // Complete the progress animation to 100%
       _completeProgress();
@@ -169,7 +181,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => SignInScreen()),
-              (route) => false,
+          (route) => false,
         );
       } else {
         setState(() {
@@ -242,14 +254,17 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                     padding: EdgeInsets.only(bottom: 16.h),
                     child: Text(
                       _errorMessage!,
-                      style: GoogleFonts.poppins(color: Colors.red, fontSize: 14.sp),
+                      style: GoogleFonts.poppins(
+                          color: Colors.red, fontSize: 14.sp),
                       textAlign: TextAlign.center,
                     ),
                   ),
                 SizedBox(height: 30.h),
                 CustomButton(
                   text: "Verify OTP",
-                  onPressed: _isLoading ? null : _verifyOtp,
+                  onPressed: _isLoading ? null : ()async{
+                    _verifyOtp(context);
+                  },
                 ),
                 SizedBox(height: 20.h),
                 _buildResendText(),
@@ -342,55 +357,56 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
           ),
         ),
         TextButton(
-          onPressed: _isLoading ? null : () async {
-            try {
-              setState(() {
-                _isLoading = true;
-                _errorMessage = null;
-              });
+          onPressed: _isLoading
+              ? null
+              : () async {
+                  try {
+                    setState(() {
+                      _isLoading = true;
+                      _errorMessage = null;
+                    });
 
-              // Start progress animation for resend
-              _startProgressAnimation();
+                    // Start progress animation for resend
+                    _startProgressAnimation();
 
-              // Re-request OTP
-              final result = await _authController.initialSignUp(widget.email);
+                    // Re-request OTP
+                    final result =
+                        await _authController.initialSignUp(widget.email,context);
+                    _completeProgress();
 
-              // Complete the progress animation to 100%
-              _completeProgress();
+                    // Slight delay to allow progress animation to complete
+                    await Future.delayed(Duration(milliseconds: 500));
 
-              // Slight delay to allow progress animation to complete
-              await Future.delayed(Duration(milliseconds: 500));
+                    setState(() {
+                      _isLoading = false;
+                    });
 
-              setState(() {
-                _isLoading = false;
-              });
+                    if (result['success']) {
+                      // Debug log for OTP
+                      print('New OTP received for testing: ${result['otp']}');
 
-              if (result['success']) {
-                // Debug log for OTP
-                print('New OTP received for testing: ${result['otp']}');
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('OTP sent again'),
+                          backgroundColor: Colors.green,
+                        ),
+                      );
+                    } else {
+                      setState(() {
+                        _errorMessage = result['message'];
+                      });
+                    }
+                  } catch (e) {
+                    // Complete the progress animation to show failure
+                    _completeProgress();
 
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('OTP sent again'),
-                    backgroundColor: Colors.green,
-                  ),
-                );
-              } else {
-                setState(() {
-                  _errorMessage = result['message'];
-                });
-              }
-            } catch (e) {
-              // Complete the progress animation to show failure
-              _completeProgress();
-
-              setState(() {
-                _isLoading = false;
-                _errorMessage = 'Failed to resend OTP: ${e.toString()}';
-              });
-              print('Error in resend OTP: ${e.toString()}');
-            }
-          },
+                    setState(() {
+                      _isLoading = false;
+                      _errorMessage = 'Failed to resend OTP: ${e.toString()}';
+                    });
+                    print('Error in resend OTP: ${e.toString()}');
+                  }
+                },
           child: Text(
             'Resend',
             style: GoogleFonts.poppins(

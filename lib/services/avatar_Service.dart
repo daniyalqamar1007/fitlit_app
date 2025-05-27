@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:dio/dio.dart';
-import 'package:http/http.dart' as http;
 import '../model/avatar_model.dart';
 import '../view/Utils/globle_variable/globle.dart';
 
@@ -26,8 +25,11 @@ class AvatarService {
       shoeId: shoeId,
     );
 
+    print("Avatar Request Payload:");
+    print(jsonEncode(request.toJson()));
+    print("Token: $token");
+
     try {
-      print("Calling avatar API via Dio...");
       final response = await _dio.post(
         '/avatar/outfit',
         data: request.toJson(),
@@ -39,21 +41,42 @@ class AvatarService {
         ),
       );
 
-      print("Response Status Code: ${response.statusCode}");
-      print("Response Data: ${response.data}");
+      print("Avatar API Response Code: ${response.statusCode}");
+      print("Avatar API Response Body: ${response.data}");
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         return AvatarGenerationResponse.fromJson(response.data);
       } else {
-        throw Exception(
-            'Avatar generation failed. Status code: ${response.statusCode}');
+        final message = _getErrorMessage(response);
+        throw Exception(message);
       }
     } on DioException catch (e) {
-      print("Dio Exception: ${e.message}");
-      throw Exception('Dio error generating avatar: ${e.message}');
+      print("DioException: ${e.response?.statusCode} - ${e.message}");
+      throw Exception(_getDioErrorMessage(e));
     } catch (e) {
       print("Unexpected Exception: $e");
-      throw Exception('Unexpected error generating avatar: $e');
+      throw Exception('Unexpected error: $e');
     }
   }
+
+  String _getErrorMessage(Response response) {
+    try {
+      if (response.data is Map && response.data['message'] != null) {
+        return response.data['message'];
+      } else if (response.data is String) {
+        return response.data;
+      }
+      return 'Failed with status code ${response.statusCode}';
+    } catch (_) {
+      return 'An unexpected error occurred';
+    }
+  }
+
+  String _getDioErrorMessage(DioException e) {
+    if (e.response != null && e.response?.data is Map<String, dynamic>) {
+      return e.response?.data['message'] ?? 'Something went wrong';
+    }
+    return e.message ?? 'Something went wrong';
+  }
 }
+

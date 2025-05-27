@@ -3,11 +3,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:google_fonts/google_fonts.dart';
 class AppConstants {
 
-  // static const List<String> onboardingImageUrls = [
-  //   'https://your-bucket.s3.amazonaws.com/onboarding1.jpg',
-  //   'https://your-bucket.s3.amazonaws.com/onboarding2.jpg',
-  //   'https://your-bucket.s3.amazonaws.com/onboarding3.jpg',
-  // ];
 
   static const String profile = 'Profile';
   static const String notifications = 'Notifications';

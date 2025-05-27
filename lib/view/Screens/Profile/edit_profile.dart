@@ -1,4 +1,3 @@
-
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fitlip_app/routes/App_routes.dart';
@@ -28,9 +27,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   final TextEditingController _emailController = TextEditingController();
 
-  final ValueNotifier<String?> _selectedGenderNotifier = ValueNotifier<String?>(null);
+  final ValueNotifier<String?> _selectedGenderNotifier =
+      ValueNotifier<String?>(null);
   final ValueNotifier<File?> _imageFileNotifier = ValueNotifier<File?>(null);
-  final ValueNotifier<String?> _imageLinkNotifier = ValueNotifier<String?>(null);
+  final ValueNotifier<String?> _imageLinkNotifier =
+      ValueNotifier<String?>(null);
 
   // Progress tracking variables for loading overlay
   final ValueNotifier<double> _progressValue = ValueNotifier<double>(0.0);
@@ -67,16 +68,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               maxScale: 3.0,
               child: imageFile != null
                   ? Image.file(
-                imageFile,
-                fit: BoxFit.contain,
-              )
+                      imageFile,
+                      fit: BoxFit.contain,
+                    )
                   : CachedNetworkImage(
-                imageUrl: imageLink!,
-                fit: BoxFit.contain,
-                placeholder: (context, url) =>
-                const CircularProgressIndicator(color: Colors.white),
-                errorWidget: (context, url, error) => const Icon(Icons.error, color: Colors.white),
-              ),
+                      imageUrl: imageLink!,
+                      fit: BoxFit.contain,
+                      placeholder: (context, url) =>
+                          const CircularProgressIndicator(color: Colors.white),
+                      errorWidget: (context, url, error) =>
+                          const Icon(Icons.error, color: Colors.white),
+                    ),
             ),
           ),
         ),
@@ -144,7 +146,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       } catch (e) {
         debugPrint('Error converting image: $e');
         ScaffoldMessenger.of(context).showSnackBar(
-           SnackBar(content: Text(localizations.failedToProcessImage)),
+          SnackBar(content: Text(localizations.failedToProcessImage)),
         );
       } finally {
         // Close loading dialog
@@ -172,7 +174,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     final tempPath = tempDir.path;
 
     // Create a new file in the temp directory with a unique name
-    final outputFile = File('$tempPath/profile_image_${DateTime.now().millisecondsSinceEpoch}.png');
+    final outputFile = File(
+        '$tempPath/profile_image_${DateTime.now().millisecondsSinceEpoch}.png');
 
     // Write the PNG bytes to the file
     await outputFile.writeAsBytes(pngBytes);
@@ -198,7 +201,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         return false;
       } else {
         _progressValue.value += incrementPerStep;
-        if (_progressValue.value > 0.95) _progressValue.value = 0.95; // Cap at 95%
+        if (_progressValue.value > 0.95)
+          _progressValue.value = 0.95; // Cap at 95%
         return true;
       }
     });
@@ -223,7 +227,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     final localizations = AppLocalizations.of(context)!;
     if (_nameController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-         SnackBar(content: Text(localizations.nameCannotBeEmpty)),
+        SnackBar(content: Text(localizations.nameCannotBeEmpty)),
       );
       return;
     }
@@ -247,9 +251,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       final File? imageToSend = _imageFileNotifier.value;
 
       final success = await _profileController.updateUserProfile(
-          updatedProfile,
-          imageToSend
-      );
+          updatedProfile, imageToSend);
 
       debugPrint("Profile update result: $success");
 
@@ -261,7 +263,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
       if (success && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-
           SnackBar(content: Text(localizations.profileUpdatedSuccessfully)),
         );
         Navigator.pop(context, true);
@@ -306,15 +307,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           ValueListenableBuilder<bool>(
               valueListenable: _profileController.isLoadingNotifier,
               builder: (context, isLoading, _) {
-                if (isLoading && _profileController.profileNotifier.value == null) {
-                  return const Center(child: CircularProgressIndicator(color: Color(0xFFAA8A00)));
+                if (isLoading &&
+                    _profileController.profileNotifier.value == null) {
+                  return const Center(
+                      child:
+                          CircularProgressIndicator(color: Color(0xFFAA8A00)));
                 }
 
                 return ValueListenableBuilder<UserProfileModel?>(
                     valueListenable: _profileController.profileNotifier,
                     builder: (context, userProfile, _) {
                       if (userProfile == null) {
-                        return  Center(child: Text(localizations.failedToLoadProfileData));
+                        return Center(
+                            child: Text(localizations.failedToLoadProfileData));
                       }
 
                       return SingleChildScrollView(
@@ -343,10 +348,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           ],
                         ),
                       );
-                    }
-                );
-              }
-          ),
+                    });
+              }),
 
           // Loading overlay with progress bar
           ValueListenableBuilder<bool>(
@@ -378,7 +381,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               LinearProgressIndicator(
                                 value: progressValue,
                                 backgroundColor: Colors.grey[300],
-                                valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFFAA8A00)),
+                                valueColor: const AlwaysStoppedAnimation<Color>(
+                                    Color(0xFFAA8A00)),
                                 minHeight: 10,
                                 borderRadius: BorderRadius.circular(5),
                               ),
@@ -406,7 +410,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Widget _buildProfileImagePicker() {
-
     return Center(
       child: Stack(
         children: [
@@ -431,38 +434,43 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       child: ClipOval(
                         child: imageFile != null
                             ? Image.file(
-                          imageFile,
-                          fit: BoxFit.fitWidth,
-                          alignment: const Alignment(0, -0.2),
-                        )
+                                imageFile,
+                                fit: BoxFit.fitWidth,
+                                alignment: const Alignment(0, -0.2),
+                              )
                             : (imageLink != null && imageLink.isNotEmpty)
-                            ? Image.network(
-                          imageLink,
-                          fit: BoxFit.cover,
-                          alignment: const Alignment(0, -1),
-                          loadingBuilder: (context, child, loadingProgress) {
-                            if (loadingProgress == null) return child;
-                            return Center(
-                              child: CircularProgressIndicator(
-                                value: loadingProgress.expectedTotalBytes != null
-                                    ? loadingProgress.cumulativeBytesLoaded /
-                                    loadingProgress.expectedTotalBytes!
-                                    : null,
-                              ),
-                            );
-                          },
-                          errorBuilder: (context, error, stackTrace) {
-                            debugPrint("Error loading image: $error");
-                            return Image.asset(
-                              'assets/Images/circle_image.png',
-                              fit: BoxFit.cover,
-                            );
-                          },
-                        )
-                            : Image.asset(
-                          'assets/Images/circle_image.png',
-                          fit: BoxFit.cover,
-                        ),
+                                ? Image.network(
+                                    imageLink,
+                                    fit: BoxFit.cover,
+                                    alignment: const Alignment(0, -1),
+                                    loadingBuilder:
+                                        (context, child, loadingProgress) {
+                                      if (loadingProgress == null) return child;
+                                      return Center(
+                                        child: CircularProgressIndicator(
+                                          value: loadingProgress
+                                                      .expectedTotalBytes !=
+                                                  null
+                                              ? loadingProgress
+                                                      .cumulativeBytesLoaded /
+                                                  loadingProgress
+                                                      .expectedTotalBytes!
+                                              : null,
+                                        ),
+                                      );
+                                    },
+                                    errorBuilder: (context, error, stackTrace) {
+                                      debugPrint("Error loading image: $error");
+                                      return Image.asset(
+                                        'assets/Images/circle_image.png',
+                                        fit: BoxFit.cover,
+                                      );
+                                    },
+                                  )
+                                : Image.asset(
+                                    'assets/Images/circle_image.png',
+                                    fit: BoxFit.cover,
+                                  ),
                       ),
                     );
                   },
@@ -502,7 +510,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     required IconData icon,
     bool enabled = true,
   }) {
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -521,7 +528,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           style: GoogleFonts.poppins(fontSize: 14),
           decoration: InputDecoration(
             prefixIcon: Icon(icon, color: const Color(0xFFAA8A00)),
-            contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+            contentPadding:
+                const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
             filled: true,
             fillColor: Colors.grey.shade100,
             enabledBorder: OutlineInputBorder(
@@ -570,19 +578,21 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 builder: (context, selectedGender, _) {
                   return DropdownButton<String>(
                     value: selectedGender,
-                    hint:  Text(localizations.selectGender),
+                    hint: Text(localizations.selectGender),
                     isExpanded: true,
-                    items:  [
-                      DropdownMenuItem(value: 'male', child: Text(localizations.male)),
-                      DropdownMenuItem(value: 'female', child: Text(localizations.female)),
-                      DropdownMenuItem(value: 'other', child: Text(localizations.gender)),
+                    items: [
+                      DropdownMenuItem(
+                          value: 'male', child: Text(localizations.male)),
+                      DropdownMenuItem(
+                          value: 'female', child: Text(localizations.female)),
+                      DropdownMenuItem(
+                          value: 'other', child: Text(localizations.gender)),
                     ],
                     onChanged: (value) {
                       _selectedGenderNotifier.value = value;
                     },
                   );
-                }
-            ),
+                }),
           ),
         ),
         const SizedBox(height: 16),
@@ -607,22 +617,22 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               ),
             ),
             child: isLoading
-                ?  SizedBox(
-              width: 24,
-              height: 24,
-              child: CircularProgressIndicator(
-                strokeWidth: 3,
-                color: Colors.white,
-              ),
-            )
+                ? SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 3,
+                      color: Colors.white,
+                    ),
+                  )
                 : Text(
-              localizations.saveChanges,
-              style: GoogleFonts.poppins(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
+                    localizations.saveChanges,
+                    style: GoogleFonts.poppins(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
           ),
         );
       },

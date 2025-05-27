@@ -38,7 +38,7 @@ class _SignInScreenState extends State<SignInScreen> {
     super.dispose();
   }
 
-  Future<void> _handleSignIn() async {
+  Future<void> _handleSignIn(BuildContext context) async {
     //Navigator.pushReplacementNamed(context, AppRoutes.dashboard);
     if (_formKey.currentState?.validate() ?? false) {
       setState(() => _isLoading = true);
@@ -46,6 +46,8 @@ class _SignInScreenState extends State<SignInScreen> {
       final result = await _authController.signIn(
         _emailController.text.trim(),
         _passwordController.text,
+        context
+
       );
 
       setState(() => _isLoading = false);
@@ -82,8 +84,11 @@ class _SignInScreenState extends State<SignInScreen> {
               _isLoading
                   ? const CircularProgressIndicator()
                   : CustomButton(
-                text: "Login",  onPressed: _handleSignIn,
-              ),
+                      text: "Login",
+                      onPressed:() async{
+                        _handleSignIn(context);
+                        },
+                    ),
               _buildCreateAccountText(),
             ],
           ),

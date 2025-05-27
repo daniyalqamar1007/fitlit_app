@@ -69,8 +69,7 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
       }
 
       final response = await http.post(
-        Uri.parse(
-            '$baseUrl/contact'), // Replace with your actual API endpoint
+        Uri.parse('$baseUrl/contact'), // Replace with your actual API endpoint
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -82,7 +81,6 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
           'message': _descriptionController.text.trim(),
         }),
       );
-
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final responseData = jsonDecode(response.body);

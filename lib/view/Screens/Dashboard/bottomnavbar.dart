@@ -28,7 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     double iconSize =
         MediaQuery.of(context).size.width * 0.06; // responsive icon size
-    double navBarHeight = min(MediaQuery.of(context).size.height * 0.08, 75.0); 
+    double navBarHeight = min(MediaQuery.of(context).size.height * 0.08, 75.0);
     return Scaffold(
       backgroundColor: Colors.white,
       body: _pages[_currentIndex],

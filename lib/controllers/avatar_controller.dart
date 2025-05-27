@@ -8,8 +8,9 @@ class AvatarController {
   final AvatarService _avatarService = AvatarService();
 
   final ValueNotifier<AvatarGenerationStatus> statusNotifier =
-  ValueNotifier<AvatarGenerationStatus>(AvatarGenerationStatus.initial);
-  final ValueNotifier<String?> generatedAvatarNotifier = ValueNotifier<String?>(null);
+      ValueNotifier<AvatarGenerationStatus>(AvatarGenerationStatus.initial);
+  final ValueNotifier<String?> generatedAvatarNotifier =
+      ValueNotifier<String?>(null);
   final ValueNotifier<String> errorNotifier = ValueNotifier<String>('');
 
   Future<AvatarGenerationResponse> generateAvatar({

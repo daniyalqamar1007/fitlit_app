@@ -11,7 +11,7 @@ class CustomListTile extends StatelessWidget {
 
   const CustomListTile({
     super.key,
-     this.icon,
+    this.icon,
     this.image,
     required this.title,
     required this.onTap,
@@ -20,10 +20,18 @@ class CustomListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: image==""||image==null? Icon(icon, color: appcolor):Image.asset(image!,scale: 3.5,),
+      leading: image == "" || image == null
+          ? Icon(icon, color: appcolor)
+          : Image.asset(
+              image!,
+              scale: 3.5,
+            ),
       title: Text(
         title,
-        style:GoogleFonts.poppins(fontSize: 14,fontWeight: FontWeight.w400,color: themeController.black),
+        style: GoogleFonts.poppins(
+            fontSize: 14,
+            fontWeight: FontWeight.w400,
+            color: themeController.black),
       ),
       trailing: const Icon(Icons.chevron_right, color: Color(0xFFAA8A00)),
       onTap: onTap,

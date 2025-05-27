@@ -151,83 +151,209 @@ class WardrobeService {
       'Accept': 'application/json',
     },
   ));
-
   Future<WardrobeItem> uploadWardrobeItem({
     required String category,
     required String subCategory,
     required String? avatarurl,
     required File imageFile,
     required String? token,
-  }) async {
+  }) async
+  {
     try {
-      print("Starting image upload process...");
-      print("Category: $category, SubCategory: $subCategory");
-      print("avatarurl: $avatarurl");
-      print("Original image file size: ${await imageFile.length()} bytes");
-      print("Original image file path: ${imageFile.path}");
-      print("Token: ${token != null ? 'Present (${token.length} chars)' : 'NULL'}");
+      // Input validation
+      if (token == null || token.isEmpty) {
+        throw Exception('Authentication token is required');
+      }
+
+      if (avatarurl == null || avatarurl.isEmpty) {
+        throw Exception('Avatar URL is required');
+      }
+
+      // Debug logging
+      print("=== Upload Request Debug ===");
+      print("Category: $category");
+      print("SubCategory: $subCategory");
+      print("Avatar URL: $avatarurl");
+      print("Image File Path: ${imageFile.path}");
+      print("Token: ${token.substring(0, 20)}..."); // Show only first 20 chars for security
+      print("==============================");
+
+      // Check if original file exists
+      if (!await imageFile.exists()) {
+        throw Exception('Source image file does not exist: ${imageFile.path}');
+      }
 
       // Convert image to PNG format
       File pngImageFile = await _convertImageToPng(imageFile);
-      print("Converted PNG image file size: ${await pngImageFile.length()} bytes");
-      print("Converted PNG image file path: ${pngImageFile.path}");
+      print("Image successfully converted to PNG format");
 
-      // Prepare multipart form data
+      // Verify converted file exists and get file info
+      if (!await pngImageFile.exists()) {
+        throw Exception('Converted PNG file does not exist');
+      }
+
+      int fileSize = await pngImageFile.length();
+      print("PNG file size: ${fileSize} bytes");
+
+      // Create FormData with proper field names
       FormData formData = FormData.fromMap({
         'category': category,
-        'sub_category': subCategory,
-        'avatar': avatarurl!,
+        'sub_category': subCategory, // Fixed: removed asterisk from 'sub*category'
+        'avatar': avatarurl,
         'file': await MultipartFile.fromFile(
           pngImageFile.path,
-          filename: 'upload.png',
+          filename: 'wardrobe_${DateTime.now().millisecondsSinceEpoch}.png',
           contentType: MediaType('image', 'png'),
         ),
       });
 
-      // Send request
+      // Debug FormData contents
+      print("=== FormData Contents ===");
+      formData.fields.forEach((field) {
+        print("Field: ${field.key} = ${field.value}");
+      });
+      formData.files.forEach((file) {
+        print("File: ${file.key} = ${file.value.filename} (${file.value.contentType})");
+      });
+      print("========================");
+
+      // Send request with proper options
       final response = await _dio.post(
         '/wardrobe-items',
         data: formData,
         options: Options(
           headers: {
-            if (token != null && token.isNotEmpty)
-              'Authorization': 'Bearer $token',
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'multipart/form-data',
           },
+          validateStatus: (status) => status! < 500, // Don't throw on client errors
+          sendTimeout: const Duration(seconds: 500),
+          receiveTimeout: const Duration(seconds: 500),
         ),
       );
 
-      print("Upload API response status code: ${response.statusCode}");
-      print("Upload API response body:");
-      print(response.data.toString());
+      // Detailed response logging
+      print("=== API Response Debug ===");
+      print("Status Code: ${response.statusCode}");
+      print("Status Message: ${response.statusMessage}");
+      print("Response Headers: ${response.headers}");
+      print("Response Data Type: ${response.data.runtimeType}");
+      print("Response Data: ${response.data}");
+      print("==========================");
 
+      // Handle successful responses
       if (response.statusCode == 200 || response.statusCode == 201) {
         final responseData = response.data;
 
+        // Handle different response structures
         Map<String, dynamic> itemData;
-        if (responseData.containsKey('data')) {
-          itemData = responseData['data'];
-        } else if (responseData.containsKey('item')) {
-          itemData = responseData['item'];
+        if (responseData is Map<String, dynamic>) {
+          if (responseData.containsKey('data')) {
+            itemData = responseData['data'];
+          } else if (responseData.containsKey('item')) {
+            itemData = responseData['item'];
+          } else {
+            itemData = responseData;
+          }
         } else {
-          itemData = responseData;
+          throw Exception('Unexpected response format: ${responseData.runtimeType}');
         }
 
+        print("Successfully parsed item data: ${itemData.keys}");
         return WardrobeItem.fromJson(itemData);
+
       } else {
-        throw Exception(
-            'Failed to upload wardrobe item. Status code: ${response.statusCode}, Response: ${response.data}');
+        // Handle error responses with detailed information
+        String errorMessage = 'Upload failed with status ${response.statusCode}';
+
+        if (response.data != null) {
+          if (response.data is Map<String, dynamic>) {
+            var errorData = response.data as Map<String, dynamic>;
+            if (errorData.containsKey('message')) {
+              errorMessage += ': ${errorData['message']}';
+            } else if (errorData.containsKey('error')) {
+              errorMessage += ': ${errorData['error']}';
+            } else if (errorData.containsKey('errors')) {
+              errorMessage += ': ${errorData['errors']}';
+            }
+          } else {
+            errorMessage += ': ${response.data}';
+          }
+        }
+
+        print("API Error: $errorMessage");
+        throw Exception(errorMessage);
       }
+
     } on DioException catch (e) {
-      print("Dio error during image upload: ${e.message}");
-      throw Exception('Dio error uploading wardrobe item: ${e.message}');
+      print("=== DioException Details ===");
+      print("Type: ${e.type}");
+      print("Message: ${e.message}");
+      print("Response Status: ${e.response?.statusCode}");
+      print("Response Data: ${e.response?.data}");
+      print("Request Options: ${e.requestOptions.uri}");
+      print("===========================");
+
+      String errorMessage = 'Network error during upload';
+
+      if (e.response != null) {
+        final statusCode = e.response!.statusCode;
+        final responseData = e.response!.data;
+
+        switch (statusCode) {
+          case 400:
+            errorMessage = 'Bad request - please check your input data';
+            if (responseData != null && responseData is Map<String, dynamic>) {
+              if (responseData.containsKey('message')) {
+                errorMessage += ': ${responseData['message']}';
+              }
+            }
+            break;
+          case 401:
+            errorMessage = 'Authentication failed - please check your token';
+            break;
+          case 403:
+            errorMessage = 'Access denied - insufficient permissions';
+            break;
+          case 413:
+            errorMessage = 'File too large - please use a smaller image';
+            break;
+          case 422:
+            errorMessage = 'Validation failed - please check your input';
+            break;
+          case 500:
+            errorMessage = 'Server error - please try again later';
+            break;
+          default:
+            errorMessage = 'HTTP $statusCode: ${e.message}';
+        }
+      } else if (e.type == DioExceptionType.connectionTimeout) {
+        errorMessage = 'Connection timeout - please check your internet connection';
+      } else if (e.type == DioExceptionType.sendTimeout) {
+        errorMessage = 'Upload timeout - file might be too large';
+      } else if (e.type == DioExceptionType.receiveTimeout) {
+        errorMessage = 'Response timeout - server took too long to respond';
+      } else if (e.type == DioExceptionType.connectionError) {
+        errorMessage = 'Connection error - please check your internet connection';
+      }
+
+      throw Exception(errorMessage);
+
     } on TimeoutException catch (e) {
-      print("Request timed out: $e");
-      throw Exception('The request took too long to complete. Please try again.');
+      print("Timeout error: $e");
+      throw Exception('Upload timed out. Please check your connection and try again.');
+
     } catch (e) {
-      print("Exception during image upload: $e");
-      throw Exception('Error uploading wardrobe item: $e');
+      print("=== Unexpected Error ===");
+      print("Type: ${e.runtimeType}");
+      print("Message: $e");
+      // print("Stack trace: ${StackTrace.current}");
+      print("=======================");
+
+      throw Exception('Unexpected error during upload: ${e.toString()}');
     }
   }
+
 
   /// Helper function to convert image to PNG format
   Future<File> _convertImageToPng(File inputFile) async {

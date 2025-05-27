@@ -8,7 +8,6 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../../controllers/auth_controller.dart';
 import '../../../Widgets/Custom_textfield.dart';
 
-
 class NewPasswordScreen extends StatefulWidget {
   final String email;
   final String otp;

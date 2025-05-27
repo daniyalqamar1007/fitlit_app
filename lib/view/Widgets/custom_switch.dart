@@ -12,10 +12,9 @@ class CustomSwitchTile extends StatelessWidget {
 
   const CustomSwitchTile({
     super.key,
-     this.icon,
+    this.icon,
     required this.title,
     this.image,
-
     required this.value,
     required this.onChanged,
   });
@@ -23,20 +22,28 @@ class CustomSwitchTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-
-      leading:image==""||image==null? Icon(icon, color: appcolor,size: 25,):Image.asset(image!,scale: 3.5,),
-      title: Text(title, style:  GoogleFonts.poppins(fontSize: 14,fontWeight: FontWeight.w400,color: themeController.black)),
+      leading: image == "" || image == null
+          ? Icon(
+              icon,
+              color: appcolor,
+              size: 25,
+            )
+          : Image.asset(
+              image!,
+              scale: 3.5,
+            ),
+      title: Text(title,
+          style: GoogleFonts.poppins(
+              fontSize: 14,
+              fontWeight: FontWeight.w400,
+              color: themeController.black)),
       trailing: Switch(
-
         value: value,
         onChanged: onChanged,
         activeColor: themeController.white,
         activeTrackColor: appcolor,
         inactiveThumbColor: appcolor,
         inactiveTrackColor: themeController.white,
-
-
-
       ),
     );
   }
