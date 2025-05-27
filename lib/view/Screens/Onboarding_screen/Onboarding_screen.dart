@@ -7,7 +7,6 @@ import '../../Utils/Colors.dart';
 import '../../Utils/Constants.dart';
 import '../../Utils/responsivness.dart';
 
-
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
 
@@ -22,7 +21,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final List<OnboardingPage> onboardingData = [
     OnboardingPage(
       title: "Fashion that speaks for itself",
-      description: "Indulge in a wardrobe that effortlessly blends sophistication with comfort, ensuring every outfit resonates with your unique flair.",
+      description:
+          "Indulge in a wardrobe that effortlessly blends sophistication with comfort, ensuring every outfit resonates with your unique flair.",
       highlightedText: "itself",
       titleColor: const Color(0xff272727),
       highlightColor: appcolor,
@@ -30,7 +30,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     ),
     OnboardingPage(
       title: "Organize. Create. Slay Every Day.",
-      description: "Snap your outfits, build your dream closet, and plan every look with ease. Own your style journey — one outfit at a time.",
+      description:
+          "Snap your outfits, build your dream closet, and plan every look with ease. Own your style journey — one outfit at a time.",
       highlightedText: "Every Day",
       titleColor: const Color(0xff272727),
       highlightColor: appcolor,
@@ -38,7 +39,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     ),
     OnboardingPage(
       title: "Your Style, Your Closet.",
-      description: "Capture your wardrobe, create stunning outfits, and plan your style effortlessly. Stay organized, inspired your closet, your way.",
+      description:
+          "Capture your wardrobe, create stunning outfits, and plan your style effortlessly. Stay organized, inspired your closet, your way.",
       highlightedText: "Closet",
       titleColor: const Color(0xff272727),
       highlightColor: appcolor,
@@ -68,10 +70,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: List.generate(
         onboardingData.length,
-            (index) {
+        (index) {
           return Container(
             margin: EdgeInsets.symmetric(horizontal: Responsive.width(4)),
-            width: _currentPage == index ? Responsive.width(25) : Responsive.width(8),
+            width: _currentPage == index
+                ? Responsive.width(25)
+                : Responsive.width(8),
             height: Responsive.height(7),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(Responsive.radius(4)),
@@ -199,11 +203,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     return RichText(
       text: TextSpan(
         style: GoogleFonts.playfairDisplay(
-          fontSize: Responsive.fontSize(38),
-          fontWeight: FontWeight.w700,
-          color: page.titleColor,
-          height: 0.99
-        ),
+            fontSize: Responsive.fontSize(38),
+            fontWeight: FontWeight.w700,
+            color: page.titleColor,
+            height: 0.99),
         children: [
           TextSpan(text: titleParts[0]),
           TextSpan(

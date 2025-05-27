@@ -18,18 +18,8 @@ class _LanguageScreenState extends State<LanguageScreen> {
   bool isLoading = false;
 
   final List<Map<String, String>> languages = [
-    {
-      'name': 'English',
-      'nativeName': 'English',
-      'flag': '🇺🇸',
-      'code': 'en'
-    },
-    {
-      'name': 'Spanish',
-      'nativeName': 'Español',
-      'flag': '🇪🇸',
-      'code': 'es'
-    },
+    {'name': 'English', 'nativeName': 'English', 'flag': '🇺🇸', 'code': 'en'},
+    {'name': 'Spanish', 'nativeName': 'Español', 'flag': '🇪🇸', 'code': 'es'},
   ];
   Future<void> _loadSavedLanguage() async {
     final prefs = await SharedPreferences.getInstance();
@@ -37,7 +27,7 @@ class _LanguageScreenState extends State<LanguageScreen> {
 
     if (savedCode != null) {
       final selectedLang = languages.firstWhere(
-            (lang) => lang['code'] == savedCode,
+        (lang) => lang['code'] == savedCode,
         orElse: () => languages[0], // fallback to English
       );
 
@@ -52,10 +42,11 @@ class _LanguageScreenState extends State<LanguageScreen> {
       selectedLanguage = language;
     });
   }
-@override
+
+  @override
   void initState() {
     // TODO: implement initState
-  _loadSavedLanguage();
+    _loadSavedLanguage();
     super.initState();
   }
 
@@ -63,7 +54,8 @@ class _LanguageScreenState extends State<LanguageScreen> {
     setState(() => isLoading = true);
 
     final prefs = await SharedPreferences.getInstance();
-    final selectedLang = languages.firstWhere((lang) => lang['name'] == selectedLanguage);
+    final selectedLang =
+        languages.firstWhere((lang) => lang['name'] == selectedLanguage);
     final code = selectedLang['code']!;
 
     await prefs.setString('language_code', code);
@@ -76,17 +68,17 @@ class _LanguageScreenState extends State<LanguageScreen> {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(AppLocalizations.of(context)!.languageChangedTo(selectedLanguage)),
+          content: Text(AppLocalizations.of(context)!
+              .languageChangedTo(selectedLanguage)),
           backgroundColor: Colors.green,
         ),
       );
 
       // Navigate directly to desired page (e.g., HomePage or ProfilePage)
-      Navigator.of(context).pushReplacementNamed(AppRoutes.dashboard); // or profile
+      Navigator.of(context)
+          .pushReplacementNamed(AppRoutes.dashboard); // or profile
     }
   }
-
-
 
   Widget _buildLanguageOption(Map<String, String> language) {
     bool isSelected = selectedLanguage == language['name'];
@@ -167,10 +159,10 @@ class _LanguageScreenState extends State<LanguageScreen> {
                   ),
                   child: isSelected
                       ? const Icon(
-                    Icons.check,
-                    size: 16,
-                    color: Colors.white,
-                  )
+                          Icons.check,
+                          size: 16,
+                          color: Colors.white,
+                        )
                       : null,
                 ),
               ],
@@ -190,7 +182,8 @@ class _LanguageScreenState extends State<LanguageScreen> {
         elevation: 0,
         leading: BackButton(color: appcolor),
         centerTitle: true,
-        title: Text(AppLocalizations.of(context)!.language,
+        title: Text(
+          AppLocalizations.of(context)!.language,
           style: GoogleFonts.playfairDisplay(
             fontWeight: FontWeight.bold,
             color: appcolor,
@@ -223,8 +216,8 @@ class _LanguageScreenState extends State<LanguageScreen> {
                           color: appcolor,
                         ),
                         const SizedBox(height: 16),
-
-                          Text(AppLocalizations.of(context)!.chooseLanguage,
+                        Text(
+                          AppLocalizations.of(context)!.chooseLanguage,
                           style: GoogleFonts.playfairDisplay(
                             fontSize: 22,
                             fontWeight: FontWeight.bold,
@@ -246,7 +239,8 @@ class _LanguageScreenState extends State<LanguageScreen> {
                   ),
                   const SizedBox(height: 32),
 
-              Text(AppLocalizations.of(context)!.availableLanguages,
+                  Text(
+                    AppLocalizations.of(context)!.availableLanguages,
                     style: GoogleFonts.poppins(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
@@ -256,7 +250,8 @@ class _LanguageScreenState extends State<LanguageScreen> {
                   const SizedBox(height: 16),
 
                   // Language options
-                  ...languages.map((language) => _buildLanguageOption(language)),
+                  ...languages
+                      .map((language) => _buildLanguageOption(language)),
 
                   const SizedBox(height: 20),
                 ],
@@ -290,20 +285,22 @@ class _LanguageScreenState extends State<LanguageScreen> {
                 ),
                 child: isLoading
                     ? const SizedBox(
-                  width: 24,
-                  height: 24,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                  ),
-                )
-                    : Text(AppLocalizations.of(context)!.saveLanguage,
-                  style: GoogleFonts.poppins(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                ),
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                      )
+                    : Text(
+                        AppLocalizations.of(context)!.saveLanguage,
+                        style: GoogleFonts.poppins(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
               ),
             ),
           ),

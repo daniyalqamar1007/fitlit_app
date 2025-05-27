@@ -5,11 +5,13 @@ import 'package:http/http.dart' as https;
 import 'package:fitlip_app/view/Utils/globle_variable/globle.dart';
 
 import '../model/profile_model.dart';
+import '../view/Utils/connection.dart';
 
 class ProfileService {
   // Get the user profile information
   Future<UserProfileModel> getUserProfile() async {
     try {
+
       final response = await https.get(
         Uri.parse('$baseUrl/user/profile'),
         headers: {

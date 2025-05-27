@@ -35,7 +35,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
   String? _errorMessage;
   final AuthController _authController = AuthController();
 
-
   Future<void> _initiateSignUp() async {
     if (!_formKey.currentState!.validate()) {
       return;
@@ -65,20 +64,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
       );
 
       // Then initiate OTP verification process with email
-      final result = await _authController.initialSignUp(_emailController.text);
+      final result = await _authController.initialSignUp(_emailController.text,context);
 
       setState(() {
         _isLoading = false;
       });
 
       if (result['success']) {
-        // Debug log for OTP
-        print('OTP received for testing: ${result['otp']}');
-
-        // Set the first_time flag to indicate this is a signup flow
         first_time = true;
 
-        // Navigate to OTP verification screen
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -89,7 +83,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
               phone: _phoneController.text,
               password: _passwordController.text,
               file: _profileImage!,
-
             ),
           ),
         );
@@ -195,7 +188,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 03.w),
           child: Text(
-            'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor',
+            'FitIt lets you create and customize your own avatar outfits for a unique style experience',
             textAlign: TextAlign.center,
             style: GoogleFonts.poppins(
               color: Colors.grey,
@@ -262,7 +255,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
             fillColor: Colors.grey.shade100,
             border: InputBorder.none,
           ),
-          style: GoogleFonts.poppins(color: themeController.black, fontSize: 12.sp),
+          style: GoogleFonts.poppins(
+              color: themeController.black, fontSize: 12.sp),
           items: _genderOptions.map((gender) {
             return DropdownMenuItem<String>(
               value: gender,
@@ -294,7 +288,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
               color: appcolor,
               size: 20.sp,
             ),
-            onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+            onPressed: () =>
+                setState(() => _obscurePassword = !_obscurePassword),
           ),
         ),
         SizedBox(height: 8.h),
@@ -304,25 +299,28 @@ class _SignUpScreenState extends State<SignUpScreen> {
             child: TextFormField(
               readOnly: true,
               decoration: InputDecoration(
-                hintText: _profileImage != null ? 'Image Selected' : 'Upload Photo',
-                hintStyle: GoogleFonts.poppins(color: hintextcolor, fontSize: 12.sp),
+                hintText:
+                    _profileImage != null ? 'Image Selected' : 'Upload Photo',
+                hintStyle:
+                    GoogleFonts.poppins(color: hintextcolor, fontSize: 12.sp),
                 filled: true,
                 fillColor: Colors.grey[100],
                 border: InputBorder.none,
                 suffixIcon: _profileImage != null
                     ? Container(
-                  margin: EdgeInsets.all(10.sp),
-                  decoration: BoxDecoration(
-                    color: Colors.green,
-                    shape: BoxShape.circle,
-                  ),
-                  padding: EdgeInsets.all(4.sp),
-                  child: Icon(Icons.check, color: Colors.white, size: 16.sp),
-                )
+                        margin: EdgeInsets.all(10.sp),
+                        decoration: BoxDecoration(
+                          color: Colors.green,
+                          shape: BoxShape.circle,
+                        ),
+                        padding: EdgeInsets.all(4.sp),
+                        child:
+                            Icon(Icons.check, color: Colors.white, size: 16.sp),
+                      )
                     : Image.asset(
-                  'assets/Icons/camera_icon.png',
-                  scale: 5.sp,
-                ),
+                        'assets/Icons/camera_icon.png',
+                        scale: 5.sp,
+                      ),
               ),
             ),
           ),
@@ -342,7 +340,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
             TextSpan(
               text: 'Sign In',
               recognizer: TapGestureRecognizer()
-                ..onTap = () => Navigator.pushReplacementNamed(context, AppRoutes.signin),
+                ..onTap = () =>
+                    Navigator.pushReplacementNamed(context, AppRoutes.signin),
               style: GoogleFonts.poppins(
                 color: appcolor,
                 fontSize: 12.sp,
@@ -356,14 +355,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
   }
 
   Future<void> _pickImageFromGallery() async {
-    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+    final pickedFile =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       setState(() => _profileImage = File(pickedFile.path));
     }
   }
 
   Future<void> _pickImageFromCamera() async {
-    final pickedFile = await ImagePicker().pickImage(source: ImageSource.camera);
+    final pickedFile =
+        await ImagePicker().pickImage(source: ImageSource.camera);
     if (pickedFile != null) {
       setState(() => _profileImage = File(pickedFile.path));
     }

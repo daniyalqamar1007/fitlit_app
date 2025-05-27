@@ -19,7 +19,8 @@ import '../../../model/wardrobe_model.dart';
 import '../../Utils/Colors.dart';
 import 'dart:io';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:http/http.dart'as http;
+import 'package:http/http.dart' as http;
+import '../../Utils/connection.dart';
 import '../../Utils/globle_variable/globle.dart';
 import '../../Utils/responsivness.dart';
 
@@ -76,7 +77,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
 
     _loadUserProfile();
     _getUserInfoAndLoadItems();
-    _loadGeneratedAvatars(); // Load saved avatars
+    // _loadGeneratedAvatars(); // Load saved avatars
     _wardrobeController.statusNotifier.addListener(_handleStatusChange);
     _avatarController.statusNotifier.addListener(_handleAvatarStatusChange);
     _checkExistingOutfit(_focusedDay);
@@ -117,12 +118,16 @@ class _WardrobeScreenState extends State<WardrobeScreen>
     }
   }
 
-  Future<void> _generateAvatar() async {
+  Future<void> _generateAvatar(BuildContext context) async {
     final localizations = AppLocalizations.of(context)!;
     print("avatar generating");
+    bool hasInternet = await checkInternetAndShowDialog(context);
+    if (!hasInternet) {
+      return;
+    }
 
-    if (selectedShirtId == null &&
-        selectedPantId == null &&
+    if (selectedShirtId == null ||
+        selectedPantId == null ||
         selectedShoeId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -180,14 +185,16 @@ class _WardrobeScreenState extends State<WardrobeScreen>
     }
   }
 
-  Future<void> _swipeAvatar(String swipeDirection, String currentAvatarUrl) async {
+  Future<void> _swipeAvatar(
+      String swipeDirection, String currentAvatarUrl) async {
     try {
       setState(() {
         _isLoading = true;
       });
 
       final response = await http.post(
-        Uri.parse('${baseUrl}/avatar/swipe-outfit'), // Replace baseUrl with your actual base URL
+        Uri.parse(
+            '${baseUrl}/avatar/swipe-outfit'), // Replace baseUrl with your actual base URL
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token', // Add if needed
@@ -197,8 +204,8 @@ class _WardrobeScreenState extends State<WardrobeScreen>
           "avatarUrl": currentAvatarUrl,
         }),
       );
-print(response.statusCode);
-print(response.body);
+      print(response.statusCode);
+      print(response.body);
       if (response.statusCode == 201) {
         final data = jsonDecode(response.body);
         if (data['avatar'] != null) {
@@ -250,7 +257,8 @@ print(response.body);
   }
 
   void _handleAvatarSwipe(DragEndDetails details) {
-    final currentAvatarImage = _getCurrentAvatarImage(_profileController.profileNotifier.value);
+    final currentAvatarImage =
+        _getCurrentAvatarImage(_profileController.profileNotifier.value);
 
     if (currentAvatarImage == null || currentAvatarImage.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -315,17 +323,20 @@ print(response.body);
       setState(() {
         isLoadingItems = true; // Show loading indicator
       });
-
+      // bool hasInternet = await checkInternetAndShowDialog(context);
+      // if (!hasInternet) {
+      //   return;
+      // }
       final outfit = await _outfitController.getOutfitByDate(
         token: token!,
         date: date,
       );
       print("coming ios $outfit");
-      if ( outfit!= "") {
+      if (outfit != "") {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-             localizations.updateAvailableForThisDate ,
+              localizations.updateAvailableForThisDate,
               style: GoogleFonts.poppins(color: Colors.white),
             ),
             backgroundColor: appcolor,
@@ -409,8 +420,13 @@ print(response.body);
           _wardrobeController.accessoriesNotifier.value.last.id;
     }
   }
-  Future<void> _saveOutfit() async {
+
+  Future<void> _saveOutfit(BuildContext context) async {
     // Show confirmation dialog
+    bool hasInternet = await checkInternetAndShowDialog(context);
+    if (!hasInternet) {
+      return;
+    }
     bool confirmed = await _showSaveOutfitConfirmationDialog();
     if (!confirmed) return;
 
@@ -420,7 +436,8 @@ print(response.body);
 
     try {
       // Get the current avatar URL being displayed
-      final currentAvatarUrl = _getCurrentAvatarImage(_profileController.profileNotifier.value);
+      final currentAvatarUrl =
+          _getCurrentAvatarImage(_profileController.profileNotifier.value);
 
       if (currentAvatarUrl == null || currentAvatarUrl.isEmpty) {
         setState(() {
@@ -429,6 +446,17 @@ print(response.body);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('No avatar available to save'),
+            backgroundColor: appcolor,
+          ),
+        );
+        return;
+      }
+      if (selectedShirtId == null ||
+          selectedPantId == null ||
+          selectedShoeId == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Please select item first,missing item"),
             backgroundColor: Colors.orange,
           ),
         );
@@ -460,7 +488,8 @@ print(response.body);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(_outfitController.errorNotifier.value ?? 'Failed to save outfit'),
+            content: Text(_outfitController.errorNotifier.value ??
+                'Failed to save outfit'),
             backgroundColor: Colors.red,
           ),
         );
@@ -477,71 +506,6 @@ print(response.body);
       );
     }
   }
-  // Future<void> _saveOutfit() async {
-  //   // Show confirmation dialog
-  //   bool confirmed = await _showSaveOutfitConfirmationDialog();
-  //
-  //   if (!confirmed) return;
-  //
-  //   setState(() {
-  //     isSavingOutfit = true;
-  //     storedindex = _currentAvatarIndex;
-  //     print(_currentAvatarIndex);
-  //   });
-  //
-  //   try {
-  //     if (profileImage == "") {
-  //       return;
-  //     }
-  //     print("all data is ");
-  //     print(selectedShirtId);
-  //     print(selectedPantId);
-  //     print(selectedShoeId);
-  //     print(profileImage);
-  //     final result = await _outfitController.saveOutfit(
-  //       token: token!,
-  //       shirtId: selectedShirtId,
-  //       pantId: selectedPantId,
-  //       shoeId: selectedShoeId,
-  //       accessoryId: "4",
-  //       avatarurl: profileImage!,
-  //       date: _selectedDay ?? _focusedDay,
-  //     );
-  //
-  //     setState(() {
-  //       isSavingOutfit = false;
-  //     });
-  //
-  //     if (result) {
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         SnackBar(
-  //           content: Text(
-  //               'Outfit saved successfully for ${_getFormattedDate(_selectedDay ?? _focusedDay)}'),
-  //           backgroundColor: Colors.green,
-  //         ),
-  //       );
-  //     } else {
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         SnackBar(
-  //           content: Text(_outfitController.errorNotifier.value ??
-  //               'Failed to save outfit'),
-  //           backgroundColor: Colors.red,
-  //         ),
-  //       );
-  //     }
-  //   } catch (e) {
-  //     setState(() {
-  //       isSavingOutfit = false;
-  //     });
-  //
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       SnackBar(
-  //         content: Text('Error: ${e.toString()}'),
-  //         backgroundColor: Colors.red,
-  //       ),
-  //     );
-  //   }
-  // }
 
   String _getFormattedDate(DateTime date) {
     return "${date.day} ${_getMonthName(date.month)} ${date.year}";
@@ -554,7 +518,7 @@ print(response.body);
       context: context,
       builder: (context) => AlertDialog(
         title: Text(
-         localizations.saveOutfit ,
+          localizations.saveOutfit,
           style: GoogleFonts.poppins(
             color: appcolor,
             fontWeight: FontWeight.bold,
@@ -680,7 +644,8 @@ print(response.body);
     );
   }
 
-  Widget _buildTopRow() { final localizations = AppLocalizations.of(context)!;
+  Widget _buildTopRow() {
+    final localizations = AppLocalizations.of(context)!;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -695,7 +660,7 @@ print(response.body);
               valueListenable: _profileController.profileNotifier,
               builder: (context, userProfile, _) {
                 if (userProfile == null) {
-                  return const CircularProgressIndicator();
+                  return  CircularProgressIndicator(color: appcolor,);
                 }
 
                 return ClipOval(
@@ -707,7 +672,8 @@ print(response.body);
                       shape: BoxShape.circle,
                     ),
                     child: userProfile.profileImage.isNotEmpty
-                        ? CachedNetworkImage(
+                        ?
+                    CachedNetworkImage(
                             imageUrl: userProfile.profileImage,
                             fit: BoxFit.cover,
                             alignment: Alignment
@@ -715,7 +681,9 @@ print(response.body);
                             placeholderFadeInDuration:
                                 Duration(milliseconds: 300),
                             placeholder: (context, url) =>
-                                CircularProgressIndicator(color: appcolor,),
+                                CircularProgressIndicator(
+                              color: appcolor,
+                            ),
                             errorWidget: (context, url, error) => Image.asset(
                               'assets/Images/circle_image.png',
                               fit: BoxFit.cover,
@@ -749,7 +717,7 @@ print(response.body);
           width: Responsive.width(40),
         ),
         GestureDetector(
-          onTap: isSavingOutfit ? null : _saveOutfit,
+          onTap: isSavingOutfit ? null :()async{await _saveOutfit(context);},
           child: Container(
             padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
             height: 30,
@@ -987,7 +955,7 @@ print(response.body);
 
   String _getMonthName(int month) {
     final localizations = AppLocalizations.of(context)!;
-     var months = [
+    var months = [
       localizations.jan,
       localizations.feb,
       localizations.mar,
@@ -1172,8 +1140,7 @@ print(response.body);
   }
 
   WardrobeItem? _getSelectedItemForCategory(
-      String category, List<WardrobeItem> items)
-  {
+      String category, List<WardrobeItem> items) {
     String? selectedId;
 
     switch (category) {
@@ -1203,18 +1170,18 @@ print(response.body);
   }
 
   void _showItemSelectionDialog(
-
-      String category, ValueNotifier<List<WardrobeItem>> notifier)
-  {
+      String category, ValueNotifier<List<WardrobeItem>> notifier) {
     if (notifier.value.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('No ${category} available. Please upload some first.',style: TextStyle(fontSize: 10),),
+          content: Text(
+            'No ${category} available. Please upload some first.',
+            style: TextStyle(fontSize: 10),
+          ),
           backgroundColor: appcolor,
         ),
       );
       return;
-
     }
     final localizations = AppLocalizations.of(context)!;
 
@@ -1226,9 +1193,7 @@ print(response.body);
         ),
         child: Container(
           decoration: BoxDecoration(
-          color: Colors.white,
-            borderRadius: BorderRadius.circular(8)
-          ),
+              color: Colors.white, borderRadius: BorderRadius.circular(8)),
           padding: EdgeInsets.all(16),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -1243,15 +1208,11 @@ print(response.body);
               ),
               SizedBox(height: 16),
               ConstrainedBox(
-
                 constraints: BoxConstraints(
-
                   maxHeight: MediaQuery.of(context).size.height * 0.5,
-
                 ),
                 child: Container(
                   child: GridView.builder(
-
                     shrinkWrap: true,
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 3,
@@ -1324,7 +1285,8 @@ print(response.body);
                                     child: Image.network(
                                       item.imageUrl ?? '',
                                       fit: BoxFit.contain,
-                                      errorBuilder: (context, error, stackTrace) {
+                                      errorBuilder:
+                                          (context, error, stackTrace) {
                                         return Center(
                                           child: Icon(
                                             _getIconForCategory(category),
@@ -1370,7 +1332,7 @@ print(response.body);
                       Navigator.pop(context);
                     },
                     child: Text(
-                     localizations.cancel ,
+                      localizations.cancel,
                       style: GoogleFonts.poppins(color: Colors.grey),
                     ),
                   ),
@@ -1397,19 +1359,22 @@ print(response.body);
         return Icons.category;
     }
   }
+
   Widget _buildAvatarColumn() {
     return ValueListenableBuilder<UserProfileModel?>(
       valueListenable: _profileController.profileNotifier,
       builder: (context, userProfile, _) {
-        final currentAvatarImage =
-        _avatarUrl?.isNotEmpty == true ? _avatarUrl : _getCurrentAvatarImage(userProfile);
+        final currentAvatarImage = _avatarUrl?.isNotEmpty == true
+            ? _avatarUrl
+            : _getCurrentAvatarImage(userProfile);
 
         // Only update profileImage if valid
         if (currentAvatarImage != null && currentAvatarImage.isNotEmpty) {
           profileImage = currentAvatarImage;
         }
 
-        final isImageValid = currentAvatarImage != null && currentAvatarImage.isNotEmpty;
+        final isImageValid =
+            currentAvatarImage != null && currentAvatarImage.isNotEmpty;
 
         return GestureDetector(
           onHorizontalDragEnd: _handleAvatarSwipe,
@@ -1431,22 +1396,23 @@ print(response.body);
                   },
                   child: _isLoading || !isImageValid
                       ? Center(
-                    key: const ValueKey('loading'),
-                    child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(appcolor),
-                    ),
-                  )
+                          key: const ValueKey('loading'),
+                          child: CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation<Color>(appcolor),
+                          ),
+                        )
                       : CachedNetworkImage(
-                    key: ValueKey(currentAvatarImage),
-                    imageUrl: currentAvatarImage!,
-                    fit: BoxFit.cover,
-                    width: Responsive.height(350),
-                    height: Responsive.height(350),
-                    placeholder: (context, url) => Center(
-                      child: CircularProgressIndicator(color: appcolor),
-                    ),
-                    errorWidget: (context, url, error) => Icon(Icons.error),
-                  ),
+                          key: ValueKey(currentAvatarImage),
+                          imageUrl: currentAvatarImage!,
+                          fit: BoxFit.cover,
+                          width: Responsive.height(350),
+                          height: Responsive.height(350),
+                          placeholder: (context, url) => Center(
+                            child: CircularProgressIndicator(color: appcolor),
+                          ),
+                          errorWidget: (context, url, error) =>
+                              Icon(Icons.error),
+                        ),
                 ),
               ],
             ),
@@ -1455,7 +1421,6 @@ print(response.body);
       },
     );
   }
-
 
   void _animateAvatarChange() {
     _avatarAnimationController?.reset();
@@ -1481,7 +1446,7 @@ print(response.body);
             GestureDetector(
               onTap: _isGeneratingAvatar
                   ? null
-                  : _generateAvatar, // Call the generate avatar method
+                  : ()async{_generateAvatar(context);}, // Call the generate avatar method
               child: Container(
                 padding: EdgeInsets.symmetric(
                     horizontal: Responsive.width(4),
@@ -1513,7 +1478,9 @@ print(response.body);
                       ),
                     SizedBox(width: 2),
                     Text(
-                      _isGeneratingAvatar ?localizations.generating : localizations.generate,
+                      _isGeneratingAvatar
+                          ? localizations.generating
+                          : localizations.generate,
                       style: GoogleFonts.poppins(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
@@ -1573,8 +1540,8 @@ print(response.body);
                                 'Shirts', selectedCategory, (category) {
                               setState(() {
                                 selectedCategory = category;
-                                subcategories =
-                                    getSubcategoriesForCategory(context,category);
+                                subcategories = getSubcategoriesForCategory(
+                                    context, category);
                                 selectedSubcategory = null;
                                 Future.delayed(Duration(milliseconds: 100), () {
                                   setState(() {
@@ -1584,11 +1551,12 @@ print(response.body);
                               });
                             }),
                             _buildAnimatedCategoryButton(
-                                localizations.accessories, selectedCategory, (category) {
+                                localizations.accessories, selectedCategory,
+                                (category) {
                               setState(() {
                                 selectedCategory = category;
-                                subcategories =
-                                    getSubcategoriesForCategory(context,category);
+                                subcategories = getSubcategoriesForCategory(
+                                    context, category);
                                 selectedSubcategory = null;
                                 Future.delayed(Duration(milliseconds: 100), () {
                                   setState(() {
@@ -1601,8 +1569,8 @@ print(response.body);
                                 'Pants', selectedCategory, (category) {
                               setState(() {
                                 selectedCategory = category;
-                                subcategories =
-                                    getSubcategoriesForCategory(context,category);
+                                subcategories = getSubcategoriesForCategory(
+                                    context, category);
                                 selectedSubcategory = null;
                                 Future.delayed(Duration(milliseconds: 100), () {
                                   setState(() {
@@ -1615,8 +1583,8 @@ print(response.body);
                                 'Shoes', selectedCategory, (category) {
                               setState(() {
                                 selectedCategory = category;
-                                subcategories =
-                                    getSubcategoriesForCategory(context,category);
+                                subcategories = getSubcategoriesForCategory(
+                                    context, category);
                                 selectedSubcategory = null;
                                 Future.delayed(Duration(milliseconds: 100), () {
                                   setState(() {
@@ -1743,7 +1711,8 @@ print(response.body);
   }
 
   // Helper method to get subcategories based on selected category
-  List<String> getSubcategoriesForCategory(BuildContext context, String category) {
+  List<String> getSubcategoriesForCategory(
+      BuildContext context, String category) {
     final loc = AppLocalizations.of(context)!;
 
     switch (category) {
@@ -1787,6 +1756,7 @@ print(response.body);
         return [];
     }
   }
+
   // Method to open camera with Google Vision integration
   void _openCameraWithGoogleVision(String category, String subcategory) async {
     final loc = AppLocalizations.of(context)!;
@@ -1867,6 +1837,8 @@ print(response.body);
   void _showImageCapturedDialog(
       String category, String subcategory, File imageFile)
   {
+    _isUploading = false;
+    _uploadProgress = 0.0;
     final loc = AppLocalizations.of(context)!;
     showDialog(
       context: context,
@@ -1877,7 +1849,7 @@ print(response.body);
             return AlertDialog(
               backgroundColor: Colors.white,
               title: Text(
-                _isUploading ?  loc.uploadingItem: loc.itemCaptured,
+                _isUploading ? loc.uploadingItem : loc.itemCaptured,
                 style: GoogleFonts.poppins(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
@@ -1972,37 +1944,28 @@ print(response.body);
 
                           // Start the progress animation
                           _startUploadProgressAnimation(setState);
-
+                          bool hasInternet =
+                              await checkInternetAndShowDialog(context);
+                          if (!hasInternet) {
+                            return;
+                          }
                           try {
                             await _wardrobeController.uploadWardrobeItem(
                                 category: category,
                                 subCategory: subcategory,
                                 imageFile: imageFile,
                                 avatarurl: profileImage!,
+                                context: context,
                                 token: token);
-
-                            // Complete the progress animation
                             _completeUploadProgress(setState);
 
                             // Slight delay to show 100% completion
-                            await Future.delayed(Duration(milliseconds: 500));
+                            // await Future.delayed(Duration(milliseconds: 500));
 
                             _getUserInfoAndLoadItems();
 
-                            if (context.mounted) {
-                              _uploadProgressTimer?.cancel();
-                              Navigator.pop(context);
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    loc.imageSuccessfullySaved(category, subcategory),
-                                  ),
-                                  backgroundColor: appcolor,
-                                  behavior: SnackBarBehavior.floating,
-                                  duration: Duration(seconds: 3),
-                                ),
-                              );
-                            }
+                            _uploadProgressTimer?.cancel();
+                            Navigator.pop(context);
                           } catch (e) {
                             // Complete progress animation even on error
                             _completeUploadProgress(setState);
@@ -2024,7 +1987,7 @@ print(response.body);
                           }
                         },
                         child: Text(
-                          loc.addingToWardrobe,
+                          loc.addToWardrobe,
                           style: GoogleFonts.poppins(
                             color: appcolor,
                             fontWeight: FontWeight.bold,

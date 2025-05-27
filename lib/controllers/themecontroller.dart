@@ -15,5 +15,5 @@ class ThemeController {
   Color get accent => Colors.blue;
   Color get textSecondary => Colors.grey;
   Color get error => Colors.red;
-  Color get hintTextColor => isDark.value ?  Color(0x80CCCCCC) :  Colors.white;
+  Color get hintTextColor => isDark.value ? Color(0x80CCCCCC) : Colors.white;
 }

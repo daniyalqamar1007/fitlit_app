@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 
 import 'package:fitlip_app/main.dart';
@@ -17,7 +16,6 @@ import '../../Widgets/custom_tile.dart';
 import 'edit_profile.dart';
 import 'package:http/http.dart' as http;
 
-
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
 
@@ -25,17 +23,19 @@ class ProfileScreen extends StatefulWidget {
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateMixin {
+class _ProfileScreenState extends State<ProfileScreen>
+    with TickerProviderStateMixin {
   bool isNotificationEnabled = true;
   bool isDarkMode = false;
   final ProfileController _profileController = ProfileController();
   late AnimationController _ratingAnimationController;
   late Animation<double> _starAnimation;
 
-  // Rating state management using ValueNotifier
-  final ValueNotifier<bool> _isRatingDialogLoadingNotifier = ValueNotifier<bool>(false);
+  final ValueNotifier<bool> _isRatingDialogLoadingNotifier =
+      ValueNotifier<bool>(false);
   final ValueNotifier<int> _selectedRatingNotifier = ValueNotifier<int>(0);
-  final ValueNotifier<String?> _ratingErrorNotifier = ValueNotifier<String?>(null);
+  final ValueNotifier<String?> _ratingErrorNotifier =
+      ValueNotifier<String?>(null);
 
   @override
   void initState() {
@@ -48,7 +48,8 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
       vsync: this,
     );
     _starAnimation = Tween<double>(begin: 0.8, end: 1.2).animate(
-      CurvedAnimation(parent: _ratingAnimationController, curve: Curves.elasticOut),
+      CurvedAnimation(
+          parent: _ratingAnimationController, curve: Curves.elasticOut),
     );
   }
 
@@ -89,15 +90,11 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
     }
   }
 
-
-
   Future<void> _submitRating(int rating) async {
     _isRatingDialogLoadingNotifier.value = true;
     _ratingErrorNotifier.value = null;
 
     try {
-
-
       if (token == null) {
         throw Exception('Authentication token not found');
       }
@@ -114,14 +111,12 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
         }),
       );
 
-      print('Rating API Response status code: ${response.statusCode}');
-      print('Rating API Response body: ${response.body}');
-
       if (response.statusCode == 200 || response.statusCode == 201) {
         final responseData = jsonDecode(response.body);
 
         // Check for success in response
-        if (responseData['success'] == true || responseData['status'] == 'success') {
+        if (responseData['success'] == true ||
+            responseData['status'] == 'success') {
           // Rating submitted successfully
           Navigator.pop(context);
 
@@ -129,7 +124,8 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                responseData['message'] ?? 'Thank you for rating us $rating star${rating > 1 ? 's' : ''}!',
+                responseData['message'] ??
+                    'Thank you for rating us $rating star${rating > 1 ? 's' : ''}!',
                 style: GoogleFonts.poppins(color: Colors.white),
               ),
               backgroundColor: Colors.green,
@@ -153,6 +149,7 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
       _isRatingDialogLoadingNotifier.value = false;
     }
   }
+
   Future<void> _deleteAccount() async {
     try {
       // Get the stored token (assuming you have a method to get it)
@@ -160,24 +157,23 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
       if (token == null) {
         throw Exception('Authentication token not found');
       }
-print(token);
+      print(token);
       final response = await http.delete(
-        Uri.parse('https://zqxct4xv-3099.inc1.devtunnels.ms/auth/delete-account'), // Replace with your actual API endpoint
+        Uri.parse(
+            'https://zqxct4xv-3099.inc1.devtunnels.ms/auth/delete-account'), // Replace with your actual API endpoint
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
-
       );
 
-      print('Delete Account API Response status code: ${response.statusCode}');
-      print('Delete Account API Response body: ${response.body}');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final responseData = jsonDecode(response.body);
 
         // Check for success in response
-        if (responseData['success'] == true || responseData['status'] == 'success') {
+        if (responseData['success'] == true ||
+            responseData['status'] == 'success') {
           // Account deleted successfully
           // Clear any stored data
           await remove(); // Clear stored token/data
@@ -201,10 +197,11 @@ print(token);
           Navigator.pushNamedAndRemoveUntil(
             context,
             AppRoutes.signin,
-                (route) => false,
+            (route) => false,
           );
         } else {
-          throw Exception(responseData['message'] ?? 'Failed to delete account');
+          throw Exception(
+              responseData['message'] ?? 'Failed to delete account');
         }
       } else {
         final errorData = jsonDecode(response.body);
@@ -233,7 +230,6 @@ print(token);
 // Add this method to show confirmation dialog
   void _showDeleteAccountDialog() {
     showDialog(
-
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
@@ -372,7 +368,8 @@ print(token);
                         ),
                         child: Row(
                           children: [
-                            Icon(Icons.error_outline, color: Colors.red.shade600, size: 20),
+                            Icon(Icons.error_outline,
+                                color: Colors.red.shade600, size: 20),
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(
@@ -409,7 +406,9 @@ print(token);
                             animation: _starAnimation,
                             builder: (context, child) {
                               return Transform.scale(
-                                scale: selectedRating == index + 1 ? _starAnimation.value : 1.0,
+                                scale: selectedRating == index + 1
+                                    ? _starAnimation.value
+                                    : 1.0,
                                 child: Icon(
                                   Icons.star,
                                   size: 40,
@@ -474,10 +473,12 @@ print(token);
                               child: TextButton(
                                 onPressed: () => Navigator.pop(context),
                                 style: TextButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 12),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
-                                    side: BorderSide(color: Colors.grey.shade300),
+                                    side:
+                                        BorderSide(color: Colors.grey.shade300),
                                   ),
                                 ),
                                 child: Text(
@@ -493,10 +494,15 @@ print(token);
                             const SizedBox(width: 12),
                             Expanded(
                               child: ElevatedButton(
-                                onPressed: selectedRating > 0 ? () => _submitRating(selectedRating) : null,
+                                onPressed: selectedRating > 0
+                                    ? () => _submitRating(selectedRating)
+                                    : null,
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: selectedRating > 0 ? appcolor : Colors.grey.shade300,
-                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  backgroundColor: selectedRating > 0
+                                      ? appcolor
+                                      : Colors.grey.shade300,
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 12),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
                                   ),
@@ -506,7 +512,9 @@ print(token);
                                   style: GoogleFonts.poppins(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
-                                    color: selectedRating > 0 ? Colors.white : Colors.grey.shade500,
+                                    color: selectedRating > 0
+                                        ? Colors.white
+                                        : Colors.grey.shade500,
                                   ),
                                 ),
                               ),
@@ -559,6 +567,7 @@ print(token);
         return "";
     }
   }
+
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
@@ -583,7 +592,8 @@ print(token);
         valueListenable: _profileController.isLoadingNotifier,
         builder: (context, isLoading, _) {
           if (isLoading) {
-            return const Center(child: CircularProgressIndicator(color: Color(0xFFAA8A00)));
+            return const Center(
+                child: CircularProgressIndicator(color: Color(0xFFAA8A00)));
           }
 
           return ValueListenableBuilder<UserProfileModel?>(
@@ -603,7 +613,8 @@ print(token);
                       alignment: Alignment.centerLeft,
                       child: Text(
                         localizations.settings,
-                        style: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 16),
+                        style: GoogleFonts.poppins(
+                            fontWeight: FontWeight.w600, fontSize: 16),
                       ),
                     ),
                     // const SizedBox(height: 16),
@@ -615,21 +626,21 @@ print(token);
                     // ),
                     CustomListTile(
                       image: "assets/Icons/language.png",
-                      title:localizations.language,
+                      title: localizations.language,
                       onTap: () {
                         Navigator.pushNamed(context, AppRoutes.language);
                       },
                     ),
                     CustomListTile(
                       image: "assets/Icons/policy.png",
-                      title:localizations.privacyPolicy,
+                      title: localizations.privacyPolicy,
                       onTap: () {
                         Navigator.pushNamed(context, AppRoutes.privacypolicy);
                       },
                     ),
                     CustomListTile(
                       icon: Icons.mail_outline,
-                      title:localizations.contactUs,
+                      title: localizations.contactUs,
                       onTap: _navigateToContactUs,
                     ),
                     CustomListTile(
@@ -646,16 +657,21 @@ print(token);
                           context: context,
                           builder: (context) => AlertDialog(
                             backgroundColor: Colors.white,
-                            title: Text(localizations.confirmLogout, style: GoogleFonts.poppins(color: appcolor)),
-                            content: Text(localizations.areYouSureLogout, style: GoogleFonts.poppins(color: appcolor)),
+                            title: Text(localizations.confirmLogout,
+                                style: GoogleFonts.poppins(color: appcolor)),
+                            content: Text(localizations.areYouSureLogout,
+                                style: GoogleFonts.poppins(color: appcolor)),
                             actions: [
                               TextButton(
                                 onPressed: () => Navigator.pop(context, false),
-                                child: Text(localizations.cancel, style: GoogleFonts.poppins(color: appcolor)),
+                                child: Text(localizations.cancel,
+                                    style:
+                                        GoogleFonts.poppins(color: appcolor)),
                               ),
                               TextButton(
                                 onPressed: () => Navigator.pop(context, true),
-                                child:  Text(localizations.logout, style: TextStyle(color: Colors.red)),
+                                child: Text(localizations.logout,
+                                    style: TextStyle(color: Colors.red)),
                               ),
                             ],
                           ),
@@ -663,15 +679,15 @@ print(token);
 
                         if (shouldLogout ?? false) {
                           await remove();
-                          Navigator.pushReplacementNamed(context, AppRoutes.signin);
+                          Navigator.pushReplacementNamed(
+                              context, AppRoutes.signin);
                         }
                       },
                     ),
                     CustomListTile(
                       icon: Icons.delete_outline_outlined,
-
                       title: localizations.delete,
-                      onTap: (){
+                      onTap: () {
                         _showDeleteAccountDialog();
                       },
                     ),
@@ -686,7 +702,6 @@ print(token);
   }
 
   void _showFullScreenImage() {
-
     final userProfile = _profileController.profileNotifier.value;
     if (userProfile == null || userProfile.profileImage.isEmpty) return;
 
@@ -720,7 +735,6 @@ print(token);
   }
 
   Widget _buildProfileHeader(UserProfileModel userProfile) {
-
     return Row(
       children: [
         GestureDetector(
@@ -730,25 +744,27 @@ print(token);
             height: 60,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(color: Colors.grey.withOpacity(0.2), width: 0.5),
+              border:
+                  Border.all(color: Colors.grey.withOpacity(0.2), width: 0.5),
             ),
             child: ClipOval(
               child: userProfile.profileImage.isNotEmpty
                   ? Image.network(
-                userProfile.profileImage,
-                fit: BoxFit.cover,
-                alignment: const Alignment(0, -1), // Shift up to focus on face area
-                errorBuilder: (context, error, stackTrace) {
-                  return Image.asset(
-                    'assets/Images/circle_image.png',
-                    fit: BoxFit.cover,
-                  );
-                },
-              )
+                      userProfile.profileImage,
+                      fit: BoxFit.cover,
+                      alignment: const Alignment(
+                          0, -1), // Shift up to focus on face area
+                      errorBuilder: (context, error, stackTrace) {
+                        return Image.asset(
+                          'assets/Images/circle_image.png',
+                          fit: BoxFit.cover,
+                        );
+                      },
+                    )
                   : Image.asset(
-                'assets/Images/circle_image.png',
-                fit: BoxFit.cover,
-              ),
+                      'assets/Images/circle_image.png',
+                      fit: BoxFit.cover,
+                    ),
             ),
           ),
         ),
@@ -759,11 +775,13 @@ print(token);
           children: [
             Text(
               userProfile.name,
-              style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 16),
+              style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.bold, fontSize: 16),
             ),
             Text(
               userProfile.email,
-              style: GoogleFonts.poppins(fontWeight: FontWeight.w400, fontSize: 10),
+              style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.w400, fontSize: 10),
             )
           ],
         ),
@@ -774,7 +792,8 @@ print(token);
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                border: Border.all(color: Colors.grey.withOpacity(0.5), width: 0.5)),
+                border: Border.all(
+                    color: Colors.grey.withOpacity(0.5), width: 0.5)),
             child: Image.asset('assets/Icons/edit_icon.png', scale: 4),
           ),
         )

@@ -7,7 +7,6 @@ import 'package:fitlip_app/view/Screens/Profile/edit_profile.dart';
 import 'package:fitlip_app/view/Screens/Profile/profile_screen.dart';
 import 'package:fitlip_app/view/Screens/Profile/setting/contact_us.dart';
 import 'package:fitlip_app/view/Screens/Profile/setting/language_screen.dart';
-import 'package:fitlip_app/view/Screens/Profile/setting/rate_app_dialog.dart';
 import 'package:flutter/cupertino.dart';
 import '../controllers/auth_controller.dart';
 import '../view/Screens/Auth/signup_screen.dart';
@@ -43,11 +42,11 @@ class AppRoutes {
     forgot: (context) => ForgotPasswordScreen(),
     contact: (context) => ContactUsScreen(),
     language: (context) => LanguageScreen(),
-
     privacypolicy: (context) => PrivacyPolicyScreen(),
     editprofile: (context) => EditProfileScreen(),
-    // otp: (context) => OtpVerificationScreen(email: '@hjgskdgsgds',),
-    newpassword: (context) => NewPasswordScreen(email: "dhsgfjh@",otp: "546338",),
-   
+    newpassword: (context) => NewPasswordScreen(
+          email: "dhsgfjh@",
+          otp: "546338",
+        ),
   };
 }

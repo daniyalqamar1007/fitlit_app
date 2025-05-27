@@ -1,4 +1,3 @@
-// auth_model.dart
 import 'dart:convert';
 import 'dart:io';
 
@@ -151,7 +150,6 @@ class SignUpRequest {
       'password': password,
       'phoneNumber': phoneNumber,
       'gender': gender.toLowerCase(),
-      // profilePhotoFile will be handled separately in multipart request
     };
   }
 }

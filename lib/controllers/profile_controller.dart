@@ -1,17 +1,18 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:fitlip_app/services/profile_service.dart';
+import 'package:flutter/src/widgets/framework.dart';
+import 'package:path/path.dart';
 import '../model/profile_model.dart';
+import '../view/Utils/connection.dart';
 
 class ProfileController {
   final ProfileService _profileService = ProfileService();
 
-  // ValueNotifier for the user profile
-  final ValueNotifier<UserProfileModel?> profileNotifier = ValueNotifier<UserProfileModel?>(null);
+  final ValueNotifier<UserProfileModel?> profileNotifier =
+      ValueNotifier<UserProfileModel?>(null);
   final ValueNotifier<bool> isLoadingNotifier = ValueNotifier<bool>(false);
   final ValueNotifier<String?> errorNotifier = ValueNotifier<String?>(null);
-
-  // Singleton implementation with proper factory constructor
   static ProfileController? _instance;
 
   factory ProfileController() {
@@ -21,7 +22,6 @@ class ProfileController {
 
   ProfileController._internal();
 
-  // Get user profile from service
   Future<void> getUserProfile() async {
     if (isLoadingNotifier.value) return; // Prevent multiple simultaneous calls
 
@@ -29,13 +29,15 @@ class ProfileController {
     errorNotifier.value = null;
 
     try {
+      // bool hasInternet =
+      //     await checkInternetAndShowDialog(context as BuildContext);
+      // if (!hasInternet) {
+      //   return;
+      // }
       final profile = await _profileService.getUserProfile();
-      print('Profile loaded successfully: ${profile}');
-      // Use Future.microtask to avoid changing notifier during build
+
       Future.microtask(() {
-        print("newew");
         profileNotifier.value = profile;
-      print(  profileNotifier.value!.profileImage);
       });
     } catch (e) {
       errorNotifier.value = e.toString();
@@ -49,23 +51,28 @@ class ProfileController {
   }
 
   // Update user profile
-  Future<bool> updateUserProfile(UserProfileModel profile, File? imageFile) async {
+  Future<bool> updateUserProfile(
+      UserProfileModel profile, File? imageFile) async {
     isLoadingNotifier.value = true;
     errorNotifier.value = null;
 
     try {
-      print("${profile.email} ${profile.gender} ${profile.name} $imageFile");
-      final updatedProfile = await _profileService.updateUserProfile(profile, imageFile);
-      print(updatedProfile.name);
+      bool hasInternet =
+          await checkInternetAndShowDialog(context as BuildContext);
+      if (!hasInternet) {
+        return false;
+      }
+
+      final updatedProfile =
+          await _profileService.updateUserProfile(profile, imageFile);
+
       profileNotifier.value = updatedProfile;
       return true;
     } catch (e) {
       errorNotifier.value = e.toString();
-      print(errorNotifier.value);
-      return false;
 
+      return false;
     } finally {
-      print("nmew");
       isLoadingNotifier.value = false;
     }
   }

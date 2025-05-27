@@ -1,4 +1,3 @@
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fitlip_app/controllers/profile_controller.dart';
 import 'package:fitlip_app/view/Utils/Constants.dart';
@@ -65,7 +64,8 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
 
   void _updateLoadingStatus() {
     setState(() {
-      isLoading = _outfitController.statusNotifier.value == OutfitStatus.loading;
+      isLoading =
+          _outfitController.statusNotifier.value == OutfitStatus.loading;
     });
   }
 
@@ -111,7 +111,8 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
       });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('${AppLocalizations.of(context)!.errorFetchingOutfit}: ${e.toString()}'),
+          content: Text(
+              '${AppLocalizations.of(context)!.errorFetchingOutfit}: ${e.toString()}'),
           backgroundColor: Colors.red,
         ),
       );
@@ -160,7 +161,8 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
       context: context,
       isScrollControlled: true,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(Responsive.radius(20))),
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(Responsive.radius(20))),
       ),
       builder: (context) => DraggableScrollableSheet(
         initialChildSize: 0.7,
@@ -248,24 +250,27 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
                         child: ClipOval(
                           child: userProfile?.profileImage.isNotEmpty == true
                               ? Padding(
-                            padding: EdgeInsets.all(2),
-                            child: CachedNetworkImage(
-                              imageUrl: userProfile!.profileImage,
-                              fit: BoxFit.cover,
-                              scale: 2,
-                              alignment: Alignment.topCenter,
-                              placeholderFadeInDuration: Duration(milliseconds: 300),
-                              placeholder: (context, url) => CircularProgressIndicator(),
-                              errorWidget: (context, url, error) => Image.asset(
-                                'assets/Images/circle_image.png',
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                          )
+                                  padding: EdgeInsets.all(7),
+                                  child: CachedNetworkImage(
+                                    imageUrl: userProfile!.profileImage,
+                                    fit: BoxFit.contain,
+                                    scale: 2,
+                                    alignment: Alignment.topCenter,
+                                    placeholderFadeInDuration:
+                                        Duration(milliseconds: 300),
+                                    placeholder: (context, url) =>
+                                        CircularProgressIndicator(),
+                                    errorWidget: (context, url, error) =>
+                                        Image.asset(
+                                      'assets/Images/circle_image.png',
+                                      fit: BoxFit.contain,
+                                    ),
+                                  ),
+                                )
                               : Image.asset(
-                            'assets/Images/circle_image.png',
-                            fit: BoxFit.cover,
-                          ),
+                                  'assets/Images/circle_image.png',
+                                  fit: BoxFit.cover,
+                                ),
                         ),
                       ),
                       SizedBox(width: Responsive.width(8)),
@@ -308,7 +313,8 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
                         color: Colors.white,
                         elevation: 2,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(Responsive.radius(12)),
+                          borderRadius:
+                              BorderRadius.circular(Responsive.radius(12)),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -319,9 +325,11 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
                                   child: ClipRRect(
                                     borderRadius: status
                                         ? BorderRadius.only(
-                                      topLeft: Radius.circular(Responsive.radius(12)),
-                                      topRight: Radius.circular(Responsive.radius(12)),
-                                    )
+                                            topLeft: Radius.circular(
+                                                Responsive.radius(12)),
+                                            topRight: Radius.circular(
+                                                Responsive.radius(12)),
+                                          )
                                         : BorderRadius.circular(12),
                                     child: Opacity(
                                       opacity: 0.7,
@@ -333,39 +341,49 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
                                   ),
                                 ),
                                 Container(
-                                  margin: EdgeInsets.only(top: Responsive.height(15)),
+                                  margin: EdgeInsets.only(
+                                      top: Responsive.height(15)),
                                   height: Responsive.height(300),
                                   width: double.infinity,
                                   child: isLoading
                                       ? Center(
-                                    child: CircularProgressIndicator(
-                                      color: appcolor,
-                                    ),
-                                  )
-                                      : outfitImageUrl != null && outfitImageUrl!.isNotEmpty
-                                      ? ClipRRect(
-                                    borderRadius: BorderRadius.vertical(
-                                      top: Radius.circular(Responsive.radius(12)),
-                                    ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: CachedNetworkImage(
-                                        imageUrl: outfitImageUrl!,
-                                        scale: 4,
-                                        width: double.infinity,
-                                        fit: BoxFit.contain,
-                                        placeholder: (context, url) => Center(
                                           child: CircularProgressIndicator(
-                                            valueColor: AlwaysStoppedAnimation<Color>(appcolor),
+                                            color: appcolor,
                                           ),
-                                        ),
-                                        errorWidget: (context, error, stackTrace) {
-                                          return _buildNoOutfitAvailable();
-                                        },
-                                      ),
-                                    ),
-                                  )
-                                      : _buildNoOutfitAvailable(),
+                                        )
+                                      : outfitImageUrl != null &&
+                                              outfitImageUrl!.isNotEmpty
+                                          ? ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.vertical(
+                                                top: Radius.circular(
+                                                    Responsive.radius(12)),
+                                              ),
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.all(8.0),
+                                                child: CachedNetworkImage(
+                                                  imageUrl: outfitImageUrl!,
+                                                  scale: 4,
+                                                  width: double.infinity,
+                                                  fit: BoxFit.contain,
+                                                  placeholder: (context, url) =>
+                                                      Center(
+                                                    child:
+                                                        CircularProgressIndicator(
+                                                      valueColor:
+                                                          AlwaysStoppedAnimation<
+                                                              Color>(appcolor),
+                                                    ),
+                                                  ),
+                                                  errorWidget: (context, error,
+                                                      stackTrace) {
+                                                    return _buildNoOutfitAvailable();
+                                                  },
+                                                ),
+                                              ),
+                                            )
+                                          : _buildNoOutfitAvailable(),
                                 ),
                                 Positioned(
                                   top: Responsive.height(16),
@@ -379,12 +397,14 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
                                       ),
                                       decoration: BoxDecoration(
                                         color: const Color(0xFFB8860B),
-                                        borderRadius: BorderRadius.circular(Responsive.radius(8)),
+                                        borderRadius: BorderRadius.circular(
+                                            Responsive.radius(8)),
                                       ),
                                       child: Column(
                                         children: [
                                           Text(
-                                            DateFormat('dd').format(selectedDate),
+                                            DateFormat('dd')
+                                                .format(selectedDate),
                                             style: GoogleFonts.poppins(
                                               color: Colors.white,
                                               fontWeight: FontWeight.bold,
@@ -392,7 +412,8 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
                                             ),
                                           ),
                                           Text(
-                                            DateFormat('MMM').format(selectedDate),
+                                            DateFormat('MMM')
+                                                .format(selectedDate),
                                             style: GoogleFonts.poppins(
                                               color: Colors.white,
                                               fontSize: Responsive.fontSize(12),
@@ -407,31 +428,64 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
                             ),
                             status
                                 ? Row(
-                              children: [
-                                Expanded(
-                                  child: ActionButton(
-                                    icon: isLiked ? Icons.favorite : Icons.favorite_border,
-                                    text: AppLocalizations.of(context)!.like,
-                                    color: isLiked ? Colors.red : Colors.grey,
-                                    onPressed: _handleLike,
-                                  ),
-                                ),
-                                Expanded(
-                                  child: ActionButton(
-                                    icon: Icons.comment_outlined,
-                                    text: AppLocalizations.of(context)!.comment,
-                                    onPressed: _showCommentsBottomSheet,
-                                  ),
-                                ),
-                                Expanded(
-                                  child: ActionButton(
-                                    icon: Icons.share_outlined,
-                                    text: AppLocalizations.of(context)!.share,
-                                    onPressed: () {},
-                                  ),
-                                ),
-                              ],
-                            )
+                                    children: [
+                                      Expanded(
+                                        child: ActionButton(
+                                          icon: isLiked
+                                              ? Icons.favorite
+                                              : Icons.favorite_border,
+                                          text: AppLocalizations.of(context)!
+                                              .like,
+                                          color: isLiked
+                                              ? Colors.red
+                                              : Colors.grey,
+                                          onPressed: _handleLike,
+                                        ),
+                                      ),
+                                      Expanded(
+                                        child: ActionButton(
+                                          icon: Icons.comment_outlined,
+                                          text: AppLocalizations.of(context)!
+                                              .comment,
+                                          onPressed: _showCommentsBottomSheet,
+                                        ),
+                                      ),
+                                      Expanded(
+                                        child: ActionButton(
+                                          icon: Icons.share_outlined,
+                                          text: AppLocalizations.of(context)!
+                                              .share,
+                                          onPressed: () {
+                                            showDialog(
+                                              context: context,
+                                              builder: (context) => AlertDialog(
+                                                title: Text(
+                                                  'Feature Unavailable',
+                                                  style: GoogleFonts
+                                                      .playfairDisplay(
+                                                          color: appcolor,
+                                                          fontSize: 12),
+                                                ),
+                                                content: Text(
+                                                  'This feature is not available right now.',
+                                                  style: TextStyle(
+                                                      color: appcolor,
+                                                      fontSize: 12),
+                                                ),
+                                                actions: [
+                                                  TextButton(
+                                                    onPressed: () =>
+                                                        Navigator.pop(context),
+                                                    child: Text('OK'),
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                    ],
+                                  )
                                 : SizedBox(),
                           ],
                         ),
@@ -503,7 +557,8 @@ class CommentsBottomSheet extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(Responsive.radius(20))),
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(Responsive.radius(20))),
       ),
       child: Column(
         children: [
@@ -602,7 +657,8 @@ class CommentTile extends StatelessWidget {
                   SizedBox(height: Responsive.height(4)),
                   Text(
                     comment.content,
-                    style: GoogleFonts.poppins(fontSize: Responsive.fontSize(14)),
+                    style:
+                        GoogleFonts.poppins(fontSize: Responsive.fontSize(14)),
                   ),
                   SizedBox(height: Responsive.height(8)),
                   Row(

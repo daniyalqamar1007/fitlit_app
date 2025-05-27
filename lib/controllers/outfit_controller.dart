@@ -2,17 +2,20 @@ import 'package:flutter/cupertino.dart';
 
 import '../model/outfit_model.dart';
 import '../services/outfit_service.dart';
+
 enum OutfitStatus {
-  initial,   // Initial state before any operation
-  loading,   // When data is being fetched/saved
-  loaded,    // When operation completes successfully
-  error      // When an error occurs
+  initial, // Initial state before any operation
+  loading, // When data is being fetched/saved
+  loaded, // When operation completes successfully
+  error // When an error occurs
 }
+
 class OutfitController {
   final OutfitService _outfitService = OutfitService();
 
   // Value notifiers for state management
-  final ValueNotifier<OutfitStatus> statusNotifier = ValueNotifier(OutfitStatus.initial);
+  final ValueNotifier<OutfitStatus> statusNotifier =
+      ValueNotifier(OutfitStatus.initial);
   final ValueNotifier<String?> errorNotifier = ValueNotifier(null);
   final ValueNotifier<OutfitModel?> outfitNotifier = ValueNotifier(null);
   final ValueNotifier<String?> avatarUrlNotifier = ValueNotifier(null);
@@ -31,14 +34,13 @@ class OutfitController {
 
     try {
       final response = await _outfitService.saveOutfit(
-        token: token,
-        shirtId: shirtId,
-        pantId: pantId,
-        shoeId: shoeId,
-        accessoryId: accessoryId,
-        date: date,
-        avatarurl: avatarurl
-      );
+          token: token,
+          shirtId: shirtId,
+          pantId: pantId,
+          shoeId: shoeId,
+          accessoryId: accessoryId,
+          date: date,
+          avatarurl: avatarurl);
 
       if (response.success) {
         statusNotifier.value = OutfitStatus.loaded;
@@ -70,7 +72,6 @@ class OutfitController {
         token: token,
         date: date,
       );
-      print(response);
 
       if (response != null) {
         statusNotifier.value = OutfitStatus.loaded;
@@ -90,7 +91,6 @@ class OutfitController {
       return null;
     }
   }
-
 
   void dispose() {
     statusNotifier.dispose();

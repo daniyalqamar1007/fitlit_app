@@ -1,4 +1,3 @@
-// lib/models/wardrobe_item_model.dart
 
 class WardrobeItem {
   final String? id;

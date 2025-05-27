@@ -4,8 +4,6 @@ import 'package:flutter/material.dart';
 import '../../main.dart';
 import '../Utils/Colors.dart';
 
-// import '../Utils/Colors.dart';
-
 class CategoryChip extends StatelessWidget {
   final String label;
   final bool isSelected;
@@ -44,7 +42,6 @@ class CategoryChip extends StatelessWidget {
   }
 }
 
-/// Custom Calendar Day Item
 class CalendarDayItem extends StatelessWidget {
   final String day;
   final int date;
@@ -78,7 +75,8 @@ class CalendarDayItem extends StatelessWidget {
             height: 36,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: isSelected ? appcolor.withOpacity(0.1) : Colors.transparent,
+              color:
+                  isSelected ? appcolor.withOpacity(0.1) : Colors.transparent,
               border: isSelected ? Border.all(color: appcolor) : null,
             ),
             child: Center(

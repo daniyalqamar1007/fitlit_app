@@ -50,13 +50,13 @@ class AuthController {
   }
 
   // Step 1: Initial Sign Up - Only send email to get OTP
-  Future<Map<String, dynamic>> initialSignUp(String email) async {
+  Future<Map<String, dynamic>> initialSignUp(String email,BuildContext context) async {
     try {
       // Clear previous data but keep the email
       _tempSignUpData = {'email': email};
 
-      final request = InitialSignupRequest(email: email);
-      final response = await _authService.initialSignup(request);
+      final request = InitialSignupRequest(email: email,);
+      final response = await _authService.initialSignup(request,context);
 
       if (response.success == true && response.otp != null) {
         _verificationOtp = response.otp;
@@ -72,12 +72,23 @@ class AuthController {
         };
       }
     } catch (e) {
-      return {'success': false, 'message': 'An error occurred: ${e.toString()}'};
+      return {
+        'success': false,
+        'message': 'An error occurred: ${e.toString()}'
+      };
     }
   }
 
   // Step 2: Complete Sign Up after OTP verification
-  Future<Map<String, dynamic>> completeSignUp(String userOtp,String name,String email,String password,String phone,String gender,File file) async {
+  Future<Map<String, dynamic>> completeSignUp(
+      String userOtp,
+      String name,
+      String email,
+      String password,
+      String phone,
+      String gender,
+      BuildContext context,
+      File file) async {
     if (_tempSignUpData.isEmpty || _tempSignUpData['email'] == null) {
       return {'success': false, 'message': 'No sign up data provided'};
     }
@@ -88,25 +99,17 @@ class AuthController {
     }
 
     try {
-      print(name);
-      print(email);
-      print(phone);
-      print(gender);
-      print(password);
-      print(file.path);
-      // Create SignUpRequest with all data
       final signUpRequest = SignUpRequest(
-        name:name,
+        name: name,
         email: email,
-        password:password,
+        password: password,
         phoneNumber: phone,
-        gender:gender , // Default value
-        profilePhotoFile:file,
+        gender: gender, // Default value
+        profilePhotoFile: file,
       );
 
-
       // Call the signUp method with all user data
-      final response = await _authService.signUp(signUpRequest);
+      final response = await _authService.signUp(signUpRequest, context);
 
       if (response.success == true) {
         // Clear temporary data after successful signup
@@ -131,19 +134,23 @@ class AuthController {
         };
       }
     } catch (e) {
-      return {'success': false, 'message': 'An error occurred: ${e.toString()}'};
+      return {
+        'success': false,
+        'message': 'An error occurred: ${e.toString()}'
+      };
     }
   }
 
   // Sign In
-  Future<Map<String, dynamic>> signIn(String email, String password) async {
+  Future<Map<String, dynamic>> signIn(String email, String password,BuildContext context) async {
     try {
       final request = SignInRequest(
         email: email,
         password: password,
+
       );
 
-      final response = await _authService.signIn(request);
+      final response = await _authService.signIn(request,context);
       print('Sign in response message: ${response.message}');
 
       if (response.user != null && response.user!.accessToken != null) {
@@ -160,7 +167,10 @@ class AuthController {
         };
       }
     } catch (e) {
-      return {'success': false, 'message': 'An error occurred: ${e.toString()}'};
+      return {
+        'success': false,
+        'message': 'An error occurred: ${e.toString()}'
+      };
     }
   }
 
@@ -171,7 +181,8 @@ class AuthController {
       final response = await _authService.forgotPassword(request);
 
       // Debug logs
-      print('Controller received: OTP=${response.otp}, Message=${response.message}, Success=${response.success}');
+      print(
+          'Controller received: OTP=${response.otp}, Message=${response.message}, Success=${response.success}');
 
       if (response.otp != null) {
         _verificationOtp = response.otp;
@@ -198,7 +209,8 @@ class AuthController {
   }
 
   // Reset Password
-  Future<Map<String, dynamic>> resetPassword(String email, String newPassword) async {
+  Future<Map<String, dynamic>> resetPassword(
+      String email, String newPassword) async {
     try {
       final request = ResetPasswordRequest(
         email: email,
@@ -221,7 +233,10 @@ class AuthController {
         };
       }
     } catch (e) {
-      return {'success': false, 'message': 'An error occurred: ${e.toString()}'};
+      return {
+        'success': false,
+        'message': 'An error occurred: ${e.toString()}'
+      };
     }
   }
 
