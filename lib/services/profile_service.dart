@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:dio/dio.dart';
 import 'package:http/http.dart' as https;
 import 'package:fitlip_app/view/Utils/globle_variable/globle.dart';
 
@@ -40,78 +41,70 @@ class ProfileService {
     }
   }
 
-  // Update the user profile information
   Future<UserProfileModel> updateUserProfile(UserProfileModel profile, File? imageFile) async {
     try {
+      Dio dio = Dio(BaseOptions(
+        baseUrl: baseUrl,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+        },
+      ));
 
-
-      // If there's no image to upload, use a simple PUT request
+      // If there's no image to upload, send a JSON body
       if (imageFile == null) {
-
-        final response = await https.patch(
-          Uri.parse('$baseUrl/user/profile'),
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-          body: json.encode({
+        final response = await dio.patch(
+          '/user/profile',
+          data: {
             ...profile.toJson(),
-            'onProfileChange': isNewImageSelected==true?"yes":"no", // 👈 Add custom string attribute
-          }),
+            'onProfileChange': isNewImageSelected == true ? "yes" : "no",
+          },
+          options: Options(
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          ),
         );
-        print(response.body);
+
+        print(response.data);
         print(response.statusCode);
 
         if (response.statusCode == 200) {
-          final Map<String, dynamic> data = json.decode(response.body);
-          return UserProfileModel.fromJson(data);
+          return UserProfileModel.fromJson(response.data);
         } else {
-
           throw Exception('Failed to update profile: ${response.statusCode}');
         }
       }
-      // If there's an image to upload, use multipart request
+      // If image is selected, use multipart form data
       else {
         print(imageFile.path);
         print("in else part");
         print("coming");
         print(isNewImageSelected);
-        var request = https.MultipartRequest(
-          'Patch',
-          Uri.parse('$baseUrl/user/profile'),
+
+        FormData formData = FormData.fromMap({
+          'name': profile.name,
+          'email': profile.email,
+          'gender': profile.gender,
+          'onProfileChange': isNewImageSelected.value == true ? "yes" : "no",
+          'profilePicture': await MultipartFile.fromFile(imageFile.path, filename: 'profile.jpg'),
+        });
+
+        final response = await dio.patch(
+          '/user/profile',
+          data: formData,
         );
 
-        // Add authorization header
-        request.headers.addAll({
-          'Authorization': 'Bearer $token',
-        });
-        request.fields['name'] = profile.name;
-        request.fields['email'] = profile.email;
-        request.fields['gender'] = profile.gender;
-        request.fields['onProfileChange'] = isNewImageSelected.value==true?"yes":"no";
-
-        // Add file
-        request.files.add(await https.MultipartFile.fromPath(
-          'profilePicture',
-          imageFile.path,
-        ));
-        print(request.fields);
-
-        final streamedResponse = await request.send();
-        print(streamedResponse.statusCode);
-        print(streamedResponse);
-        final response = await https.Response.fromStream(streamedResponse);
-        print(response.body);
+        print(response.statusCode);
+        print(response.data);
 
         if (response.statusCode == 200) {
-          final Map<String, dynamic> data = json.decode(response.body);
-          return UserProfileModel.fromJson(data);
+          return UserProfileModel.fromJson(response.data);
         } else {
           throw Exception('Failed to update profile: ${response.statusCode}');
         }
       }
     } catch (e) {
       throw Exception('Failed to update profile: $e');
-    }
-  }
+    }}
 }

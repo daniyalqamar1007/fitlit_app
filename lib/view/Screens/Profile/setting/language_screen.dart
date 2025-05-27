@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../../../../main.dart';
+import '../../../../routes/App_routes.dart';
 import '../../../Utils/Colors.dart';
 
 class LanguageScreen extends StatefulWidget {
@@ -28,42 +31,62 @@ class _LanguageScreenState extends State<LanguageScreen> {
       'code': 'es'
     },
   ];
+  Future<void> _loadSavedLanguage() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? savedCode = prefs.getString('language_code');
+
+    if (savedCode != null) {
+      final selectedLang = languages.firstWhere(
+            (lang) => lang['code'] == savedCode,
+        orElse: () => languages[0], // fallback to English
+      );
+
+      setState(() {
+        selectedLanguage = selectedLang['name']!;
+      });
+    }
+  }
 
   void _selectLanguage(String language) {
     setState(() {
       selectedLanguage = language;
     });
   }
+@override
+  void initState() {
+    // TODO: implement initState
+  _loadSavedLanguage();
+    super.initState();
+  }
 
   Future<void> _saveLanguage() async {
-    setState(() {
-      isLoading = true;
-    });
+    setState(() => isLoading = true);
 
-    // Simulate API call or preference saving
-    await Future.delayed(const Duration(seconds: 1));
+    final prefs = await SharedPreferences.getInstance();
+    final selectedLang = languages.firstWhere((lang) => lang['name'] == selectedLanguage);
+    final code = selectedLang['code']!;
 
-    setState(() {
-      isLoading = false;
-    });
+    await prefs.setString('language_code', code);
 
-    // Show success message
+    // Dynamically change the app language
+    MyApp.setLocale(context, Locale(code));
+
+    setState(() => isLoading = false);
+
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            'Language changed to $selectedLanguage',
-            style: GoogleFonts.poppins(),
-          ),
+          content: Text(AppLocalizations.of(context)!.languageChangedTo(selectedLanguage)),
           backgroundColor: Colors.green,
-          behavior: SnackBarBehavior.floating,
         ),
       );
 
-      // Go back to previous screen
-      Navigator.of(context).pop();
+      // Navigate directly to desired page (e.g., HomePage or ProfilePage)
+      Navigator.of(context).pushReplacementNamed(AppRoutes.dashboard); // or profile
     }
   }
+
+
 
   Widget _buildLanguageOption(Map<String, String> language) {
     bool isSelected = selectedLanguage == language['name'];
@@ -167,8 +190,7 @@ class _LanguageScreenState extends State<LanguageScreen> {
         elevation: 0,
         leading: BackButton(color: appcolor),
         centerTitle: true,
-        title: Text(
-          'Language',
+        title: Text(AppLocalizations.of(context)!.language,
           style: GoogleFonts.playfairDisplay(
             fontWeight: FontWeight.bold,
             color: appcolor,
@@ -201,8 +223,8 @@ class _LanguageScreenState extends State<LanguageScreen> {
                           color: appcolor,
                         ),
                         const SizedBox(height: 16),
-                        Text(
-                          'Choose Your Language',
+
+                          Text(AppLocalizations.of(context)!.chooseLanguage,
                           style: GoogleFonts.playfairDisplay(
                             fontSize: 22,
                             fontWeight: FontWeight.bold,
@@ -224,8 +246,7 @@ class _LanguageScreenState extends State<LanguageScreen> {
                   ),
                   const SizedBox(height: 32),
 
-                  Text(
-                    'Available Languages',
+              Text(AppLocalizations.of(context)!.availableLanguages,
                     style: GoogleFonts.poppins(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
@@ -276,8 +297,7 @@ class _LanguageScreenState extends State<LanguageScreen> {
                     valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                   ),
                 )
-                    : Text(
-                  'Save Language',
+                    : Text(AppLocalizations.of(context)!.saveLanguage,
                   style: GoogleFonts.poppins(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,

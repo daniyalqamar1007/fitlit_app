@@ -23,7 +23,7 @@ class WardrobeController {
   Future<void> loadWardrobeItems() async {
     try {
       statusNotifier.value = WardrobeStatus.loading;
-      print("coming");
+      print("coming6");
       // print(token);
       List<WardrobeItem> allItems = await _wardrobeService.getWardrobeItems();
       print("sahvshas");

@@ -1,9 +1,18 @@
 import 'dart:convert';
+import 'package:dio/dio.dart';
 import 'package:http/http.dart' as http;
 import '../model/avatar_model.dart';
 import '../view/Utils/globle_variable/globle.dart';
 
 class AvatarService {
+  final Dio _dio = Dio(BaseOptions(
+    baseUrl: baseUrl,
+    connectTimeout: const Duration(seconds: 60),
+    receiveTimeout: const Duration(seconds: 60),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  ));
 
   Future<AvatarGenerationResponse> generateAvatar({
     String? shirtId,
@@ -11,53 +20,40 @@ class AvatarService {
     String? shoeId,
     required String? token,
   }) async {
-    print(shirtId);
-    print(pantId);
-    print(shoeId);
-    Future<http.Response> callApi() async {
-      final request = AvatarGenerationRequest(
-        shirtId: shirtId,
-        pantId: pantId,
-        shoeId: shoeId,
-      );
-
-      return await http.post(
-        Uri.parse('$baseUrl/avatar/outfit'),
-        headers: {
-          'Content-Type': 'application/json',
-          if (token != null && token.isNotEmpty)
-            'Authorization': 'Bearer $token',
-        },
-        body: json.encode(request.toJson()),
-      );
-    }
+    final request = AvatarGenerationRequest(
+      shirtId: shirtId,
+      pantId: pantId,
+      shoeId: shoeId,
+    );
 
     try {
-      print("Calling avatar API...");
-
-      // Setup a timeout for 180 seconds
-      final response = await callApi()
-          .timeout(Duration(seconds: 300), onTimeout: () async {
-        print("Initial call timed out. Retrying after 180 seconds...");
-
-        return await callApi();
-      });
+      print("Calling avatar API via Dio...");
+      final response = await _dio.post(
+        '/avatar/outfit',
+        data: request.toJson(),
+        options: Options(
+          headers: {
+            if (token != null && token.isNotEmpty)
+              'Authorization': 'Bearer $token',
+          },
+        ),
+      );
 
       print("Response Status Code: ${response.statusCode}");
-      print("Response Body: ${response.body}");
+      print("Response Data: ${response.data}");
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        final data = json.decode(response.body);
-        return AvatarGenerationResponse.fromJson(data);
+        return AvatarGenerationResponse.fromJson(response.data);
       } else {
         throw Exception(
             'Avatar generation failed. Status code: ${response.statusCode}');
       }
+    } on DioException catch (e) {
+      print("Dio Exception: ${e.message}");
+      throw Exception('Dio error generating avatar: ${e.message}');
     } catch (e) {
-      print("Exception during avatar generation: $e");
-      throw Exception('Error generating avatar: $e');
+      print("Unexpected Exception: $e");
+      throw Exception('Unexpected error generating avatar: $e');
     }
   }
-
-
 }
