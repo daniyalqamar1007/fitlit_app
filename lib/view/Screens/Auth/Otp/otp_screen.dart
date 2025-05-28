@@ -1,5 +1,5 @@
-import 'dart:io';
 import 'dart:async';
+import 'dart:io';
 
 import 'package:fitlip_app/controllers/auth_controller.dart';
 import 'package:fitlip_app/routes/App_routes.dart';
@@ -44,55 +44,47 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   late AuthController _authController;
   final OtpFieldController _otpController = OtpFieldController();
 
-  // Progress tracking variables
+  // Loading state management
+  String _loadingMessage = 'Sending email...';
   double _progressValue = 0.0;
   Timer? _progressTimer;
-  bool _completedProgress = false;
+  Timer? _messageTimer;
+  bool _showAvatarMessage = false;
 
   @override
   void initState() {
     super.initState();
     _authController = AuthController();
-    // Retrieve existing signup data (to ensure we have the complete user details)
     _validateExistingData();
   }
 
   @override
   void dispose() {
     _progressTimer?.cancel();
+    _messageTimer?.cancel();
     super.dispose();
   }
 
   void _validateExistingData() {
-    // Check if there's stored signup data with the email
     final tempData = _authController.tempSignUpData;
-
-    // Debug: Print stored data
-    print('Stored signup data: $tempData');
-
     if (tempData.isEmpty || tempData['email'] != widget.email) {
-      // If no data or email mismatch, update with the current email
       _authController.updateSignUpData();
-      print('Email updated in temp data: ${widget.email}');
     }
   }
 
   void _startProgressAnimation() {
-    // Reset progress
     setState(() {
       _progressValue = 0.0;
-      _completedProgress = false;
+      _showAvatarMessage = false;
     });
 
-    // Cancel existing timer if any
     _progressTimer?.cancel();
+    _messageTimer?.cancel();
 
-    // Duration of 35 seconds (average of 30-40 seconds)
-    // We'll reach 95% in this time, reserving the last 5% for when we actually get a response
-    const totalDuration = 35000; // 35 seconds in milliseconds
-    const interval = 350; // Update every 350ms
+    const totalDuration = 35000;
+    const interval = 350;
     const steps = totalDuration ~/ interval;
-    const incrementPerStep = 0.95 / steps; // Reach 95% in the given duration
+    const incrementPerStep = 0.95 / steps;
 
     _progressTimer = Timer.periodic(Duration(milliseconds: interval), (timer) {
       if (_progressValue >= 0.95) {
@@ -100,7 +92,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
       } else {
         setState(() {
           _progressValue += incrementPerStep;
-          if (_progressValue > 0.95) _progressValue = 0.95; // Cap at 95%
+          if (_progressValue > 0.95) _progressValue = 0.95;
         });
       }
     });
@@ -108,20 +100,21 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
 
   void _completeProgress() {
     _progressTimer?.cancel();
-
-    // Complete the progress to 100% with a smooth animation
     _progressTimer = Timer.periodic(Duration(milliseconds: 50), (timer) {
       if (_progressValue >= 1.0) {
         timer.cancel();
-        setState(() {
-          _completedProgress = true;
-        });
       } else {
         setState(() {
           _progressValue += 0.05;
           if (_progressValue > 1.0) _progressValue = 1.0;
         });
       }
+    });
+  }
+
+  void _updateLoadingMessage(String message) {
+    setState(() {
+      _loadingMessage = message;
     });
   }
 
@@ -136,18 +129,21 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     setState(() {
       _isLoading = true;
       _errorMessage = null;
+      _loadingMessage = 'Validating OTP...';
+      _showAvatarMessage = false;
     });
 
-    // Start progress animation
     _startProgressAnimation();
 
-    try {
-      // Debug: Print before verification
-      print('Attempting OTP verification with: $_enteredOtp');
-      print(
-          'Current temp data before verification: ${_authController.tempSignUpData}');
+    // After 5 seconds, show avatar generation message
+    _messageTimer = Timer(Duration(seconds: 5), () {
+      setState(() {
+        _loadingMessage = 'Wait, we are generating your Avatar!';
+        _showAvatarMessage = true;
+      });
+    });
 
-      // Call the completeSignUp method to verify OTP and register the user
+    try {
       final result = await _authController.completeSignUp(
           _enteredOtp,
           widget.name,
@@ -158,10 +154,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
           context,
           widget.file);
 
-      // Complete the progress animation to 100%
       _completeProgress();
-
-      // Slight delay to allow progress animation to complete
       await Future.delayed(Duration(milliseconds: 500));
 
       setState(() {
@@ -169,7 +162,6 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
       });
 
       if (result['success']) {
-        // Show success message
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Registration successful'),
@@ -177,11 +169,10 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
           ),
         );
 
-        // Navigate to sign in screen after successful registration
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => SignInScreen()),
-          (route) => false,
+              (route) => false,
         );
       } else {
         setState(() {
@@ -189,14 +180,13 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
         });
       }
     } catch (e) {
-      // Complete the progress animation to show failure
       _completeProgress();
-
       setState(() {
         _isLoading = false;
         _errorMessage = 'An error occurred: ${e.toString()}';
       });
-      print('Error in verification: ${e.toString()}');
+    } finally {
+      _messageTimer?.cancel();
     }
   }
 
@@ -244,8 +234,6 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                       _enteredOtp = pin;
                       _errorMessage = null;
                     });
-                    // Don't automatically verify when completed
-                    // Allow user to press the button for verification
                   },
                 ),
                 SizedBox(height: 16.h),
@@ -262,9 +250,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                 SizedBox(height: 30.h),
                 CustomButton(
                   text: "Verify OTP",
-                  onPressed: _isLoading ? null : ()async{
-                    _verifyOtp(context);
-                  },
+                  onPressed: _isLoading ? null : () => _verifyOtp(context),
                 ),
                 SizedBox(height: 20.h),
                 _buildResendText(),
@@ -274,23 +260,31 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
           if (_isLoading)
             Container(
               color: Colors.black.withOpacity(0.5),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // Progress indicator
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 40.w),
-                    child: Column(
-                      children: [
-                        Text(
-                          'Wait,we are generating your Avatar!',
-                          style: GoogleFonts.poppins(
-                            color: Colors.white,
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.w500,
-                          ),
+              child: Center(
+                child: Container(
+                  padding: EdgeInsets.all(30.w),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(15.r),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(appcolor),
+                        strokeWidth: 4.w,
+                      ),
+                      SizedBox(height: 20.h),
+                      Text(
+                        _loadingMessage,
+                        style: GoogleFonts.poppins(
+                          color: themeController.black,
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.w500,
                         ),
-                        SizedBox(height: 10.h),
+                      ),
+                      if (_showAvatarMessage) ...[
+                        SizedBox(height: 20.h),
                         LinearProgressIndicator(
                           value: _progressValue,
                           backgroundColor: Colors.grey[300],
@@ -298,18 +292,18 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                           minHeight: 10.h,
                           borderRadius: BorderRadius.circular(5.r),
                         ),
-                        SizedBox(height: 8.h),
+                        SizedBox(height: 10.h),
                         Text(
                           '${(_progressValue * 100).toInt()}%',
                           style: GoogleFonts.poppins(
-                            color: Colors.white,
+                            color: themeController.black,
                             fontSize: 14.sp,
                           ),
                         ),
                       ],
-                    ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
         ],
@@ -360,53 +354,39 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
           onPressed: _isLoading
               ? null
               : () async {
-                  try {
-                    setState(() {
-                      _isLoading = true;
-                      _errorMessage = null;
-                    });
+            try {
+              setState(() {
+                _isLoading = true;
+                _errorMessage = null;
+                _loadingMessage = 'Sending email...';
+                _showAvatarMessage = false;
+              });
 
-                    // Start progress animation for resend
-                    _startProgressAnimation();
+              final result = await _authController.initialSignUp(widget.email, context);
 
-                    // Re-request OTP
-                    final result =
-                        await _authController.initialSignUp(widget.email,context);
-                    _completeProgress();
+              setState(() {
+                _isLoading = false;
+              });
 
-                    // Slight delay to allow progress animation to complete
-                    await Future.delayed(Duration(milliseconds: 500));
-
-                    setState(() {
-                      _isLoading = false;
-                    });
-
-                    if (result['success']) {
-                      // Debug log for OTP
-                      print('New OTP received for testing: ${result['otp']}');
-
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('OTP sent again'),
-                          backgroundColor: Colors.green,
-                        ),
-                      );
-                    } else {
-                      setState(() {
-                        _errorMessage = result['message'];
-                      });
-                    }
-                  } catch (e) {
-                    // Complete the progress animation to show failure
-                    _completeProgress();
-
-                    setState(() {
-                      _isLoading = false;
-                      _errorMessage = 'Failed to resend OTP: ${e.toString()}';
-                    });
-                    print('Error in resend OTP: ${e.toString()}');
-                  }
-                },
+              if (result['success']) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('OTP sent again'),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+              } else {
+                setState(() {
+                  _errorMessage = result['message'];
+                });
+              }
+            } catch (e) {
+              setState(() {
+                _isLoading = false;
+                _errorMessage = 'Failed to resend OTP: ${e.toString()}';
+              });
+            }
+          },
           child: Text(
             'Resend',
             style: GoogleFonts.poppins(

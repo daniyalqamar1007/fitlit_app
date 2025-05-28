@@ -26,11 +26,11 @@ class AuthService {
   Future<AuthResponse> initialSignup(InitialSignupRequest request,context) async {
     isLoading.value = true;
     error.value = null;
-    bool hasInternet = await checkInternetAndShowDialog(context);
-    if (!hasInternet) {
-      isLoading.value = false;
-      return AuthResponse.error("No internet connection");
-    }
+    // bool hasInternet = await checkInternetAndShowDialog(context);
+    // if (!hasInternet) {
+    //   isLoading.value = false;
+    //   return AuthResponse.error("No internet connection");
+    // }
 
     try {
       final response = await http.post(

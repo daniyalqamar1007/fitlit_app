@@ -36,6 +36,7 @@ dependencies:
   internet_connection_checker:
   package_info_plus:
   url_launcher:
+  font_awesome_flutter:
 dev_dependencies:
   flutter_test:
     sdk: flutter

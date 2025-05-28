@@ -160,7 +160,7 @@ class _ProfileScreenState extends State<ProfileScreen>
       print(token);
       final response = await http.delete(
         Uri.parse(
-            'https://zqxct4xv-3099.inc1.devtunnels.ms/auth/delete-account'), // Replace with your actual API endpoint
+            '$baseUrl/auth/delete-account'), // Replace with your actual API endpoint
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',

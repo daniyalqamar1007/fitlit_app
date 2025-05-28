@@ -56,12 +56,13 @@ class ProfileController {
     isLoadingNotifier.value = true;
     errorNotifier.value = null;
 
+
     try {
-      bool hasInternet =
-          await checkInternetAndShowDialog(context as BuildContext);
-      if (!hasInternet) {
-        return false;
-      }
+      // bool hasInternet =
+      //     await checkInternetAndShowDialog(context);
+      // if (!hasInternet) {
+      //   return false;
+      // }
 
       final updatedProfile =
           await _profileService.updateUserProfile(profile, imageFile);

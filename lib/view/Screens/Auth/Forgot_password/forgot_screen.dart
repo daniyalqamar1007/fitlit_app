@@ -116,10 +116,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                     fillColor: Colors.grey.shade200,
                     controller: _emailController,
                     hintText: 'Enter your email',
-                    hintStyle: GoogleFonts.poppins(
-                      color: themeController.black,
-                      fontSize: Responsive.fontSize(14),
-                    ),
+                      hintStyle: GoogleFonts.poppins(
+                        color: hintextcolor,
+                        fontSize: Responsive.fontSize(13),
+                      ),
                     keyboardType: TextInputType.emailAddress,
                     validator: (value) {
                       if (value == null || value.isEmpty) {

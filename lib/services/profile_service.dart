@@ -44,6 +44,7 @@ class ProfileService {
   }
 
   Future<UserProfileModel> updateUserProfile(UserProfileModel profile, File? imageFile) async {
+    print("coming");
     try {
       Dio dio = Dio(BaseOptions(
         baseUrl: baseUrl,
