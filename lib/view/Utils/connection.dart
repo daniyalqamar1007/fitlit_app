@@ -4,6 +4,8 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/services.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 
+import '../../routes/App_routes.dart';
+
 Future<bool> checkInternetAndShowDialog(BuildContext context) async {
   var connectivityResult = await Connectivity().checkConnectivity();
   bool isConnected = await InternetConnectionChecker.instance.hasConnection;
@@ -20,7 +22,7 @@ Future<bool> checkInternetAndShowDialog(BuildContext context) async {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () =>Navigator.pushNamed(context, AppRoutes.splash),
             child:  Text('OK',style: TextStyle(color: appcolor,fontWeight: FontWeight.bold,fontSize: 15),),
           ),
         ],
