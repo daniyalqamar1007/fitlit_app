@@ -142,7 +142,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               "Next",
               style: TextStyle(
                 color: themeController.white,
-                fontSize: Responsive.fontSize(22),
+                fontSize: Responsive.fontSize(20),
                 fontWeight: FontWeight.w400,
               ),
             ),

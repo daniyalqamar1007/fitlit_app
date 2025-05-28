@@ -5,6 +5,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fitlip_app/routes/App_routes.dart';
 import 'package:fitlip_app/controllers/themecontroller.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -132,7 +133,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(localizations.pleaseSelectAtLeastOneItem),
-          backgroundColor: Colors.orange,
+          backgroundColor: appcolor,
         ),
       );
       return;
@@ -264,7 +265,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('No avatar available to swipe'),
-          backgroundColor: Colors.orange,
+          backgroundColor: appcolor,
         ),
       );
       return;
@@ -333,10 +334,20 @@ class _WardrobeScreenState extends State<WardrobeScreen>
       );
       print("coming ios $outfit");
       if (outfit != "") {
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //   SnackBar(
+        //     content: Text(
+        //       localizations.updateAvailableForThisDate,
+        //       style: GoogleFonts.poppins(color: Colors.white),
+        //     ),
+        //     backgroundColor: appcolor,
+        //     duration: Duration(seconds: 1),
+        //   ),
+        // );
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              localizations.updateAvailableForThisDate,
+              localizations.noOutfitAvailableForThisDate,
               style: GoogleFonts.poppins(color: Colors.white),
             ),
             backgroundColor: appcolor,
@@ -351,16 +362,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
 
         // Show brief success message that an outfit was found
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              localizations.noOutfitAvailableForThisDate,
-              style: GoogleFonts.poppins(color: Colors.white),
-            ),
-            backgroundColor: appcolor,
-            duration: Duration(seconds: 1),
-          ),
-        );
+
       }
 
       setState(() {
@@ -457,9 +459,13 @@ class _WardrobeScreenState extends State<WardrobeScreen>
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text("Please select item first,missing item"),
-            backgroundColor: Colors.orange,
+            backgroundColor: appcolor,
           ),
         );
+        setState(() {
+          isSavingOutfit = false;
+        });
+
         return;
       }
 
@@ -616,8 +622,8 @@ class _WardrobeScreenState extends State<WardrobeScreen>
           ),
         ),
         floatingActionButton: SizedBox(
-          width: 75,
-          height: 40,
+          width: Responsive.width(70),
+          height: Responsive.height(35),
           child: RawMaterialButton(
             onPressed: () => _showAnimatedCategoryDialog(context),
             fillColor: appcolor, // Change this to your desired color
@@ -634,7 +640,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                 ),
                 Text(
                   localizations.upload,
-                  style: TextStyle(color: Colors.white, fontSize: 12),
+                  style: TextStyle(color: Colors.white, fontSize: Responsive.fontSize(12)),
                 ),
               ]),
             ),
@@ -760,7 +766,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
 
           // Second Column - Avatar
           Expanded(
-            flex: 7,
+            flex: 8,
             child: _buildAvatarColumn(),
           ),
 
@@ -815,13 +821,13 @@ class _WardrobeScreenState extends State<WardrobeScreen>
         Container(
           padding: EdgeInsets.symmetric(
               horizontal: Responsive.width(14), vertical: Responsive.height(8)),
-          height: Responsive.height(29),
+          height: Responsive.height(30),
           decoration: BoxDecoration(
             color: appcolor.withOpacity(0.7),
             borderRadius: BorderRadius.circular(Responsive.radius(30)),
           ),
           child: Text(
-            localizations.shirt,
+            localizations.shirts,
             style: GoogleFonts.poppins(
               fontSize: Responsive.fontSize(10),
               color: Colors.white,
@@ -837,7 +843,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
 
         Container(
           padding: EdgeInsets.symmetric(
-              horizontal: Responsive.width(14), vertical: Responsive.height(8)),
+              horizontal: Responsive.width(12), vertical: Responsive.height(8)),
           height: Responsive.height(30),
           decoration: BoxDecoration(
             color: appcolor.withOpacity(0.7),
@@ -866,7 +872,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
             borderRadius: BorderRadius.circular(Responsive.radius(30)),
           ),
           child: Text(
-            localizations.pant,
+            localizations.pants,
             style: GoogleFonts.poppins(
               fontSize: Responsive.fontSize(10),
               color: Colors.white,
@@ -1010,8 +1016,8 @@ class _WardrobeScreenState extends State<WardrobeScreen>
         _showItemSelectionDialog(category, notifier);
       },
       child: Container(
-        width: 60,
-        height: 56,
+        width:  Responsive.width(60),
+        height:  Responsive.height(56),
         margin: const EdgeInsets.only(bottom: 5),
         decoration: BoxDecoration(
           color: themeController.white,
@@ -1035,8 +1041,8 @@ class _WardrobeScreenState extends State<WardrobeScreen>
               // Show loading animation
               return Center(
                 child: SizedBox(
-                  width: 30,
-                  height: 30,
+                  width:  Responsive.width(30),
+                  height:  Responsive.width(30),
                   child: CircularProgressIndicator(
                     valueColor: AlwaysStoppedAnimation<Color>(appcolor),
                     strokeWidth: 2.0,
@@ -1049,7 +1055,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                 child: Icon(
                   _getIconForCategory(category),
                   color: Colors.grey,
-                  size: 24,
+                  size: MediaQuery.of(context).size.width*0.07,
                 ),
               );
             } else {
@@ -1346,20 +1352,19 @@ class _WardrobeScreenState extends State<WardrobeScreen>
   }
 
   IconData _getIconForCategory(String category) {
-    switch (category) {
+    switch (category.toLowerCase()) {
       case 'shirt':
-        return Icons.dry_cleaning;
+        return FontAwesomeIcons.tshirt; // T-shirt icon
       case 'pant':
-        return Icons.work_outline;
+        return FontAwesomeIcons.personHalfDress; // Clothes/vest icon
       case 'shoe':
-        return Icons.shop;
+        return FontAwesomeIcons.shoePrints; // Shoe icon
       case 'accessories':
-        return Icons.watch;
+        return FontAwesomeIcons.glasses; // Glasses icon
       default:
-        return Icons.category;
+        return FontAwesomeIcons.tag; // Generic category icon
     }
   }
-
   Widget _buildAvatarColumn() {
     return ValueListenableBuilder<UserProfileModel?>(
       valueListenable: _profileController.profileNotifier,
