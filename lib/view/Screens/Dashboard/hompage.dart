@@ -1965,9 +1965,12 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                             _completeUploadProgress(setState);
 
                             // Slight delay to show 100% completion
-                            // await Future.delayed(Duration(milliseconds: 500));
+                            await Future.delayed(Duration(milliseconds: 5000));
+                            await _getUserInfoAndLoadItems();
+                            await _getUserInfoAndLoadItems();
+                            await Future.delayed(Duration(milliseconds: 5000));
+                           await  _getUserInfoAndLoadItems();
 
-                            _getUserInfoAndLoadItems();
 
                             _uploadProgressTimer?.cancel();
                             Navigator.pop(context);
