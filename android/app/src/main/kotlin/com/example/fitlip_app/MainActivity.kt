@@ -1,4 +1,4 @@
-package com.example.fitlip_app
+package com.fitlit.app
 
 import io.flutter.embedding.android.FlutterActivity
 
