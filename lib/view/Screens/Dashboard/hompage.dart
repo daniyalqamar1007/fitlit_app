@@ -143,16 +143,20 @@ class _WardrobeScreenState extends State<WardrobeScreen>
       setState(() {
         _isGeneratingAvatar = true;
       });
+      print(_profileController.profileNotifier.value!.profileImage);
 
       final response = await _avatarController.generateAvatar(
-        shirtId: selectedShirtId,
-        pantId: selectedPantId,
-        shoeId: selectedShoeId,
-        token: token,
-      );
+          shirtId: selectedShirtId,
+          pantId: selectedPantId,
+          shoeId: selectedShoeId,
+          token: token,
+          profile: _profileController.profileNotifier.value!.profileImage);
       print(response.avatar);
 
+
       if (response.avatar != null) {
+        print("coming====");
+
         setState(() {
           _avatarUrl = response.avatar!; // Store current avatar URL
           profileImage = response.avatar!;
@@ -167,22 +171,66 @@ class _WardrobeScreenState extends State<WardrobeScreen>
             backgroundColor: Colors.green,
           ),
         );
-      } else {
-        setState(() {
-          _isGeneratingAvatar = false;
-        });
       }
+      // else {
+      //   setState(() {
+      //     _isGeneratingAvatar = false;
+      //   });
+      // }
     } catch (e) {
+      // await Future.delayed(Duration(seconds: 20));
+      // try {
+      //   final response = await _avatarController.generateAvatar(
+      //       shirtId: selectedShirtId,
+      //       pantId: selectedPantId,
+      //       shoeId: selectedShoeId,
+      //       token: token,
+      //       profile: _profileController.profileNotifier.value!.profileImage);
+      //   print(response.avatar);
+      //
+      //
+      //   if (response.avatar != null) {
+      //     setState(() {
+      //       _avatarUrl = response.avatar!; // Store current avatar URL
+      //       profileImage = response.avatar!;
+      //       _isGeneratingAvatar = false;
+      //     });
+      //
+      //     // REMOVE: await _saveGeneratedAvatars(); // Remove this line
+      //
+      //     ScaffoldMessenger.of(context).showSnackBar(
+      //       SnackBar(
+      //         content: Text(localizations.avatarGeneratedSuccessfully),
+      //         backgroundColor: Colors.green,
+      //       ),
+      //     );
+      //   } else {
+      //     setState(() {
+      //       _isGeneratingAvatar = false;
+      //     });
+      //   }
+      // } catch (e) {
+      //   setState(() {
+      //     _isGeneratingAvatar = false;
+      //   });
+      //
+      //   ScaffoldMessenger.of(context).showSnackBar(
+      //     SnackBar(
+      //       content: Text('${localizations.errorGeneratingAvatar(e.toString())}'),
+      //       backgroundColor: Colors.red,
+      //     ),
+      //   );
+      // }
       setState(() {
-        _isGeneratingAvatar = false;
-      });
-
+            _isGeneratingAvatar = false;
+          });
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('${localizations.errorGeneratingAvatar(e.toString())}'),
-          backgroundColor: Colors.red,
-        ),
-      );
+              SnackBar(
+                content: Text('${localizations.errorGeneratingAvatar(e.toString())}'),
+                backgroundColor: Colors.red,
+              ),
+            );
+
     }
   }
 
@@ -319,7 +367,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
 
   // Check if there's an existing outfit for the selected date
   Future<void> _checkExistingOutfit(DateTime date) async {
-    final localizations = AppLocalizations.of(context)!;
+    // final localizations = AppLocalizations.of(context)!;
     try {
       setState(() {
         isLoadingItems = true; // Show loading indicator
@@ -344,16 +392,16 @@ class _WardrobeScreenState extends State<WardrobeScreen>
         //     duration: Duration(seconds: 1),
         //   ),
         // );
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              localizations.noOutfitAvailableForThisDate,
-              style: GoogleFonts.poppins(color: Colors.white),
-            ),
-            backgroundColor: appcolor,
-            duration: Duration(seconds: 1),
-          ),
-        );
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //   SnackBar(
+        //     content: Text(
+        //       localizations.noOutfitAvailableForThisDate,
+        //       style: GoogleFonts.poppins(color: Colors.white),
+        //     ),
+        //     backgroundColor: appcolor,
+        //     duration: Duration(seconds: 1),
+        //   ),
+        // );
         setState(() {
           _avatarUrl = outfit; // Update the avatar URL state
           profileImage = outfit; // Also update profileImage for saving
@@ -361,9 +409,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
         _updateAvatarBasedOnOutfit(outfit);
 
         // Show brief success message that an outfit was found
-      } else {
-
-      }
+      } else {}
 
       setState(() {
         isLoadingItems = false; // Hide loading indicator
@@ -640,7 +686,8 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                 ),
                 Text(
                   localizations.upload,
-                  style: TextStyle(color: Colors.white, fontSize: Responsive.fontSize(12)),
+                  style: TextStyle(
+                      color: Colors.white, fontSize: Responsive.fontSize(12)),
                 ),
               ]),
             ),
@@ -666,7 +713,9 @@ class _WardrobeScreenState extends State<WardrobeScreen>
               valueListenable: _profileController.profileNotifier,
               builder: (context, userProfile, _) {
                 if (userProfile == null) {
-                  return  CircularProgressIndicator(color: appcolor,);
+                  return CircularProgressIndicator(
+                    color: appcolor,
+                  );
                 }
 
                 return ClipOval(
@@ -678,8 +727,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                       shape: BoxShape.circle,
                     ),
                     child: userProfile.profileImage.isNotEmpty
-                        ?
-                    CachedNetworkImage(
+                        ? CachedNetworkImage(
                             imageUrl: userProfile.profileImage,
                             fit: BoxFit.cover,
                             alignment: Alignment
@@ -723,7 +771,11 @@ class _WardrobeScreenState extends State<WardrobeScreen>
           width: Responsive.width(40),
         ),
         GestureDetector(
-          onTap: isSavingOutfit ? null :()async{await _saveOutfit(context);},
+          onTap: isSavingOutfit
+              ? null
+              : () async {
+                  await _saveOutfit(context);
+                },
           child: Container(
             padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
             height: 30,
@@ -1016,8 +1068,8 @@ class _WardrobeScreenState extends State<WardrobeScreen>
         _showItemSelectionDialog(category, notifier);
       },
       child: Container(
-        width:  Responsive.width(60),
-        height:  Responsive.height(56),
+        width: Responsive.width(60),
+        height: Responsive.height(56),
         margin: const EdgeInsets.only(bottom: 5),
         decoration: BoxDecoration(
           color: themeController.white,
@@ -1041,8 +1093,8 @@ class _WardrobeScreenState extends State<WardrobeScreen>
               // Show loading animation
               return Center(
                 child: SizedBox(
-                  width:  Responsive.width(30),
-                  height:  Responsive.width(30),
+                  width: Responsive.width(30),
+                  height: Responsive.width(30),
                   child: CircularProgressIndicator(
                     valueColor: AlwaysStoppedAnimation<Color>(appcolor),
                     strokeWidth: 2.0,
@@ -1055,7 +1107,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                 child: Icon(
                   _getIconForCategory(category),
                   color: Colors.grey,
-                  size: MediaQuery.of(context).size.width*0.07,
+                  size: MediaQuery.of(context).size.width * 0.07,
                 ),
               );
             } else {
@@ -1365,6 +1417,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
         return FontAwesomeIcons.tag; // Generic category icon
     }
   }
+
   Widget _buildAvatarColumn() {
     return ValueListenableBuilder<UserProfileModel?>(
       valueListenable: _profileController.profileNotifier,
@@ -1451,7 +1504,9 @@ class _WardrobeScreenState extends State<WardrobeScreen>
             GestureDetector(
               onTap: _isGeneratingAvatar
                   ? null
-                  : ()async{_generateAvatar(context);}, // Call the generate avatar method
+                  : () async {
+                      _generateAvatar(context);
+                    }, // Call the generate avatar method
               child: Container(
                 padding: EdgeInsets.symmetric(
                     horizontal: Responsive.width(4),
@@ -1840,8 +1895,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
 
   // Method to show confirmation dialog after image capture
   void _showImageCapturedDialog(
-      String category, String subcategory, File imageFile)
-  {
+      String category, String subcategory, File imageFile) {
     _isUploading = false;
     _uploadProgress = 0.0;
     final loc = AppLocalizations.of(context)!;
@@ -1967,10 +2021,8 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                             // Slight delay to show 100% completion
                             await Future.delayed(Duration(milliseconds: 5000));
                             await _getUserInfoAndLoadItems();
-                            await _getUserInfoAndLoadItems();
                             await Future.delayed(Duration(milliseconds: 5000));
-                           await  _getUserInfoAndLoadItems();
-
+                            await _getUserInfoAndLoadItems();
 
                             _uploadProgressTimer?.cancel();
                             Navigator.pop(context);

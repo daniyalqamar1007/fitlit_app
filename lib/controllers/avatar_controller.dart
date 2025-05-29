@@ -17,17 +17,22 @@ class AvatarController {
     String? shirtId,
     String? pantId,
     String? shoeId,
+    String? profile,
     required String? token,
   }) async {
     try {
       statusNotifier.value = AvatarGenerationStatus.loading;
       errorNotifier.value = '';
-
+      print("profilepiture");
+print(profile);
       final response = await _avatarService.generateAvatar(
         shirtId: shirtId,
         pantId: pantId,
         shoeId: shoeId,
         token: token,
+        profile:profile
+
+
       );
       print(response.avatar);
 

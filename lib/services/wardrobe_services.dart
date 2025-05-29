@@ -192,8 +192,8 @@ class WardrobeService {
         throw Exception('Converted PNG file does not exist');
       }
 
-      int fileSize = await pngImageFile.length();
-      print("PNG file size: ${fileSize} bytes");
+      // int fileSize = await pngImageFile.length();
+      // print("PNG file size: ${fileSize} bytes");
 
       // Create FormData with proper field names
       FormData formData = FormData.fromMap({
