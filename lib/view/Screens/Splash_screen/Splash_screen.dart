@@ -34,8 +34,8 @@ class _SplashScreenState extends State<SplashScreen> {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
 
     Future.delayed(const Duration(seconds: 2), () async {
-      bool hasInternet = await checkInternetAndShowDialog(context);
-      if (!hasInternet) return;
+      // bool hasInternet = await checkInternetAndShowDialog(context);
+      // if (!hasInternet) return;
 
 
 
@@ -119,7 +119,7 @@ print(info);
           if (_isVersionLower(currentVersion, deployedVersion)) {
             _showUpdateDialog(
               'A new version of the app is available. Please update to continue.',
-              'https://apps.apple.com/app/idYOUR_APP_ID', // Replace with your App Store URL
+              'https://apps.apple.com/fitlit/app', // Replace with your App Store URL
             );
             return false;
           }
