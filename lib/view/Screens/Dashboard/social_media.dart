@@ -81,6 +81,7 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
       final response = await _outfitController.getOutfitByDate(
         token: token!,
         date: selectedDate,
+        id:_profileController.profileNotifier.value!.id
       );
 
       setState(() {

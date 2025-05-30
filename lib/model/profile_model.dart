@@ -1,5 +1,5 @@
   class UserProfileModel {
-    final String id;
+    final int id;
     final String name;
     final String email;
 
@@ -16,7 +16,7 @@
 
     factory UserProfileModel.fromJson(Map<String, dynamic> json) {
       return UserProfileModel(
-        id: json['id'] ?? '',
+        id: json['userId'] ?? '',
         name: json['name'] ?? '',
         email: json['email'] ?? '',
         gender: json['gender'] ?? '',
@@ -26,7 +26,7 @@
 
     Map<String, dynamic> toJson() {
       return {
-        'id': id,
+        'userId': id,
         'name': name,
         'email': email,
         'gender': gender,
@@ -36,7 +36,7 @@
 
     // Create a copy of this UserProfileModel with modified fields
     UserProfileModel copyWith({
-      String? id,
+      int? id,
       String? name,
       String? email,
       String? gender,

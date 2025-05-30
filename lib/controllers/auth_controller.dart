@@ -78,6 +78,14 @@ class AuthController {
       };
     }
   }
+  Future<bool> validate(String otp)async{
+    if(otp==_verificationOtp){
+      return  true;
+    }
+    else{
+      return false;
+    }
+  }
 
   // Step 2: Complete Sign Up after OTP verification
   Future<Map<String, dynamic>> completeSignUp(

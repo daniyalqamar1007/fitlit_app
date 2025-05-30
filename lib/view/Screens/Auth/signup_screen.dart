@@ -29,7 +29,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
-  File? _profileImage;
+  File? _profileImage;  double dropdownWidth = 0.0;
   bool _obscurePassword = true;
   bool _isLoading = false;
   String? _errorMessage;
@@ -188,7 +188,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 03.w),
           child: Text(
-            'FitIt lets you create and customize your own avatar outfits for a unique style experience',
+            'Fitlit lets you create and customize your own avatar outfits for a unique style experience',
             textAlign: TextAlign.center,
             style: GoogleFonts.poppins(
               color: Colors.grey,
@@ -242,29 +242,58 @@ class _SignUpScreenState extends State<SignUpScreen> {
           keyboardType: TextInputType.phone,
         ),
         SizedBox(height: 8.h),
-        DropdownButtonFormField<String>(
-          value: _selectedGender,
-          onChanged: (value) => setState(() => _selectedGender = value),
-          decoration: InputDecoration(
-            hintText: 'Select Gender',
-            hintStyle: GoogleFonts.poppins(
-              color: hintextcolor.withOpacity(0.5),
+        LayoutBuilder(
+        builder: (context, constraints) {
+          dropdownWidth = constraints.maxWidth;
+          return DropdownButtonFormField<String>(
+            value: _selectedGender,
+            isExpanded: true,
+
+            // Set to true to expand to full width
+            dropdownColor: Colors.grey.shade100,
+            // Match your fillColor
+            onChanged: (value) => setState(() => _selectedGender = value),
+            decoration: InputDecoration(
+              hintText: 'Select Gender',
+              hintStyle: GoogleFonts.poppins(
+                color: hintextcolor.withOpacity(0.2),
+                fontSize: 12.sp,
+              ),
+              filled: true,
+              fillColor: Colors.grey.shade100,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14),
+                borderSide: BorderSide.none,
+              ),
+              contentPadding: EdgeInsets.symmetric(
+                  horizontal: 16, vertical: 12), // Adjust padding
+            ),
+            style: GoogleFonts.poppins(
+              color: themeController.black,
               fontSize: 12.sp,
             ),
-            filled: true,
-            fillColor: Colors.grey.shade100,
-            border: InputBorder.none,
-          ),
-          style: GoogleFonts.poppins(
-              color: themeController.black, fontSize: 12.sp),
-          items: _genderOptions.map((gender) {
-            return DropdownMenuItem<String>(
-              value: gender,
-              child: Text(gender, style: GoogleFonts.poppins(fontSize: 12.sp)),
-            );
-          }).toList(),
-          validator: (value) => value == null ? 'Please select a gender' : null,
-        ),
+            items: _genderOptions.map((gender) {
+              return DropdownMenuItem<String>(
+                value: gender,
+                child: Container(
+                  margin: EdgeInsets.symmetric(horizontal: 20),
+                  width: double.infinity,
+                  // Make menu items full width
+                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  // Add horizontal margin
+                  child: Text(
+                    gender,
+                    style: GoogleFonts.poppins(fontSize: 12.sp),
+                  ),
+                ),
+              );
+            }).toList(),
+            validator: (value) =>
+            value == null
+                ? 'Please select a gender'
+                : null,
+          );
+        }),
         SizedBox(height: 8.h),
         CustomTextField(
           hintText: 'Password',
@@ -298,6 +327,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
           child: AbsorbPointer(
             child: TextFormField(
               readOnly: true,
+              
               decoration: InputDecoration(
                 hintText:
                     _profileImage != null ? 'Image Selected' : 'Upload Photo',
@@ -305,7 +335,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     GoogleFonts.poppins(color: hintextcolor, fontSize: 12.sp),
                 filled: true,
                 fillColor: Colors.grey[100],
-                border: InputBorder.none,
+                border: OutlineInputBorder(
+                  borderSide: BorderSide.none,
+                  borderRadius: BorderRadius.circular(14)
+                ),
                 suffixIcon: _profileImage != null
                     ? Container(
                         margin: EdgeInsets.all(10.sp),
