@@ -33,6 +33,7 @@ class WardrobeController {
       ValueNotifier<DateTime>(DateTime.now());
   final ValueNotifier<CalendarFormat> calendarFormatNotifier =
       ValueNotifier<CalendarFormat>(CalendarFormat.month);
+  String errorr="";
   Future<void> loadWardrobeItems() async {
     try {
       statusNotifier.value = WardrobeStatus.loading;
@@ -81,8 +82,10 @@ class WardrobeController {
         avatarurl: avatarurl!,
         token: token,
       );
-
+      print("responce is");
+      print(newItem);
       _categorizeItem(newItem);
+
 
       recentlyUploadedItem.value = newItem;
 

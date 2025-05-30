@@ -98,16 +98,19 @@ class ProfileService {
           data: formData,
         );
 
+
         print(response.statusCode);
         print(response.data);
 
         if (response.statusCode == 200) {
           return UserProfileModel.fromJson(response.data);
         } else {
-          throw Exception('Failed to update profile: ${response.statusCode}');
+
+          throw Exception('Failed to update profile: ${response.data}');
         }
       }
     } catch (e) {
+      print(e.toString());
       throw Exception('Failed to update profile: ${e}');
     }}
 }

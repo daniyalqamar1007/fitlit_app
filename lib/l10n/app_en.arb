@@ -241,7 +241,7 @@
   "@saveOutfit": {
     "description": "Save outfit dialog title"
   },
-  "doYouWantToSaveThisOutfit": "Do you want to save this outfit for {date}?",
+  "doYouWantToSaveThisOutfit": "Do you want to save this outfit for {date}",
   "@doYouWantToSaveThisOutfit": {
     "description": "Save outfit confirmation message",
     "placeholders": {
