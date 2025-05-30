@@ -64,6 +64,7 @@ class OutfitController {
   Future<String?> getOutfitByDate({
     required String token,
     required DateTime date,
+    required int id
   }) async {
     statusNotifier.value = OutfitStatus.loading;
 
@@ -71,6 +72,7 @@ class OutfitController {
       final response = await _outfitService.getOutfitByDate(
         token: token,
         date: date,
+        id:id
       );
 
       if (response != null) {

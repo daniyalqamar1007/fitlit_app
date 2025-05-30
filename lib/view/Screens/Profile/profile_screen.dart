@@ -193,11 +193,10 @@ class _ProfileScreenState extends State<ProfileScreen>
             ),
           );
 
-          // Navigate to signin screen
           Navigator.pushNamedAndRemoveUntil(
             context,
             AppRoutes.signin,
-            (route) => false,
+                (Route<dynamic> route) => false,
           );
         } else {
           throw Exception(
@@ -584,7 +583,7 @@ class _ProfileScreenState extends State<ProfileScreen>
           style: GoogleFonts.playfairDisplay(
             fontWeight: FontWeight.bold,
             color: Color(0xFFAA8A00),
-            fontSize: 20,
+            fontSize: 24,
           ),
         ),
       ),
@@ -658,30 +657,42 @@ class _ProfileScreenState extends State<ProfileScreen>
                           builder: (context) => AlertDialog(
                             backgroundColor: Colors.white,
                             title: Text(localizations.confirmLogout,
-                                style: GoogleFonts.poppins(color: appcolor)),
+                                style: GoogleFonts.poppins(color: Colors.red,fontWeight: FontWeight.bold)),
                             content: Text(localizations.areYouSureLogout,
-                                style: GoogleFonts.poppins(color: appcolor)),
+                                style: GoogleFonts.poppins(color: Colors.black54)),
                             actions: [
                               TextButton(
                                 onPressed: () => Navigator.pop(context, false),
                                 child: Text(localizations.cancel,
                                     style:
-                                        GoogleFonts.poppins(color: appcolor)),
+                                        GoogleFonts.poppins(color: Colors.grey)),
                               ),
-                              TextButton(
-                                onPressed: () => Navigator.pop(context, true),
+                              ElevatedButton(
+                                style:  ElevatedButton.styleFrom(backgroundColor: Colors.red, shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),),
+                                onPressed: () async { Navigator.pop(context, true);
+                                await remove();
+
+                                Navigator.pushNamedAndRemoveUntil(
+                                  context,
+                                  AppRoutes.signin,
+                                      (Route<dynamic> route) => false,
+                                );
+
+
+                                },
+
                                 child: Text(localizations.logout,
-                                    style: TextStyle(color: Colors.red)),
+                                    style: TextStyle(color: Colors.white)),
                               ),
                             ],
                           ),
                         );
 
-                        if (shouldLogout ?? false) {
-                          await remove();
-                          Navigator.pushReplacementNamed(
-                              context, AppRoutes.signin);
-                        }
+
+
+
                       },
                     ),
                     CustomListTile(

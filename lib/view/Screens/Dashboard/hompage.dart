@@ -63,9 +63,13 @@ class _WardrobeScreenState extends State<WardrobeScreen>
   bool _isLoading = false;
   bool _isAnimatingIn = false;
   String loadingType = "";
+  List<String> _userAvatars = [];
+  // int _currentAvatarIndex = 0;
+  bool _isLoadingAvatars = false;
   bool isLoadingItems = true;
   bool isSavingOutfit = false;
-
+  String? leftMessage;
+  String? rightMessage;
   String? selectedShirtId;
   String? selectedPantId;
   String? selectedShoeId;
@@ -78,27 +82,10 @@ class _WardrobeScreenState extends State<WardrobeScreen>
 
     _loadUserProfile();
     _getUserInfoAndLoadItems();
-    // _loadGeneratedAvatars(); // Load saved avatars
+    _loadAllUserAvatars(); // Add this line
     _wardrobeController.statusNotifier.addListener(_handleStatusChange);
     _avatarController.statusNotifier.addListener(_handleAvatarStatusChange);
     _checkExistingOutfit(_focusedDay);
-  }
-
-  Future<void> _loadGeneratedAvatars() async {
-    _prefs = await SharedPreferences.getInstance();
-    final savedAvatars = _prefs?.getStringList('generated_avatars') ?? [];
-    final currentIndex = _prefs?.getInt('current_avatar_index') ?? 0;
-
-    setState(() {
-      _generatedAvatars = savedAvatars;
-      _currentGeneratedAvatarIndex =
-          currentIndex < _generatedAvatars.length ? currentIndex : 0;
-    });
-  }
-
-  Future<void> _saveGeneratedAvatars() async {
-    await _prefs?.setStringList('generated_avatars', _generatedAvatars);
-    await _prefs?.setInt('current_avatar_index', _currentGeneratedAvatarIndex);
   }
 
   void _handleStatusChange() {
@@ -156,14 +143,13 @@ class _WardrobeScreenState extends State<WardrobeScreen>
 
       if (response.avatar != null) {
         print("coming====");
+        await _loadAllUserAvatars();
 
         setState(() {
           _avatarUrl = response.avatar!; // Store current avatar URL
           profileImage = response.avatar!;
           _isGeneratingAvatar = false;
         });
-
-        // REMOVE: await _saveGeneratedAvatars(); // Remove this line
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -235,11 +221,14 @@ class _WardrobeScreenState extends State<WardrobeScreen>
   }
 
   Future<void> _swipeAvatar(
-      String swipeDirection, String currentAvatarUrl) async {
+      String swipeDirection, String currentAvatarUrl) async
+  {
     try {
       setState(() {
         _isLoading = true;
       });
+      print(swipeDirection);
+      print(currentAvatarUrl);
 
       final response = await http.post(
         Uri.parse(
@@ -289,49 +278,118 @@ class _WardrobeScreenState extends State<WardrobeScreen>
       );
     }
   }
+  Future<void> _loadAllUserAvatars() async {
+    try {
+      setState(() {
+        _isLoadingAvatars = true;
+      });
 
+      final response = await http.get(
+        Uri.parse('${baseUrl}/avatar/user-avatars'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+print(response.body);
+print(response.statusCode);
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['success'] == true && data['avatars'] != null) {
+          setState(() {
+            _userAvatars = List<String>.from(data['avatars']);
+            _currentAvatarIndex = 0;
+          });
+        }
+      }
+    } catch (e) {
+      print('Error loading user avatars: $e');
+    } finally {
+      setState(() {
+        _isLoadingAvatars = false;
+      });
+    }
+  }
   String? _getCurrentAvatarImage(UserProfileModel? userProfile) {
-    // First check if we have an avatar URL from the API
+    // First check if we have avatars loaded and valid index
+    if (_userAvatars.isNotEmpty && _currentAvatarIndex < _userAvatars.length) {
+      return _userAvatars[_currentAvatarIndex];
+    }
+
+    // If we have an avatar URL from API
     if (_avatarUrl != null && _avatarUrl!.isNotEmpty) {
       return _avatarUrl;
     }
 
-    // Otherwise show profile image
+    // Otherwise show profile image as default
     if (userProfile?.profileImage.isNotEmpty == true) {
       return userProfile!.profileImage;
     }
 
-    // Fallback to default avatar asset
+    // Fallback to null (will show loading or error)
     return null;
   }
-
   void _handleAvatarSwipe(DragEndDetails details) {
-    final currentAvatarImage =
-        _getCurrentAvatarImage(_profileController.profileNotifier.value);
-
-    if (currentAvatarImage == null || currentAvatarImage.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('No avatar available to swipe'),
-          backgroundColor: appcolor,
-        ),
-      );
+    // If no avatars loaded, show message
+    if (_userAvatars.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('No avatars created yet. Try creating one!'),
+            backgroundColor: appcolor,
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
       return;
     }
 
-    String swipeDirection;
     if (details.velocity.pixelsPerSecond.dx > 0) {
-      // Swipe right
-      swipeDirection = "right";
+      // Swipe right - go to previous avatar
+      if (_currentAvatarIndex > 0) {
+        setState(() {
+          _currentAvatarIndex--;
+          _avatarUrl = _userAvatars[_currentAvatarIndex];
+          profileImage = _avatarUrl!;
+        });
+        _animateAvatarChange();
+      } else {
+        // At the first avatar - no more avatars to the right
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('No more avatars available. Swipe left to see more or create new ones!'),
+              backgroundColor: appcolor,
+              duration: Duration(seconds: 2),
+            ),
+          );
+        }
+      }
     } else if (details.velocity.pixelsPerSecond.dx < 0) {
-      // Swipe left
-      swipeDirection = "left";
-    } else {
-      return; // No clear swipe direction
+      // Swipe left - go to next avatar
+      if (_currentAvatarIndex < _userAvatars.length - 1) {
+        setState(() {
+          _currentAvatarIndex++;
+          _avatarUrl = _userAvatars[_currentAvatarIndex];
+          profileImage = _avatarUrl!;
+        });
+        _animateAvatarChange();
+      } else {
+        // At the last avatar - no more avatars to the left
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('No more avatars created. Try creating one or swipe right!'),
+              backgroundColor: appcolor,
+              duration: Duration(seconds: 2),
+            ),
+          );
+        }
+      }
     }
 
-    // Call API with current avatar URL and swipe direction
-    _swipeAvatar(swipeDirection, currentAvatarImage);
+    print('Current avatar index: $_currentAvatarIndex');
+    print('Total avatars: ${_userAvatars.length}');
   }
 
   Future<void> _getUserInfoAndLoadItems() async {
@@ -359,10 +417,9 @@ class _WardrobeScreenState extends State<WardrobeScreen>
   }
 
   Future<void> _loadUserProfile() async {
-    // Get user profile data
+
     await _profileController.getUserProfile();
 
-    // _getUserInfoAndLoadItems();
   }
 
   // Check if there's an existing outfit for the selected date
@@ -376,9 +433,12 @@ class _WardrobeScreenState extends State<WardrobeScreen>
       // if (!hasInternet) {
       //   return;
       // }
+      print(_profileController.profileNotifier.value!.id);
       final outfit = await _outfitController.getOutfitByDate(
         token: token!,
         date: date,
+        id: _profileController.profileNotifier.value!.id
+
       );
       print("coming ios $outfit");
       if (outfit != "") {
@@ -663,6 +723,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                   padding: Responsive.allPadding(16.0),
                   child: _buildCalendarSection(controller),
                 ),
+                SizedBox(height: Responsive.height(40),)
               ],
             ),
           ),
@@ -841,9 +902,9 @@ class _WardrobeScreenState extends State<WardrobeScreen>
         // Date section
         Container(
           padding: EdgeInsets.symmetric(
-              horizontal: Responsive.width(12), vertical: Responsive.height(8)),
-          height: Responsive.height(30),
-          width: Responsive.width(85),
+              horizontal: Responsive.width(12), vertical: Responsive.height(10)),
+          // height: Responsive.height(30),
+          // width: Responsive.width(85),
           decoration: BoxDecoration(
             color: appcolor.withOpacity(0.7),
             borderRadius: BorderRadius.circular(Responsive.radius(30)),
@@ -853,7 +914,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
               Icon(
                 Icons.calendar_month_sharp,
                 color: Colors.white,
-                size: Responsive.fontSize(12),
+                size: Responsive.fontSize(14),
               ),
               Text(" ${_focusedDay.day} ${_getMonthName(_focusedDay.month)}",
                   style: GoogleFonts.poppins(
@@ -1067,120 +1128,117 @@ class _WardrobeScreenState extends State<WardrobeScreen>
         // Show item selection dialog when container is tapped
         _showItemSelectionDialog(category, notifier);
       },
-      child: Container(
-        width: Responsive.width(60),
-        height: Responsive.height(56),
-        margin: const EdgeInsets.only(bottom: 5),
-        decoration: BoxDecoration(
-          color: themeController.white,
-          borderRadius: BorderRadius.circular(10),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.4),
-              blurRadius: 5,
-              offset: const Offset(0, 2),
-            ),
-          ],
-          // Add highlight border if this item is selected
-          border: _isItemSelected(category)
-              ? Border.all(color: appcolor, width: 2)
-              : null,
-        ),
-        child: ValueListenableBuilder<List<WardrobeItem>>(
-          valueListenable: notifier,
-          builder: (context, items, child) {
-            if (isLoadingItems) {
-              // Show loading animation
-              return Center(
-                child: SizedBox(
-                  width: Responsive.width(30),
-                  height: Responsive.width(30),
-                  child: CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(appcolor),
-                    strokeWidth: 2.0,
-                  ),
+      child: ValueListenableBuilder<List<WardrobeItem>>(
+        valueListenable: notifier,
+        builder: (context, items, child) {
+          return Container(
+            width: Responsive.width(60),
+            height: Responsive.height(56),
+            margin: const EdgeInsets.only(bottom: 5),
+            decoration: BoxDecoration(
+              color: themeController.white,
+              borderRadius: BorderRadius.circular(10),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.4),
+                  blurRadius: 5,
+                  offset: const Offset(0, 2),
                 ),
-              );
-            } else if (items.isEmpty) {
-              // Show placeholder if no items
+              ],
+              // Add highlight border if this item is selected
+              border: _isItemSelected(category)
+                  ? Border.all(color: appcolor, width: 2)
+                  : null,
+            ),
+            child: items.isEmpty
+                ? Center(
+              child: Icon(
+                _getIconForCategory(category),
+                color: Colors.grey,
+                size: MediaQuery.of(context).size.width * 0.07,
+              ),
+            )
+                : _buildImageWithLoading(category, items),
+          );
+        },
+      ),
+    );
+  }
+  Widget _buildImageWithLoading(String category, List<WardrobeItem> items) {
+    // Find the selected item for this category
+    WardrobeItem? selectedItem = _getSelectedItemForCategory(category, items);
+
+    // Show the selected item image or the first item if none selected
+    String? imageUrl = selectedItem?.imageUrl ?? items.first.imageUrl;
+
+    return Stack(
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: Image.network(
+            imageUrl ?? '',
+            fit: BoxFit.cover,
+            width: double.infinity,
+            height: double.infinity,
+            errorBuilder: (context, error, stackTrace) {
               return Center(
                 child: Icon(
                   _getIconForCategory(category),
                   color: Colors.grey,
-                  size: MediaQuery.of(context).size.width * 0.07,
+                  size: 24,
                 ),
               );
-            } else {
-              // Find the selected item for this category
-              WardrobeItem? selectedItem =
-                  _getSelectedItemForCategory(category, items);
-
-              // Show the selected item image or the first item if none selected
-              String? imageUrl = selectedItem?.imageUrl ?? items.first.imageUrl;
-
-              return Stack(
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Image.network(
-                      imageUrl ?? '',
-                      fit: BoxFit.cover,
-                      width: double.infinity,
-                      height: double.infinity,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Center(
-                          child: Icon(
-                            _getIconForCategory(category),
-                            color: Colors.grey,
-                            size: 24,
-                          ),
-                        );
-                      },
-                      loadingBuilder: (context, child, loadingProgress) {
-                        if (loadingProgress == null) return child;
-                        return Center(
-                          child: SizedBox(
-                            width: 30,
-                            height: 30,
-                            child: CircularProgressIndicator(
-                              valueColor:
-                                  AlwaysStoppedAnimation<Color>(appcolor),
-                              strokeWidth: 2.0,
-                              value: loadingProgress.expectedTotalBytes != null
-                                  ? loadingProgress.cumulativeBytesLoaded /
-                                      loadingProgress.expectedTotalBytes!
-                                  : null,
-                            ),
-                          ),
-                        );
-                      },
+            },
+            loadingBuilder: (context, child, loadingProgress) {
+              if (loadingProgress == null) {
+                // Image has loaded successfully
+                return child;
+              }
+              // Show loading indicator while image is loading
+              return Container(
+                decoration: BoxDecoration(
+                  color: Colors.grey[100],
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Center(
+                  child: SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(appcolor),
+                      strokeWidth: 2.0,
+                      value: loadingProgress.expectedTotalBytes != null
+                          ? loadingProgress.cumulativeBytesLoaded /
+                          loadingProgress.expectedTotalBytes!
+                          : null,
                     ),
                   ),
-                  if (_isItemSelected(category))
-                    Positioned(
-                      bottom: 2,
-                      right: 2,
-                      child: Container(
-                        padding: EdgeInsets.all(2),
-                        decoration: BoxDecoration(
-                          color: appcolor,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          Icons.check,
-                          color: Colors.white,
-                          size: 12,
-                        ),
-                      ),
-                    ),
-                ],
+                ),
               );
-            }
-          },
+            },
+          ),
         ),
-      ),
+        if (_isItemSelected(category))
+          Positioned(
+            bottom: 2,
+            right: 2,
+            child: Container(
+              padding: EdgeInsets.all(2),
+              decoration: BoxDecoration(
+                color: appcolor,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.check,
+                color: Colors.white,
+                size: 12,
+              ),
+            ),
+          ),
+      ],
     );
   }
+
 
   bool _isItemSelected(String category) {
     switch (category) {
@@ -1190,15 +1248,17 @@ class _WardrobeScreenState extends State<WardrobeScreen>
         return selectedPantId != null;
       case 'shoe':
         return selectedShoeId != null;
-      case 'accessory':
+      case 'accessories':
         return selectedAccessoryId != null;
       default:
         return false;
     }
   }
 
+
   WardrobeItem? _getSelectedItemForCategory(
-      String category, List<WardrobeItem> items) {
+      String category, List<WardrobeItem> items)
+  {
     String? selectedId;
 
     switch (category) {
@@ -1406,7 +1466,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
   IconData _getIconForCategory(String category) {
     switch (category.toLowerCase()) {
       case 'shirt':
-        return FontAwesomeIcons.tshirt; // T-shirt icon
+        return FontAwesomeIcons.shirt; // T-shirt icon
       case 'pant':
         return FontAwesomeIcons.personHalfDress; // Clothes/vest icon
       case 'shoe':
@@ -1454,23 +1514,33 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                   },
                   child: _isLoading || !isImageValid
                       ? Center(
-                          key: const ValueKey('loading'),
-                          child: CircularProgressIndicator(
-                            valueColor: AlwaysStoppedAnimation<Color>(appcolor),
-                          ),
-                        )
-                      : CachedNetworkImage(
-                          key: ValueKey(currentAvatarImage),
-                          imageUrl: currentAvatarImage!,
-                          fit: BoxFit.cover,
-                          width: Responsive.height(350),
-                          height: Responsive.height(350),
-                          placeholder: (context, url) => Center(
-                            child: CircularProgressIndicator(color: appcolor),
-                          ),
-                          errorWidget: (context, url, error) =>
-                              Icon(Icons.error),
+                    key: const ValueKey('loading'),
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(appcolor),
+                    ),
+                  )
+                      : Image.network(
+                    currentAvatarImage,
+                    key: ValueKey(currentAvatarImage),
+                    fit: BoxFit.cover,
+                    width: Responsive.height(350),
+                    height: Responsive.height(350),
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      return Center(
+                        child: CircularProgressIndicator(
+                          value: loadingProgress.expectedTotalBytes != null
+                              ? loadingProgress.cumulativeBytesLoaded /
+                              loadingProgress.expectedTotalBytes!
+                              : null,
+                          valueColor: AlwaysStoppedAnimation<Color>(appcolor),
                         ),
+                      );
+                    },
+                    errorBuilder: (context, error, stackTrace) {
+                      return Icon(Icons.error);
+                    },
+                  ),
                 ),
               ],
             ),
@@ -1479,7 +1549,6 @@ class _WardrobeScreenState extends State<WardrobeScreen>
       },
     );
   }
-
   void _animateAvatarChange() {
     _avatarAnimationController?.reset();
     setState(() {
@@ -1772,7 +1841,8 @@ class _WardrobeScreenState extends State<WardrobeScreen>
 
   // Helper method to get subcategories based on selected category
   List<String> getSubcategoriesForCategory(
-      BuildContext context, String category) {
+      BuildContext context, String category)
+  {
     final loc = AppLocalizations.of(context)!;
 
     switch (category) {

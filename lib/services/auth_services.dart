@@ -48,6 +48,7 @@ class AuthService {
         return AuthResponse.fromInitialSignUpResponse(jsonResponse);
       } else {
         final errorMessage = _getErrorMessage(response);
+        print(errorMessage);
         error.value = errorMessage;
         return AuthResponse.error(errorMessage);
       }
@@ -109,7 +110,7 @@ print(request.email);
         email.value = request.email;
         return AuthResponse.fromVerifyOtpResponse(jsonResponse);
       } else {
-        final errorMessage = _getErrorMessage(response);
+        final errorMessage = _getErrorMessage1(response);
         error.value = errorMessage;
         return AuthResponse.error(errorMessage);
       }
@@ -117,7 +118,7 @@ print(request.email);
       isLoading.value = false;
       error.value = 'Network error: ${e.toString()}';
       print('SignUp error: ${e.toString()}');
-      return AuthResponse.error('Network error: ${e.toString()}');
+      return AuthResponse.error('Failed: ${e.toString()}');
     }
   }
 
@@ -183,11 +184,7 @@ print(request.email);
   Future<AuthResponse> forgotPassword(ForgotPasswordRequest request) async {
     isLoading.value = true;
     error.value = null;
-    bool hasInternet = await checkInternetAndShowDialog(context as BuildContext);
-    if (!hasInternet) {
-      isLoading.value = false;
-      return AuthResponse.error("No internet connection");
-    }
+
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/auth/forgot-Password'),
@@ -205,7 +202,7 @@ print(request.email);
         print('Parsed AuthResponse: OTP=${authResponse.otp}, Success=${authResponse.success}');
         return authResponse;
       } else {
-        final errorMessage = _getErrorMessage(response);
+        final errorMessage = _getErrorMessage1(response);
         error.value = errorMessage;
         return AuthResponse.error(errorMessage);
       }
@@ -288,12 +285,36 @@ print(request.email);
   // Helper to extract error message from response
   String _getErrorMessage(http.Response response) {
     try {
+      print("coming");
+      print("coming");
       final jsonResponse = jsonDecode(response.body);
-      return jsonResponse['error'] ?? 'An error occurred: ${response.statusCode}';
+      return jsonResponse['message'];
     } catch (e) {
       return 'An error occurred: ${response.statusCode}';
     }
   }
+  String _getErrorMessage1(http.Response response) {
+    try {
+      print('Response Body: ${response.body}');
+      final jsonResponse = jsonDecode(response.body);
+      print('Decoded JSON: $jsonResponse');
+
+      final message = jsonResponse['message'];
+      print('Message content: $message');
+
+      if (message is List) {
+        return message.join('\n');
+      } else if (message is String) {
+        return message;
+      } else {
+        return 'An unknown error occurred';
+      }
+    } catch (e) {
+      print('Error during parsing: $e');
+      return 'An error occurred: ${response.statusCode}';
+    }
+  }
+
 
   // Dispose resources
   void dispose() {

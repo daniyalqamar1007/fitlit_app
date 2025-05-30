@@ -108,6 +108,6 @@ class ProfileService {
         }
       }
     } catch (e) {
-      throw Exception('Failed to update profile: $e');
+      throw Exception('Failed to update profile: ${e}');
     }}
 }

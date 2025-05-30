@@ -46,7 +46,7 @@ class AppRoutes {
     editprofile: (context) => EditProfileScreen(),
     newpassword: (context) => NewPasswordScreen(
           email: "dhsgfjh@",
-          otp: "546338",
+
         ),
   };
 }

@@ -3,9 +3,8 @@ import 'dart:io';
 
 import 'package:fitlip_app/controllers/auth_controller.dart';
 import 'package:fitlip_app/routes/App_routes.dart';
-import 'package:fitlip_app/view/Screens/Dashboard/bottomnavbar.dart';
+import 'package:fitlip_app/view/Screens/Auth/Forgot_password/new_password.dart';
 import 'package:fitlip_app/view/Utils/Colors.dart';
-import 'package:fitlip_app/view/Utils/globle_variable/globle.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -18,29 +17,21 @@ import '../../../Utils/responsivness.dart';
 import '../../../Widgets/Custom_buttons.dart';
 import '../sign_in.dart';
 
-class OtpVerificationScreen extends StatefulWidget {
+class OtpVerificationScreen1 extends StatefulWidget {
   final String email;
-  final String gender;
-  final String name;
-  final String password;
-  final String phone;
-  final File file;
 
-  const OtpVerificationScreen({
+
+  const OtpVerificationScreen1({
     Key? key,
     required this.email,
-    required this.gender,
-    required this.name,
-    required this.password,
-    required this.phone,
-    required this.file,
+
   }) : super(key: key);
 
   @override
-  State<OtpVerificationScreen> createState() => _OtpVerificationScreenState();
+  State<OtpVerificationScreen1> createState() => _OtpVerificationScreenState();
 }
 
-class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
+class _OtpVerificationScreenState extends State<OtpVerificationScreen1> {
   String _enteredOtp = '';
   bool _isLoading = false;
   String? _errorMessage;
@@ -133,65 +124,50 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
       _isLoading = true;
       _errorMessage = null;
       _loadingMessage = 'Validating OTP...';
-      _showAvatarMessage = false;
+
     });
 
     _startProgressAnimation();
 
     // After 5 seconds, show avatar generation message
-    _messageTimer = Timer(Duration(seconds: 5), () {
-      setState(() {
-        _loadingMessage = 'Wait, we are generating your Avatar!';
-        _showAvatarMessage = true;
-      });
-    });
 
-    try {
-      final result = await _authController.completeSignUp(
-          _enteredOtp,
-          widget.name,
-          widget.email,
-          widget.password,
-          widget.phone,
-          widget.gender,
-          context,
-          widget.file);
 
-      _completeProgress();
+
+
+
+
       await Future.delayed(Duration(milliseconds: 500));
+      bool responce=await _authController.validate(_enteredOtp);
+    if (responce) {
 
       setState(() {
         _isLoading = false;
       });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Registration successful'),
+          backgroundColor: Colors.green,
+        ),
+      );
 
-      if (result['success']) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Registration successful'),
-            backgroundColor: Colors.green,
-          ),
-        );
-        await savetoken(result['access_token']);
 
         Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (context) => HomeScreen()),
+          MaterialPageRoute(builder: (context) => NewPasswordScreen(email: widget.email,)),
               (route) => false,
         );
       } else {
-        setState(() {
-          _errorMessage = result['message'] ?? 'Verification failed';
-        });
-      }
-    } catch (e) {
-      _completeProgress();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Invalid Otp,try again'),
+          backgroundColor: Colors.red,
+        ),
+      );
       setState(() {
         _isLoading = false;
-        _errorMessage = 'An error occurred: ${e.toString()}';
       });
-    } finally {
-      _messageTimer?.cancel();
-    }
+      }
+
   }
 
   @override
@@ -201,7 +177,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-       iconTheme: IconThemeData(color: appcolor),
+        iconTheme: IconThemeData(color: appcolor),
       ),
       body: Stack(
         children: [

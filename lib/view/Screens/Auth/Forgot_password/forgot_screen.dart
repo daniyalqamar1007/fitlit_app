@@ -10,6 +10,7 @@ import '../../../Utils/globle_variable/globle.dart';
 import '../../../Utils/responsivness.dart';
 import '../../../Widgets/Custom_textfield.dart';
 import '../../../Widgets/Custom_buttons.dart';
+import '../Otp/forgototp.dart';
 import '../Otp/otp_screen.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
@@ -52,14 +53,14 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         setState(() => _isLoading = false);
 
         if (result['success'] == true && result['otp'] != null) {
-          // Navigator.pushReplacement(
-          //   context,
-          //   MaterialPageRoute(
-          //     builder: (context) => OtpVerificationScreen(
-          //       email: _emailController.text,
-          //     ),
-          //   ),
-          // );
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => OtpVerificationScreen1(
+                email: _emailController.text,
+              ),
+            ),
+          );
         } else {
           setState(() {
             _errorMessage = result['message'] ?? 'Failed to send OTP';
@@ -79,15 +80,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     return Scaffold(
       backgroundColor: themeController.white,
       appBar: AppBar(
-        automaticallyImplyLeading: false,
-        leading: GestureDetector(
-          onTap: () => Navigator.pop(context),
-          child: Icon(
-            Icons.arrow_back,
-            color: appcolor,
-            size: Responsive.fontSize(20),
-          ),
+        iconTheme: IconThemeData(
+          color: appcolor
         ),
+
         backgroundColor: themeController.white,
         title: Text(
           'Forgot Password',
@@ -100,7 +96,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       body: Stack(
         children: [
           Padding(
-            padding: Responsive.allPadding(16),
+            padding: Responsive.allPadding(18),
             child: Form(
               key: _formKey,
               child: Column(
@@ -152,7 +148,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               ),
             ),
           ),
-          if (_isLoading) const Center(child: CircularProgressIndicator()),
+          if (_isLoading)  Center(child: CircularProgressIndicator(color: appcolor,)),
         ],
       ),
     );

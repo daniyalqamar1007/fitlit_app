@@ -58,14 +58,15 @@ class OutfitService {
   Future<String?> getOutfitByDate({
     required String token,
     required DateTime date,
+    required int id
   }) async {
     try {
 
       final formattedDate = DateFormat('dd/MM/yyyy').format(date);
       print("Fetching avatar for date: $formattedDate");
-
+print(id);
       final response = await client.get(
-        Uri.parse('$baseUrl/avatar/check?date=$formattedDate'),
+        Uri.parse('$baseUrl/avatar/check?date=$formattedDate&id=$id'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',

@@ -82,7 +82,7 @@ class _SignInScreenState extends State<SignInScreen> {
               _buildFormFields(),
               SizedBox(height: Responsive.height(10)),
               _isLoading
-                  ? const CircularProgressIndicator()
+                  ?  CircularProgressIndicator(color: appcolor,)
                   : CustomButton(
                       text: "Login",
                       onPressed:() async{

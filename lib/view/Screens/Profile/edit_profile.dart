@@ -285,13 +285,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       backgroundColor: themeController.white,
       appBar: AppBar(
         backgroundColor: themeController.white,
-        elevation: 0,
-        leading: GestureDetector(
-          onTap: () {
-            Navigator.pop(context);
-          },
-          child: const BackButton(color: Color(0xFFAA8A00)),
+        iconTheme: IconThemeData(color: appcolor
         ),
+        elevation: 0,
+        // leading: GestureDetector(
+        //   onTap: () {
+        //     Navigator.pop(context);
+        //   },
+        //   child: const BackButton(color: Color(0xFFAA8A00)),
+        // ),
         centerTitle: true,
         title: Text(
           localizations.editProfile,

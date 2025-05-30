@@ -10,12 +10,12 @@ import '../../../Widgets/Custom_textfield.dart';
 
 class NewPasswordScreen extends StatefulWidget {
   final String email;
-  final String otp;
+  // final String otp;
 
   const NewPasswordScreen({
     Key? key,
     required this.email,
-    required this.otp,
+
   }) : super(key: key);
 
   @override
