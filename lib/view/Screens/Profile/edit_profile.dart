@@ -256,7 +256,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       debugPrint("Profile update result: $success");
 
       // Complete the progress animation
-      _completeProgress();
+       _completeProgress();
 
       // Slight delay to allow progress animation to complete
       await Future.delayed(Duration(milliseconds: 200));
@@ -265,7 +265,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(localizations.profileUpdatedSuccessfully)),
         );
-        Navigator.pop(context, true);
+        Navigator.pushReplacementNamed(context,AppRoutes.profile);
       }
     } finally {
       if (mounted) {
@@ -275,6 +275,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           _showLoadingOverlay.value = false;
         }
       }
+   Navigator.pushReplacementNamed(context,AppRoutes.profile);
     }
   }
 

@@ -51,7 +51,7 @@ class AvatarService {
 
     // Wait 3 minutes before first retry
     print("Waiting 3 minutes before first retry...");
-    await Future.delayed(const Duration(minutes: 3));
+    await Future.delayed(const Duration(seconds: 90));
 
     // Keep polling until we get the avatar
     while (true) {
@@ -67,12 +67,11 @@ class AvatarService {
 
         // Wait 1 minute before next retry
         print("Avatar not ready yet, waiting 1 minute...");
-        await Future.delayed(const Duration(minutes:2));
+        await Future.delayed(const Duration(minutes:1));
 
       } catch (e) {
         print("Error during polling: $e");
-        // Wait 1 minute before retrying on error
-        await Future.delayed(const Duration(minutes: 1));
+
       }
     }
   }
