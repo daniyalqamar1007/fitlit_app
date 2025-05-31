@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fitlip_app/controllers/profile_controller.dart';
+import 'package:fitlip_app/routes/App_routes.dart';
 import 'package:fitlip_app/view/Utils/Constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -237,41 +238,45 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
                 return Padding(
                   padding: Responsive.allPadding(16),
                   child: Row(
-                    children: [
-                      Container(
-                        width: Responsive.width(50),
-                        height: Responsive.height(50),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: const Color(0xFFB8860B),
-                            width: 1,
+                    children: [GestureDetector(
+                      onTap: (){
+                        Navigator.pushNamed(context,AppRoutes.profile);
+                      },
+                        child: Container(
+                          width: Responsive.width(50),
+                          height: Responsive.height(50),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: const Color(0xFFB8860B),
+                              width: 1,
+                            ),
                           ),
-                        ),
-                        child: ClipOval(
-                          child: userProfile?.profileImage.isNotEmpty == true
-                              ? Padding(
-                                  padding: EdgeInsets.all(7),
-                                  child: CachedNetworkImage(
-                                    imageUrl: userProfile!.profileImage,
-                                    fit: BoxFit.contain,
-                                    scale: 2,
-                                    alignment: Alignment.topCenter,
-                                    placeholderFadeInDuration:
-                                        Duration(milliseconds: 300),
-                                    placeholder: (context, url) =>
-                                        CircularProgressIndicator(),
-                                    errorWidget: (context, url, error) =>
-                                        Image.asset(
-                                      'assets/Images/circle_image.png',
+                          child: ClipOval(
+                            child: userProfile?.profileImage.isNotEmpty == true
+                                ? Padding(
+                                    padding: EdgeInsets.all(7),
+                                    child: CachedNetworkImage(
+                                      imageUrl: userProfile!.profileImage,
                                       fit: BoxFit.contain,
+                                      scale: 2,
+                                      alignment: Alignment.topCenter,
+                                      placeholderFadeInDuration:
+                                          Duration(milliseconds: 300),
+                                      placeholder: (context, url) =>
+                                          CircularProgressIndicator(),
+                                      errorWidget: (context, url, error) =>
+                                          Image.asset(
+                                        'assets/Images/circle_image.png',
+                                        fit: BoxFit.contain,
+                                      ),
                                     ),
+                                  )
+                                : Image.asset(
+                                    'assets/Images/circle_image.png',
+                                    fit: BoxFit.cover,
                                   ),
-                                )
-                              : Image.asset(
-                                  'assets/Images/circle_image.png',
-                                  fit: BoxFit.cover,
-                                ),
+                          ),
                         ),
                       ),
                       SizedBox(width: Responsive.width(8)),

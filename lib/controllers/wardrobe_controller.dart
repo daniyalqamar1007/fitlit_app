@@ -70,11 +70,11 @@ class WardrobeController {
     try {
       print("coming");
       statusNotifier.value = WardrobeStatus.loading;
-      bool hasInternet =
-      await checkInternetAndShowDialog(context);
-      if (!hasInternet) {
-        return;
-      }
+      // bool hasInternet =
+      // // await checkInternetAndShowDialog(context);
+      // // if (!hasInternet) {
+      // //   return;
+      // // }
       WardrobeItem newItem = await _wardrobeService.uploadWardrobeItem(
         category: category,
         subCategory: subCategory,

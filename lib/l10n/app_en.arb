@@ -68,7 +68,7 @@
   "@email": {
     "description": "Email field label"
   },
-  "gender": "Gender",
+  "gender": "Other",
   "@gender": {
     "description": "Gender field label"
   },
