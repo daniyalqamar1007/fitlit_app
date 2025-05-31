@@ -1,11 +1,13 @@
 class AvatarGenerationRequest {
   final String? shirtId;
+  final String? acccessories_id;
   final String? pantId;
   final String? shoeId;
   final String? profile;
 
   AvatarGenerationRequest({
     this.shirtId,
+    this.acccessories_id,
     this.pantId,
     this.shoeId, this.profile,
   });
@@ -13,6 +15,7 @@ class AvatarGenerationRequest {
   Map<String, dynamic> toJson() {
     return {
       if (shirtId != null) 'shirt_id': shirtId,
+      if (acccessories_id != null) 'accessories_id': acccessories_id,
       if (pantId != null) 'pant_id': pantId,
       if (shoeId != null) 'shoe_id': shoeId,
       if (profile != null) 'profile_picture': profile,

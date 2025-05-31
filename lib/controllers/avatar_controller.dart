@@ -15,6 +15,7 @@ class AvatarController {
 
   Future<AvatarGenerationResponse> generateAvatar({
     String? shirtId,
+    String? accessories_id,
     String? pantId,
     String? shoeId,
     String? profile,
@@ -27,6 +28,7 @@ class AvatarController {
 print(profile);
       final response = await _avatarService.generateAvatar(
         shirtId: shirtId,
+        accessroies_id: accessories_id,
         pantId: pantId,
         shoeId: shoeId,
         token: token,

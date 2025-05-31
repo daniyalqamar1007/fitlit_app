@@ -21,6 +21,7 @@ class AvatarService {
 
   Future<AvatarGenerationResponse> generateAvatar({
     String? shirtId,
+    String? accessroies_id,
     String? pantId,
     String? shoeId,
     String? profile,
@@ -28,6 +29,7 @@ class AvatarService {
   }) async {
     final request = AvatarGenerationRequest(
       shirtId: shirtId,
+      acccessories_id:accessroies_id,
       pantId: pantId,
       shoeId: shoeId,
       profile: profile,
@@ -51,7 +53,7 @@ class AvatarService {
 
     // Wait 3 minutes before first retry
     print("Waiting 3 minutes before first retry...");
-    await Future.delayed(const Duration(seconds: 90));
+    await Future.delayed(const Duration(seconds: 180));
 
     // Keep polling until we get the avatar
     while (true) {

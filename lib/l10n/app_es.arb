@@ -68,7 +68,7 @@
   "@email": {
     "description": "Etiqueta del campo email"
   },
-  "gender": "Género",
+  "gender": "Other",
   "@gender": {
     "description": "Etiqueta del campo género"
   },

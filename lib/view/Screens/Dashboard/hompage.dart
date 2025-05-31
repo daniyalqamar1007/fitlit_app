@@ -45,8 +45,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
   final ImagePicker _picker = ImagePicker();
   String? _avatarUrl;
   bool _isUploading = false;
-  List<String> _generatedAvatars = []; // Store generated avatars
-  int _currentGeneratedAvatarIndex = 0;
+
   SharedPreferences? _prefs;
   double _uploadProgress = 0.0;
   Timer? _uploadProgressTimer;
@@ -116,7 +115,9 @@ class _WardrobeScreenState extends State<WardrobeScreen>
 
     if (selectedShirtId == null ||
         selectedPantId == null ||
-        selectedShoeId == null) {
+        selectedShoeId == null ||
+        selectedAccessoryId == null
+    ) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(localizations.pleaseSelectAtLeastOneItem),
@@ -134,6 +135,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
 
       final response = await _avatarController.generateAvatar(
           shirtId: selectedShirtId,
+          accessories_id:selectedAccessoryId,
           pantId: selectedPantId,
           shoeId: selectedShoeId,
           token: token,
@@ -277,7 +279,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('No avatars created yet. Try creating one!'),
+            content: Text('Your avatar gallery is empty. Let’s create something amazing!'),
             backgroundColor: appcolor,
             duration: Duration(seconds: 2),
           ),
@@ -323,7 +325,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                  'No more avatars created. Try creating one or swipe right!'),
+                  'No more avatar. Let’s create something amazing!'),
               backgroundColor: appcolor,
               duration: Duration(seconds: 2),
             ),
@@ -724,7 +726,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
 
                 return ClipOval(
                   child: Container(
-                    width: 40,
+                    width: 50,
                     height: 50,
                     decoration: BoxDecoration(
                       color: Colors.white,
@@ -845,15 +847,14 @@ class _WardrobeScreenState extends State<WardrobeScreen>
         // Date section
         Container(
           padding: EdgeInsets.symmetric(
-              horizontal: Responsive.width(12),
+              horizontal: Responsive.width(10),
               vertical: Responsive.height(10)),
-          // height: Responsive.height(30),
-          // width: Responsive.width(85),
           decoration: BoxDecoration(
             color: appcolor.withOpacity(0.7),
             borderRadius: BorderRadius.circular(Responsive.radius(30)),
           ),
           child: Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
                 Icons.calendar_month_sharp,
@@ -871,7 +872,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
         ),
 
         SizedBox(
-          height: Responsive.height(5),
+          height: Responsive.height(10),
         ),
 
         // Shirts
@@ -893,10 +894,10 @@ class _WardrobeScreenState extends State<WardrobeScreen>
           ),
         ),
         SizedBox(
-          height: Responsive.height(15),
+          height: Responsive.height(10),
         ),
         _buildWardrobeItemContainer('shirt'),
-        SizedBox(height: Responsive.height(5)),
+        SizedBox(height: Responsive.height(7)),
 
         Container(
           padding: EdgeInsets.symmetric(
@@ -916,10 +917,12 @@ class _WardrobeScreenState extends State<WardrobeScreen>
           ),
         ),
         SizedBox(
-          height: Responsive.height(5),
+          height: Responsive.height(7),
         ),
         _buildWardrobeItemContainer('accessories'),
-
+        SizedBox(
+          height: Responsive.height(7),
+        ),
         Container(
           padding: EdgeInsets.symmetric(
               horizontal: Responsive.width(14), vertical: Responsive.height(8)),
@@ -938,11 +941,13 @@ class _WardrobeScreenState extends State<WardrobeScreen>
           ),
         ),
         SizedBox(
-          height: Responsive.height(5),
+          height: Responsive.height(7),
         ),
 
         _buildWardrobeItemContainer('pant'),
-
+        SizedBox(
+          height: Responsive.height(7),
+        ),
         Container(
           padding: EdgeInsets.symmetric(
               horizontal: Responsive.width(14), vertical: Responsive.height(8)),
@@ -961,9 +966,9 @@ class _WardrobeScreenState extends State<WardrobeScreen>
           ),
         ),
         SizedBox(
-          height: Responsive.height(5),
+          height: Responsive.height(7),
         ),
-        _buildWardrobeItemContainer('shoe'),
+        _buildWardrobeItemContainer('shoes'),
       ],
     );
   }
@@ -1057,7 +1062,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
       case 'pant':
         notifier = _wardrobeController.pantsNotifier;
         break;
-      case 'shoe':
+      case 'shoes':
         notifier = _wardrobeController.shoesNotifier;
         break;
       case 'accessories':
@@ -1190,7 +1195,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
         return selectedShirtId != null;
       case 'pant':
         return selectedPantId != null;
-      case 'shoe':
+      case 'shoes':
         return selectedShoeId != null;
       case 'accessories':
         return selectedAccessoryId != null;
@@ -1200,7 +1205,8 @@ class _WardrobeScreenState extends State<WardrobeScreen>
   }
 
   WardrobeItem? _getSelectedItemForCategory(
-      String category, List<WardrobeItem> items) {
+      String category, List<WardrobeItem> items)
+  {
     String? selectedId;
 
     switch (category) {
@@ -1210,10 +1216,10 @@ class _WardrobeScreenState extends State<WardrobeScreen>
       case 'pant':
         selectedId = selectedPantId;
         break;
-      case 'shoe':
+      case 'shoes':
         selectedId = selectedShoeId;
         break;
-      case 'accessory':
+      case 'accessories':  // Changed from 'accessory' to 'accessories'
         selectedId = selectedAccessoryId;
         break;
     }
@@ -1230,7 +1236,8 @@ class _WardrobeScreenState extends State<WardrobeScreen>
   }
 
   void _showItemSelectionDialog(
-      String category, ValueNotifier<List<WardrobeItem>> notifier) {
+      String category, ValueNotifier<List<WardrobeItem>> notifier)
+  {
     if (notifier.value.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -1291,7 +1298,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                         case 'pant':
                           isSelected = selectedPantId == item.id;
                           break;
-                        case 'shoe':
+                        case 'shoes':
                           isSelected = selectedShoeId == item.id;
                           break;
                         case 'accessories':
@@ -1312,7 +1319,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                                 selectedPantId = item.id;
                               });
                               break;
-                            case 'shoe':
+                            case 'shoes':
                               setState(() {
                                 selectedShoeId = item.id;
                               });
@@ -1411,7 +1418,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
         return FontAwesomeIcons.shirt; // T-shirt icon
       case 'pant':
         return FontAwesomeIcons.personHalfDress; // Clothes/vest icon
-      case 'shoe':
+      case 'shoes':
         return FontAwesomeIcons.shoePrints; // Shoe icon
       case 'accessories':
         return FontAwesomeIcons.glasses; // Glasses icon
@@ -1907,241 +1914,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
     }
   }
 
-  // Method to show confirmation dialog after image capture
-  // void _showImageCapturedDialog(
-  //     String category, String subcategory, File imageFile)
-  // {
-  //   _isUploading = false;
-  //   _uploadProgress = 0.0;
-  //   final loc = AppLocalizations.of(context)!;
-  //   showDialog(
-  //     context: context,
-  //     barrierDismissible: false,
-  //     builder: (BuildContext context) {
-  //       return StatefulBuilder(
-  //         builder: (context, setState) {
-  //           return AlertDialog(
-  //             backgroundColor: Colors.white,
-  //             title: Text(
-  //               _isUploading ? loc.uploadingItem : loc.itemCaptured,
-  //               style: GoogleFonts.poppins(
-  //                 fontSize: 18,
-  //                 fontWeight: FontWeight.w600,
-  //                 color: appcolor,
-  //               ),
-  //             ),
-  //             content: Column(
-  //               mainAxisSize: MainAxisSize.min,
-  //               children: [
-  //                 if (!_isUploading)
-  //                   Text(
-  //                     loc.itemSuccessfullyCaptured(subcategory),
-  //                     style: GoogleFonts.poppins(fontSize: 14),
-  //                   ),
-  //                 SizedBox(height: 16),
-  //                 Container(
-  //                   height: 150,
-  //                   width: double.infinity,
-  //                   decoration: BoxDecoration(
-  //                     borderRadius: BorderRadius.circular(8),
-  //                     image: DecorationImage(
-  //                       image: FileImage(imageFile),
-  //                       fit: BoxFit.cover,
-  //                     ),
-  //                   ),
-  //                 ),
-  //                 if (_isUploading) ...[
-  //                   SizedBox(height: 20),
-  //                   Column(
-  //                     children: [
-  //                       // Custom loading animation (similar to OTP screen)
-  //                       Container(
-  //                         width: 80,
-  //                         height: 80,
-  //                         decoration: BoxDecoration(
-  //                           color: appcolor.withOpacity(0.1),
-  //                           shape: BoxShape.circle,
-  //                         ),
-  //                         child: Center(
-  //                           child: SizedBox(
-  //                             width: 50,
-  //                             height: 50,
-  //                             child: CircularProgressIndicator(
-  //                               value: _uploadProgress,
-  //                               backgroundColor: Colors.grey[300],
-  //                               valueColor:
-  //                                   AlwaysStoppedAnimation<Color>(appcolor),
-  //                               strokeWidth: 5,
-  //                             ),
-  //                           ),
-  //                         ),
-  //                       ),
-  //                       SizedBox(height: 16),
-  //                       Text(
-  //                         loc.addingToWardrobe,
-  //                         style: GoogleFonts.poppins(
-  //                           fontSize: 14,
-  //                           fontWeight: FontWeight.w500,
-  //                         ),
-  //                       ),
-  //                       SizedBox(height: 8),
-  //                       Text(
-  //                         '${(_uploadProgress * 100).toInt()}%',
-  //                         style: GoogleFonts.poppins(
-  //                           fontSize: 12,
-  //                           color: appcolor,
-  //                         ),
-  //                         textAlign: TextAlign.center,
-  //                       ),
-  //                     ],
-  //                   ),
-  //                 ],
-  //               ],
-  //             ),
-  //             actions: _isUploading
-  //                 ? [] // No buttons when loading
-  //                 : [
-  //                     TextButton(
-  //               onPressed: () => Navigator.pop(context),
-  //           child: Text(
-  //           loc.cancel,
-  //           style: GoogleFonts.poppins(color: Colors.grey),
-  //           ),
-  //
-  //                     //   onPressed: () => Navigator.pop(context),
-  //                     //   child: Text(
-  //                     //     loc.cancel,
-  //                     //     style: GoogleFonts.poppins(color: Colors.grey),
-  //                     //   ),
-  //                     // ),
-  //                     // TextButton(
-  //                     //   onPressed: () async {
-  //                     //     // Start upload process with loading animation
-  //                     //     setState(() {
-  //                     //       _isUploading = true;
-  //                     //       _uploadProgress = 0.0;
-  //                     //     });
-  //                     //
-  //                     //     // Start the progress animation
-  //                     //     _startUploadProgressAnimation(setState);
-  //                     //     // bool hasInternet =
-  //                     //     //     await checkInternetAndShowDialog(context);
-  //                     //     // if (!hasInternet) {
-  //                     //     //   return;
-  //                     //     // }
-  //                     //     try {
-  //                     //       await _wardrobeController.uploadWardrobeItem(
-  //                     //           category: category,
-  //                     //           subCategory: subcategory,
-  //                     //           imageFile: imageFile,
-  //                     //           avatarurl: profileImage!,
-  //                     //           context: context,
-  //                     //           token: token);
-  //                     //       await _completeUploadProgress(setState);
-  //                     //       if (errorr) {
-  //                     //         ScaffoldMessenger.of(context).showSnackBar(
-  //                     //           SnackBar(
-  //                     //             content: Text(
-  //                     //               'Failed to save image:',
-  //                     //             ),
-  //                     //             backgroundColor: Colors.red,
-  //                     //           ),
-  //                     //         );
-  //                     //       }
-  //                     //
-  //                     //       // Slight delay to show 100% completion
-  //                     //       if (err) await Future.delayed(Duration(milliseconds: 5000));
-  //                     //       // await _getUserInfoAndLoadItems();
-  //                     //       // await Future.delayed(Duration(milliseconds: 5000));
-  //                     //       if (err) await _getUserInfoAndLoadItems();
-  //                     //
-  //                     //       _uploadProgressTimer?.cancel();
-  //                     //       Navigator.pop(context);
-  //                     //     } catch (e) {
-  //                     //       // Complete progress animation even on error
-  //                     //       await _completeUploadProgress(setState);
-  //                     //
-  //                     //       await Future.delayed(Duration(milliseconds: 500));
-  //                     //
-  //                     //       if (context.mounted) {
-  //                     //         _uploadProgressTimer?.cancel();
-  //                     //         Navigator.pop(context);
-  //                     //         ScaffoldMessenger.of(context).showSnackBar(
-  //                     //           SnackBar(
-  //                     //             content: Text(
-  //                     //               'Failed to save image: ${e.toString()}',
-  //                     //             ),
-  //                     //             backgroundColor: Colors.red,
-  //                     //           ),
-  //                     //         );
-  //                     //       }
-  //                     //       await _getUserInfoAndLoadItems();
-  //                     //     }
-  //                     //   },
-  //               setState(() {
-  //             _isUploading = true;
-  //             _uploadProgress = 0.0;
-  //           });
-  //
-  //           // Start the progress animation
-  //           _startUploadProgressAnimation(setState);
-  //           bool hasInternet =
-  //           await checkInternetAndShowDialog(context);
-  //           if (!hasInternet) {
-  //           return;
-  //           }
-  //           try {
-  //           await _wardrobeController.uploadWardrobeItem(
-  //           category: category,
-  //           subCategory: subcategory,
-  //           imageFile: imageFile,
-  //           avatarurl: profileImage!,
-  //           context: context,
-  //           token: token);
-  //           _completeUploadProgress(setState);
-  //
-  //           // Slight delay to show 100% completion
-  //           await Future.delayed(Duration(milliseconds: 5000));
-  //           await _getUserInfoAndLoadItems();
-  //           await Future.delayed(Duration(milliseconds: 5000));
-  //           await _getUserInfoAndLoadItems();
-  //
-  //           _uploadProgressTimer?.cancel();
-  //           Navigator.pop(context);
-  //           } catch (e) {
-  //           // Complete progress animation even on error
-  //           _completeUploadProgress(setState);
-  //
-  //           await Future.delayed(Duration(milliseconds: 500));
-  //
-  //           if (context.mounted) {
-  //           _uploadProgressTimer?.cancel();
-  //           Navigator.pop(context);
-  //           ScaffoldMessenger.of(context).showSnackBar(
-  //           SnackBar(
-  //           content: Text(
-  //           'Failed to save image: ${e.toString()}',
-  //           ),
-  //           backgroundColor: Colors.red,
-  //           ),
-  //           );
-  //           }
-  //           }
-  //         },
-  //         child: Text(
-  //           loc.addToWardrobe,
-  //           style: GoogleFonts.poppins(
-  //             color: appcolor,
-  //             fontWeight: FontWeight.bold,
-  //           ),
-  //         ),
-  //       ),
-  //       ],
-  //         },
-  //       );
-  //     },
-  //   );
-  // }
+
   void _showImageCapturedDialog(
       String category, String subcategory, File imageFile) {
     _isUploading = false;
@@ -2251,11 +2024,11 @@ class _WardrobeScreenState extends State<WardrobeScreen>
 
                     // Start the progress animation
                     _startUploadProgressAnimation(setState);
-                    bool hasInternet =
-                    await checkInternetAndShowDialog(context);
-                    if (!hasInternet) {
-                      return;
-                    }
+                    // bool hasInternet =
+                    // await checkInternetAndShowDialog(context);
+                    // if (!hasInternet) {
+                    //   return;
+                    // }
                     try {
                       await _wardrobeController.uploadWardrobeItem(
                           category: category,
@@ -2267,8 +2040,8 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                       _completeUploadProgress(setState);
 
                       // Slight delay to show 100% completion
-                      await Future.delayed(Duration(milliseconds: 5000));
-                      await _getUserInfoAndLoadItems();
+                      // await Future.delayed(Duration(milliseconds: 5000));
+                      // await _getUserInfoAndLoadItems();
                       await Future.delayed(Duration(milliseconds: 5000));
                       await _getUserInfoAndLoadItems();
 
@@ -2276,25 +2049,25 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                       Navigator.pop(context);
                     } catch (e) {
                       // Complete progress animation even on error
-                      _completeUploadProgress(setState);
+                      await _completeUploadProgress(setState);
 
-                      await Future.delayed(Duration(milliseconds: 500));
+                                      await Future.delayed(Duration(milliseconds: 500));
 
-                      if (context.mounted) {
-                        _uploadProgressTimer?.cancel();
-                        Navigator.pop(context);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              'Add to wardobe item ',
-                            ),
-                            backgroundColor: appcolor,
-                          ),
-                        );
-                        _loadAllUserAvatars();
-                      }
-                    }
-                  },
+                                      if (context.mounted) {
+                                        _uploadProgressTimer?.cancel();
+                                        Navigator.pop(context);
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                              'Failed to save image: ${e.toString()}',
+                                            ),
+                                            backgroundColor: Colors.red,
+                                          ),
+                                        );
+                                      }
+                                      await _getUserInfoAndLoadItems();
+                                    }},
+
                   child: Text(
                     loc.addToWardrobe,
                     style: GoogleFonts.poppins(
@@ -2310,6 +2083,176 @@ class _WardrobeScreenState extends State<WardrobeScreen>
       },
     );
   }
+
+  // void _showImageCapturedDialog(
+  //     String category, String subcategory, File imageFile)
+  // {
+  //   _isUploading = false;
+  //   _uploadProgress = 0.0;
+  //   final loc = AppLocalizations.of(context)!;
+  //   showDialog(
+  //     context: context,
+  //     barrierDismissible: false,
+  //     builder: (BuildContext context) {
+  //       return StatefulBuilder(
+  //         builder: (context, setState) {
+  //           return AlertDialog(
+  //             backgroundColor: Colors.white,
+  //             title: Text(
+  //               _isUploading ? loc.uploadingItem : loc.itemCaptured,
+  //               style: GoogleFonts.poppins(
+  //                 fontSize: 18,
+  //                 fontWeight: FontWeight.w600,
+  //                 color: appcolor,
+  //               ),
+  //             ),
+  //             content: Column(
+  //               mainAxisSize: MainAxisSize.min,
+  //               children: [
+  //                 if (!_isUploading)
+  //                   Text(
+  //                     loc.itemSuccessfullyCaptured(subcategory),
+  //                     style: GoogleFonts.poppins(fontSize: 14),
+  //                   ),
+  //                 SizedBox(height: 16),
+  //                 Container(
+  //                   height: 150,
+  //                   width: double.infinity,
+  //                   decoration: BoxDecoration(
+  //                     borderRadius: BorderRadius.circular(8),
+  //                     image: DecorationImage(
+  //                       image: FileImage(imageFile),
+  //                       fit: BoxFit.cover,
+  //                     ),
+  //                   ),
+  //                 ),
+  //                 if (_isUploading) ...[
+  //                   SizedBox(height: 20),
+  //                   Column(
+  //                     children: [
+  //                       // Custom loading animation (similar to OTP screen)
+  //                       Container(
+  //                         width: 80,
+  //                         height: 80,
+  //                         decoration: BoxDecoration(
+  //                           color: appcolor.withOpacity(0.1),
+  //                           shape: BoxShape.circle,
+  //                         ),
+  //                         child: Center(
+  //                           child: SizedBox(
+  //                             width: 50,
+  //                             height: 50,
+  //                             child: CircularProgressIndicator(
+  //                               value: _uploadProgress,
+  //                               backgroundColor: Colors.grey[300],
+  //                               valueColor:
+  //                               AlwaysStoppedAnimation<Color>(appcolor),
+  //                               strokeWidth: 5,
+  //                             ),
+  //                           ),
+  //                         ),
+  //                       ),
+  //                       SizedBox(height: 16),
+  //                       Text(
+  //                         loc.addingToWardrobe,
+  //                         style: GoogleFonts.poppins(
+  //                           fontSize: 14,
+  //                           fontWeight: FontWeight.w500,
+  //                         ),
+  //                       ),
+  //                       SizedBox(height: 8),
+  //                       Text(
+  //                         '${(_uploadProgress * 100).toInt()}%',
+  //                         style: GoogleFonts.poppins(
+  //                           fontSize: 12,
+  //                           color: appcolor,
+  //                         ),
+  //                         textAlign: TextAlign.center,
+  //                       ),
+  //                     ],
+  //                   ),
+  //                 ],
+  //               ],
+  //             ),
+  //             actions: _isUploading
+  //                 ? [] // No buttons when loading
+  //                 : [
+  //               TextButton(
+  //                 onPressed: () => Navigator.pop(context),
+  //                 child: Text(
+  //                   loc.cancel,
+  //                   style: GoogleFonts.poppins(color: Colors.grey),
+  //                 ),
+  //               ),
+  //               TextButton(
+  //                 onPressed: () async {
+  //                   // Start upload process with loading animation
+  //                   setState(() {
+  //                     _isUploading = true;
+  //                     _uploadProgress = 0.0;
+  //                   });
+  //
+  //                   // Start the progress animation
+  //                   _startUploadProgressAnimation(setState);
+  //                   bool hasInternet =
+  //                   await checkInternetAndShowDialog(context);
+  //                   if (!hasInternet) {
+  //                     return;
+  //                   }
+  //                   try {
+  //                     await _wardrobeController.uploadWardrobeItem(
+  //                         category: category,
+  //                         subCategory: subcategory,
+  //                         imageFile: imageFile,
+  //                         avatarurl: profileImage!,
+  //                         context: context,
+  //                         token: token);
+  //                     _completeUploadProgress(setState);
+  //
+  //                     // Slight delay to show 100% completion
+  //                     await Future.delayed(Duration(milliseconds: 5000));
+  //                     await _getUserInfoAndLoadItems();
+  //                     await Future.delayed(Duration(milliseconds: 5000));
+  //                     await _getUserInfoAndLoadItems();
+  //
+  //                     _uploadProgressTimer?.cancel();
+  //                     Navigator.pop(context);
+  //                   } catch (e) {
+  //                     // Complete progress animation even on error
+  //                     _completeUploadProgress(setState);
+  //
+  //                     await Future.delayed(Duration(milliseconds: 500));
+  //
+  //                     if (context.mounted) {
+  //                       _uploadProgressTimer?.cancel();
+  //                       Navigator.pop(context);
+  //                       ScaffoldMessenger.of(context).showSnackBar(
+  //                         SnackBar(
+  //                           content: Text(
+  //                             'Add to wardobe item ',
+  //                           ),
+  //                           backgroundColor: appcolor,
+  //                         ),
+  //                       );
+  //                       _loadAllUserAvatars();
+  //                     }
+  //                   }
+  //                 },
+  //                 child: Text(
+  //                   loc.addToWardrobe,
+  //                   style: GoogleFonts.poppins(
+  //                     color: appcolor,
+  //                     fontWeight: FontWeight.bold,
+  //                   ),
+  //                 ),
+  //               ),
+  //             ],
+  //           );
+  //         },
+  //       );
+  //     },
+  //   );
+  // }
 
 
   void _startUploadProgressAnimation(StateSetter setState) {
