@@ -8,7 +8,7 @@ class AvatarService {
 
   AvatarService() {
     _dio = Dio(BaseOptions(
-      baseUrl: baseUrl,
+      baseUrl: 'https://wittywardrobe.store/aims-service5',
       connectTimeout: const Duration(minutes: 3), // 3 minutes connection timeout
       receiveTimeout: const Duration(minutes: 3), // 3 minutes receive timeout
       sendTimeout: const Duration(minutes: 3), // 3 minutes send timeout
@@ -53,7 +53,7 @@ class AvatarService {
 
     // Wait 3 minutes before first retry
     print("Waiting 3 minutes before first retry...");
-    await Future.delayed(const Duration(seconds: 180));
+    await Future.delayed(const Duration(seconds: 150));
 
     // Keep polling until we get the avatar
     while (true) {

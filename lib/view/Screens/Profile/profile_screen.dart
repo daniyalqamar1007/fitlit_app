@@ -11,6 +11,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../../model/profile_model.dart';
 import '../../Utils/Colors.dart';
 import '../../Utils/globle_variable/globle.dart';
+import '../../Widgets/custom_message.dart';
 import '../../Widgets/custom_switch.dart';
 import '../../Widgets/custom_tile.dart';
 import 'edit_profile.dart';
@@ -119,22 +120,24 @@ class _ProfileScreenState extends State<ProfileScreen>
             responseData['status'] == 'success') {
           // Rating submitted successfully
           Navigator.pop(context);
+          showAppSnackBar(context,  responseData['message'] ??
+              'Thank you for rating us $rating star${rating > 1 ? 's' : ''}!', backgroundColor: appcolor);
+
 
           // Show success message
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                responseData['message'] ??
-                    'Thank you for rating us $rating star${rating > 1 ? 's' : ''}!',
-                style: GoogleFonts.poppins(color: Colors.white),
-              ),
-              backgroundColor: Colors.green,
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-          );
+          // ScaffoldMessenger.of(context).showSnackBar(
+          //   SnackBar(
+          //     content: Text(
+          //     ,
+          //       style: GoogleFonts.poppins(color: Colors.white),
+          //     ),
+          //     backgroundColor: Colors.green,
+          //     behavior: SnackBarBehavior.floating,
+          //     shape: RoundedRectangleBorder(
+          //       borderRadius: BorderRadius.circular(10),
+          //     ),
+          //   ),
+          // );
         } else {
           throw Exception(responseData['message'] ?? 'Failed to submit rating');
         }
@@ -177,21 +180,10 @@ class _ProfileScreenState extends State<ProfileScreen>
           // Account deleted successfully
           // Clear any stored data
           await remove(); // Clear stored token/data
+          showAppSnackBar(context,  responseData['message'] ?? 'Account deleted successfully', backgroundColor: appcolor);
 
           // Show success message
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                responseData['message'] ?? 'Account deleted successfully',
-                style: GoogleFonts.poppins(color: Colors.white),
-              ),
-              backgroundColor: Colors.green,
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-          );
+
 
           Navigator.pushNamedAndRemoveUntil(
             context,
@@ -210,19 +202,9 @@ class _ProfileScreenState extends State<ProfileScreen>
       print('Error deleting account: $e');
 
       // Show error message
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            e.toString().replaceFirst('Exception: ', ''),
-            style: GoogleFonts.poppins(color: Colors.white),
-          ),
-          backgroundColor: Colors.red,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-        ),
-      );
+      showAppSnackBar(context,   e.toString().replaceFirst('Exception: ',''), backgroundColor: appcolor);
+
+
     }
   }
 
@@ -672,6 +654,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                                   borderRadius: BorderRadius.circular(8),
                                 ),),
                                 onPressed: () async { Navigator.pop(context, true);
+
                                 await remove();
 
                                 Navigator.pushNamedAndRemoveUntil(

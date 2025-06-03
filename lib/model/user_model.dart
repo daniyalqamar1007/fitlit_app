@@ -4,7 +4,7 @@ import 'dart:io';
 class UserModel {
   final int? userId;
   final String? name;
-  final String email;
+  final String? email;
   final String? phoneNumber;
   final String? profilePhoto;
   final String? gender;
@@ -13,7 +13,7 @@ class UserModel {
   UserModel({
     this.userId,
     this.name,
-    required this.email,
+    this.email,
     this.phoneNumber,
     this.profilePhoto,
     this.gender,
@@ -69,7 +69,7 @@ class AuthResponse {
       message: json['message'] ?? 'Login successful',
       user: UserModel(
         userId: json['userId'],
-        email: '', // Email isn't returned in the response
+        // Email isn't returned in the response
         accessToken: json['access_token'],
       ),
     );
@@ -81,7 +81,6 @@ class AuthResponse {
       message: json['message'] ?? 'Signup successful',
       user: UserModel(
         userId: json['userId'],
-        email: '', // Email isn't returned in the response
         accessToken: json['access_token'],
       ),
     );

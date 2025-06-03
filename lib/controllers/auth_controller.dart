@@ -123,17 +123,19 @@ class AuthController {
         // Clear temporary data after successful signup
         _tempSignUpData = {};
         _verificationOtp = null;
+        print(response);
 
         // Save token if available
         if (response.user?.accessToken != null) {
           await savetoken(response.user!.accessToken!);
         }
 
+
         return {
           'success': true,
           'message': response.message ?? 'Registration successful',
           'userId': response.user?.userId,
-          'token': response.user?.accessToken,
+          'access_token': response.user?.accessToken,
         };
       } else {
         return {

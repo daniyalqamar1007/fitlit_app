@@ -48,7 +48,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
         bool shouldContinue = await _checkAppVersion();
         if (!shouldContinue) return;
-        await _loadUserProfile();
+        // await _loadUserProfile();
         Navigator.pushReplacementNamed(context, AppRoutes.dashboard);
       }
     });
