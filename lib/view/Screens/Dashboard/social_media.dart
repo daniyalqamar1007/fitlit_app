@@ -7,7 +7,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:table_calendar/table_calendar.dart';
 import '../../../controllers/outfit_controller.dart';
+import '../../../model/outfit_model.dart';
 import '../../../model/profile_model.dart';
 import '../../Utils/Colors.dart';
 import '../../Utils/globle_variable/globle.dart';
@@ -52,6 +54,7 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
   @override
   void initState() {
     super.initState();
+    _loadAvatarDates();
     _outfitController.statusNotifier.addListener(_updateLoadingStatus);
     _fetchOutfitForSelectedDate(); // Initial fetch
   }
@@ -62,7 +65,11 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
     _outfitController.dispose();
     super.dispose();
   }
-
+  Future<void> _loadAvatarDates() async {
+    if (token != null) {
+      await _outfitController.loadAllAvatarDates(token: token!);
+    }
+  }
   void _updateLoadingStatus() {
     setState(() {
       isLoading =
@@ -133,19 +140,142 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
   }
 
   Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
+    DateTime? selectedTempDate = selectedDate;
+
+    final DateTime? picked = await showDialog<DateTime>(
       context: context,
-      initialDate: selectedDate,
-      firstDate: DateTime(2020),
-      lastDate: DateTime(2030),
-      builder: (BuildContext context, Widget? child) {
-        return Theme(
-          data: ThemeData.light().copyWith(
-            primaryColor: appcolor,
-            colorScheme: ColorScheme.light(primary: appcolor),
-            buttonTheme: ButtonThemeData(textTheme: ButtonTextTheme.primary),
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
           ),
-          child: child!,
+          child: StatefulBuilder(
+            builder: (BuildContext context, StateSetter setModalState) {
+              return Container(
+                padding: EdgeInsets.all(8),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'Select Date',
+                      style: GoogleFonts.poppins(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: appcolor,
+                      ),
+                    ),
+                    SizedBox(height: 16),
+                    ValueListenableBuilder<List<AvatarData>>(
+                      valueListenable: _outfitController.avatarDatesNotifier,
+                      builder: (context, List<AvatarData> avatarDates, _) {
+                        return Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withOpacity(0.1),
+                                blurRadius: 4,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: TableCalendar(
+                            firstDay: DateTime(2020),
+                            lastDay: DateTime(2030),
+                            focusedDay: selectedTempDate ?? DateTime.now(),
+                            selectedDayPredicate: (day) => isSameDay(selectedTempDate, day),
+                            onDaySelected: (selectedDay, focusedDay) {
+                              setModalState(() {
+                                selectedTempDate = selectedDay;
+                              });
+                            },
+                            onDayLongPressed: (selectedDay, focusedDay) {
+                              _showAvatarMessage(selectedDay);
+                            },
+                            eventLoader: (day) {
+                              if (isSameDay(day, DateTime.now())) return [];
+                              if (_outfitController.hasAvatarForDate(day)) {
+                                return ['avatar'];
+                              }
+                              return [];
+                            },
+                            calendarStyle: CalendarStyle(
+                              outsideDaysVisible: false,
+                              selectedDecoration: BoxDecoration(
+                                color: appcolor,
+                                shape: BoxShape.circle,
+                              ),
+                              todayDecoration: BoxDecoration(
+                                color: appcolor.withOpacity(0.4),
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            headerStyle: HeaderStyle(
+                              formatButtonVisible: false,
+                              titleCentered: true,
+                              titleTextStyle: GoogleFonts.poppins(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: appcolor,
+                              ),
+                              leftChevronIcon: Icon(Icons.chevron_left, color: appcolor),
+                              rightChevronIcon: Icon(Icons.chevron_right, color: appcolor),
+                            ),
+                            calendarBuilders: CalendarBuilders(
+                              markerBuilder: (context, day, events) {
+                                if (events.isEmpty || isSameDay(day, DateTime.now())) {
+                                  return const SizedBox(); // ❌ No dot on today
+                                }
+                                return Positioned(
+                                  right: 4,
+                                  top: 4,
+                                  child: Container(
+                                    width: 6,
+                                    height: 6,
+                                    decoration: BoxDecoration(
+                                      color: appcolor,
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                    SizedBox(height: 16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: Text(
+                            'Cancel',
+                            style: GoogleFonts.poppins(color: Colors.grey),
+                          ),
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.pop(context, selectedTempDate);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: appcolor,
+                          ),
+                          child: Text(
+                            'Select',
+                            style: GoogleFonts.poppins(color: Colors.white),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
         );
       },
     );
@@ -158,6 +288,85 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
     }
   }
 
+  void _showAvatarMessage(DateTime date) {
+    final message = _outfitController.getMessageForDate(date);
+
+    if (message != null && message.isNotEmpty) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return Dialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Container(
+              padding: EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                color: Colors.white,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Avatar Message',
+                    style: GoogleFonts.poppins(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: appcolor,
+                    ),
+                  ),
+                  SizedBox(height: 12),
+                  Text(
+                    DateFormat('dd/MM/yyyy').format(date),
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  Container(
+                    padding: EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: appcolor.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      message,
+                      style: GoogleFonts.poppins(
+                        fontSize: 16,
+                        color: Colors.black87,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: Text(
+                      'Close',
+                      style: GoogleFonts.poppins(
+                        color: appcolor,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      );
+    } else {
+      // Show message that no avatar message exists for this date
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('No avatar message for this date'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
+  }
   void _showCommentsBottomSheet() {
     showModalBottomSheet(
       context: context,

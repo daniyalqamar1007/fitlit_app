@@ -156,6 +156,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
           widget.gender,
           context,
           widget.file);
+      print(result);
 
       _completeProgress();
       await Future.delayed(Duration(milliseconds: 500));
@@ -171,6 +172,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
             backgroundColor: Colors.green,
           ),
         );
+        print(result['access_token']);
         await savetoken(result['access_token']);
 
         Navigator.pushAndRemoveUntil(

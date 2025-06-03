@@ -14,6 +14,8 @@ import '../../Utils/globle_variable/globle.dart';
 import 'package:image/image.dart' as img;
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
+import '../../Widgets/custom_message.dart';
+
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({Key? key}) : super(key: key);
 
@@ -262,10 +264,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       await Future.delayed(Duration(milliseconds: 200));
 
       if (success && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(localizations.profileUpdatedSuccessfully)),
-        );
-        Navigator.pushReplacementNamed(context,AppRoutes.profile);
+        showAppSnackBar(context, localizations.profileUpdatedSuccessfully, backgroundColor: appcolor);
+
+
       }
     } finally {
       if (mounted) {

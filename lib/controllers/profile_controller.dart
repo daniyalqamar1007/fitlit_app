@@ -35,7 +35,7 @@ class ProfileController {
       //   return;
       // }
       final profile = await _profileService.getUserProfile();
-
+print(profile);
       Future.microtask(() {
         profileNotifier.value = profile;
       });

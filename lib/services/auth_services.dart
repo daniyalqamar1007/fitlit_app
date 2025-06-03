@@ -107,7 +107,7 @@ print(request.email);
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final jsonResponse = jsonDecode(response.body);
-        email.value = request.email;
+        // email.value = request.email;
         return AuthResponse.fromVerifyOtpResponse(jsonResponse);
       } else {
         final errorMessage = _getErrorMessage1(response);
