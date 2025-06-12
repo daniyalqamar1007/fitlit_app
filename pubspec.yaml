@@ -32,6 +32,7 @@ dependencies:
   http_parser:
   image:
   http:
+  loading_animation_widget:
   connectivity_plus:
   internet_connection_checker:
   package_info_plus:

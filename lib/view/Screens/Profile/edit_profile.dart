@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:fitlip_app/view/Utils/Constants.dart';
 import 'package:fitlip_app/controllers/profile_controller.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:path_provider/path_provider.dart';
 import '../../../main.dart';
 import '../../../model/profile_model.dart';
@@ -77,7 +78,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       imageUrl: imageLink!,
                       fit: BoxFit.contain,
                       placeholder: (context, url) =>
-                          const CircularProgressIndicator(color: Colors.white),
+                           LoadingAnimationWidget.fourRotatingDots(        color:appcolor,size:20),
                       errorWidget: (context, url, error) =>
                           const Icon(Icons.error, color: Colors.white),
                     ),
@@ -130,8 +131,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           context: context,
           barrierDismissible: false,
           builder: (BuildContext context) {
-            return const Center(
-              child: CircularProgressIndicator(color: Color(0xFFAA8A00)),
+            return  Center(
+              child: LoadingAnimationWidget.fourRotatingDots(        color:appcolor,size:20),
             );
           },
         );
@@ -313,9 +314,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               builder: (context, isLoading, _) {
                 if (isLoading &&
                     _profileController.profileNotifier.value == null) {
-                  return const Center(
+                  return  Center(
                       child:
-                          CircularProgressIndicator(color: Color(0xFFAA8A00)));
+                          LoadingAnimationWidget.fourRotatingDots(        color:appcolor,size:20));
                 }
 
                 return ValueListenableBuilder<UserProfileModel?>(
@@ -451,15 +452,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                         (context, child, loadingProgress) {
                                       if (loadingProgress == null) return child;
                                       return Center(
-                                        child: CircularProgressIndicator(
-                                          value: loadingProgress
-                                                      .expectedTotalBytes !=
-                                                  null
-                                              ? loadingProgress
-                                                      .cumulativeBytesLoaded /
-                                                  loadingProgress
-                                                      .expectedTotalBytes!
-                                              : null,
+                                        child: LoadingAnimationWidget.fourRotatingDots(
+                                            color:appcolor,size:20
                                         ),
                                       );
                                     },
@@ -624,9 +618,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 ? SizedBox(
                     width: 24,
                     height: 24,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 3,
-                      color: Colors.white,
+                    child: LoadingAnimationWidget.fourRotatingDots(
+                        color:appcolor,size:20
                     ),
                   )
                 : Text(

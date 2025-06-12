@@ -30,6 +30,7 @@ class OutfitController {
     String? shirtId,
     String? pantId,
     String? shoeId,
+    String? backgroundimageurl,
     String? accessoryId,
     required String avatarurl,
     required DateTime date,
@@ -44,6 +45,7 @@ class OutfitController {
         pantId: pantId,
         shoeId: shoeId,
         accessoryId: accessoryId,
+        backgroundimageurl:backgroundimageurl,
         date: date,
         avatarurl: avatarurl,
         message: message, // Pass message to service

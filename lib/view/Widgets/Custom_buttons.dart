@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import '../../main.dart';
 import '../Utils/Colors.dart';
 import '../Utils/Constants.dart';
@@ -33,9 +34,8 @@ class CustomButton extends StatelessWidget {
             ),
           ),
           child: isLoading
-              ? const CircularProgressIndicator(
-                  color: Colors.white,
-                  strokeWidth: 2,
+              ? LoadingAnimationWidget.fourRotatingDots(
+              color:appcolor,size:20
                 )
               : Text(
                   text,

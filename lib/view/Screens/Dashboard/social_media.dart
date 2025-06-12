@@ -7,6 +7,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../../../controllers/outfit_controller.dart';
 import '../../../model/outfit_model.dart';
@@ -473,7 +474,7 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
                                       placeholderFadeInDuration:
                                           Duration(milliseconds: 300),
                                       placeholder: (context, url) =>
-                                          CircularProgressIndicator(),
+                                          LoadingAnimationWidget.fourRotatingDots(        color:appcolor,size:20),
                                       errorWidget: (context, url, error) =>
                                           Image.asset(
                                         'assets/Images/circle_image.png',
@@ -562,8 +563,8 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
                                   width: double.infinity,
                                   child: isLoading
                                       ? Center(
-                                          child: CircularProgressIndicator(
-                                            color: appcolor,
+                                          child: LoadingAnimationWidget.fourRotatingDots(
+                                              color:appcolor,size:20
                                           ),
                                         )
                                       : outfitImageUrl != null &&
@@ -585,10 +586,8 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
                                                   placeholder: (context, url) =>
                                                       Center(
                                                     child:
-                                                        CircularProgressIndicator(
-                                                      valueColor:
-                                                          AlwaysStoppedAnimation<
-                                                              Color>(appcolor),
+                                                        LoadingAnimationWidget.fourRotatingDots(
+                                                            color:appcolor,size:20
                                                     ),
                                                   ),
                                                   errorWidget: (context, error,

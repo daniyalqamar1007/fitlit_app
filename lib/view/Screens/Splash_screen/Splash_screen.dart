@@ -45,6 +45,8 @@ class _SplashScreenState extends State<SplashScreen> {
         if (!shouldContinue) return;
         Navigator.pushReplacementNamed(context, AppRoutes.onboarding);
       } else {
+        print("token is");
+        print(token);
 
         bool shouldContinue = await _checkAppVersion();
         if (!shouldContinue) return;

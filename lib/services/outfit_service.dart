@@ -132,6 +132,7 @@ class OutfitService {
     required String? pantId,
     required String? shoeId,
     required String? accessoryId,
+    required String? backgroundimageurl,
     required DateTime date,
     required String avatarurl,
     String? message, // Optional message parameter
@@ -145,6 +146,7 @@ class OutfitService {
       print(accessoryId);
       print(shoeId);
       print(message);
+      print(backgroundimageurl);
 
 
       Map<String, dynamic> requestBody = {
@@ -152,7 +154,7 @@ class OutfitService {
         'pant_id': pantId,
         'shoe_id': shoeId,
         'avatarUrl': avatarurl,
-
+          'backgroundimageurl':backgroundimageurl,
         'accessories_id': accessoryId.toString(),
         'stored_message':message,
         'date': formattedDate,
