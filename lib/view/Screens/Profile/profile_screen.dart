@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:fitlip_app/controllers/profile_controller.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import '../../../model/profile_model.dart';
 import '../../Utils/Colors.dart';
 import '../../Utils/globle_variable/globle.dart';
@@ -438,8 +439,8 @@ class _ProfileScreenState extends State<ProfileScreen>
                       return Container(
                         height: 50,
                         child: Center(
-                          child: CircularProgressIndicator(
-                            color: appcolor,
+                          child: LoadingAnimationWidget.fourRotatingDots(
+                              color:appcolor,size:20
                           ),
                         ),
                       );
@@ -573,8 +574,8 @@ class _ProfileScreenState extends State<ProfileScreen>
         valueListenable: _profileController.isLoadingNotifier,
         builder: (context, isLoading, _) {
           if (isLoading) {
-            return const Center(
-                child: CircularProgressIndicator(color: Color(0xFFAA8A00)));
+            return  Center(
+                child: LoadingAnimationWidget.fourRotatingDots(        color:appcolor,size:20));
           }
 
           return ValueListenableBuilder<UserProfileModel?>(

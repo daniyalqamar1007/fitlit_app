@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../../../main.dart';
@@ -284,13 +285,11 @@ class _LanguageScreenState extends State<LanguageScreen> {
                   ),
                 ),
                 child: isLoading
-                    ? const SizedBox(
+                    ?  SizedBox(
                         width: 24,
                         height: 24,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor:
-                              AlwaysStoppedAnimation<Color>(Colors.white),
+                        child: LoadingAnimationWidget.fourRotatingDots(
+                            color:appcolor,size:20
                         ),
                       )
                     : Text(

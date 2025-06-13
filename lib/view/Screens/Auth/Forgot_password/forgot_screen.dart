@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 import '../../../../controllers/auth_controller.dart';
 import '../../../Utils/globle_variable/globle.dart';
@@ -148,7 +149,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               ),
             ),
           ),
-          if (_isLoading)  Center(child: CircularProgressIndicator(color: appcolor,)),
+          if (_isLoading)  Center(child: LoadingAnimationWidget.fourRotatingDots(        color:appcolor,size:20)),
         ],
       ),
     );

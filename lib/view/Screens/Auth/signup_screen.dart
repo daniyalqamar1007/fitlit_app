@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'dart:io';
 
 import '../../../main.dart';
@@ -151,8 +152,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
             Container(
               color: Colors.black.withOpacity(0.3),
               child: Center(
-                child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(appcolor),
+                child: LoadingAnimationWidget.fourRotatingDots(
+                    color:appcolor,size:20
                 ),
               ),
             ),

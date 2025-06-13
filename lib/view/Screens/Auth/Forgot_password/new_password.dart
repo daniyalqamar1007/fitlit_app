@@ -4,6 +4,7 @@ import 'package:fitlip_app/view/Widgets/Custom_buttons.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 import '../../../../controllers/auth_controller.dart';
 import '../../../Widgets/Custom_textfield.dart';
@@ -163,7 +164,7 @@ class _NewPasswordScreenState extends State<NewPasswordScreen> {
               ),
             ),
           ),
-          if (_isLoading) const Center(child: CircularProgressIndicator()),
+          if (_isLoading)  Center(child: LoadingAnimationWidget.fourRotatingDots(        color:appcolor,size:20)),
         ],
       ),
     );

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 import '../../../controllers/auth_controller.dart';
 import '../../../main.dart';
@@ -82,7 +83,7 @@ class _SignInScreenState extends State<SignInScreen> {
               _buildFormFields(),
               SizedBox(height: Responsive.height(10)),
               _isLoading
-                  ?  CircularProgressIndicator(color: appcolor,)
+                  ?  LoadingAnimationWidget.fourRotatingDots(        color:appcolor,size:20)
                   : CustomButton(
                       text: "Login",
                       onPressed:() async{

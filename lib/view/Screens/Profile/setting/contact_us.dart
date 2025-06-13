@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -426,9 +427,8 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
                                     SizedBox(
                                       width: 20,
                                       height: 20,
-                                      child: CircularProgressIndicator(
-                                        color: Colors.white,
-                                        strokeWidth: 2,
+                                      child: LoadingAnimationWidget.fourRotatingDots(
+                                          color:appcolor,size:20
                                       ),
                                     ),
                                     const SizedBox(width: 12),
