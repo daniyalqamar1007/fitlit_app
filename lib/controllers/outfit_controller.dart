@@ -19,7 +19,8 @@ class OutfitController {
   final ValueNotifier<String?> errorNotifier = ValueNotifier(null);
   final ValueNotifier<OutfitModel?> outfitNotifier = ValueNotifier(null);
   final ValueNotifier<String?> avatarUrlNotifier = ValueNotifier(null);
-
+  final ValueNotifier<String?> backgroundImageUrlNotifier = ValueNotifier(null);
+  final ValueNotifier<OutfitModel?> outfitDataNotifier = ValueNotifier(null);
   // New notifier for avatar dates
   final ValueNotifier<List<AvatarData>> avatarDatesNotifier =
   ValueNotifier<List<AvatarData>>([]);
@@ -77,7 +78,8 @@ class OutfitController {
   }
 
   // Get outfit for specific date
-  Future<String?> getOutfitByDate({
+// Updated getOutfitByDate method in OutfitController
+  Future<OutfitResponse?> getOutfitByDate({
     required String token,
     required DateTime date,
     required int id
@@ -91,21 +93,33 @@ class OutfitController {
           id: id
       );
 
-      if (response != null) {
+
+      if (response != null && response.success) {
         statusNotifier.value = OutfitStatus.loaded;
-        avatarUrlNotifier.value = response;
+        avatarUrlNotifier.value = response.avatar_url;
+        backgroundImageUrlNotifier.value = response.backgroundimage;
+        outfitDataNotifier.value = response.data;
         errorNotifier.value = null;
+
         return response;
       } else {
         statusNotifier.value = OutfitStatus.error;
-        errorNotifier.value = "Failed to fetch avatar";
+        errorNotifier.value = response?.message ?? "Failed to fetch outfit data";
         avatarUrlNotifier.value = null;
+        backgroundImageUrlNotifier.value = null;
+        outfitDataNotifier.value = null;
+
         return null;
       }
     } catch (e) {
       statusNotifier.value = OutfitStatus.error;
       errorNotifier.value = "An unexpected error occurred: ${e.toString()}";
+
+      // Clear notifiers on exception
       avatarUrlNotifier.value = null;
+      backgroundImageUrlNotifier.value = null;
+      outfitDataNotifier.value = null;
+
       return null;
     }
   }

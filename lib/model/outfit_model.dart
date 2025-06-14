@@ -56,19 +56,22 @@ class OutfitResponse {
   final String? message;
   final OutfitModel? data;
   final String? avatar_url;
+  final String? backgroundimage;
 
   OutfitResponse({
     required this.success,
     this.message,
     this.data,
-    this.avatar_url
+    this.avatar_url,
+    this.backgroundimage
   });
 
   factory OutfitResponse.fromJson(Map<String, dynamic> json) {
     return OutfitResponse(
       success: json['success'] ?? false,
       message: json['message'],
-      avatar_url: json['avatar'],
+      avatar_url: json['avatarUrl'],
+      backgroundimage: json['backgroundimageurl'],
       data: json['data'] != null ? OutfitModel.fromJson(json['data']) : null,
     );
   }
@@ -108,11 +111,13 @@ class AvatarData {
   final String date;
   final String avatarUrl;
   final String storedMessage;
+  final String backgroundimageurl;
 
   AvatarData({
     required this.date,
     required this.avatarUrl,
     required this.storedMessage,
+    required this.backgroundimageurl
   });
 
   factory AvatarData.fromJson(Map<String, dynamic> json) {
@@ -120,6 +125,8 @@ class AvatarData {
       date: json['date'],
       avatarUrl: json['avatarUrl'],
       storedMessage: json['stored_message'],
+      backgroundimageurl: json['backgroundimageurl']
+
     );
   }
 

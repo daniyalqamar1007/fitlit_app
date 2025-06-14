@@ -31,6 +31,7 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
   final OutfitController _outfitController = OutfitController();
   final ProfileController _profileController = ProfileController();
   DateTime selectedDate = DateTime.now();
+  String? backgroundurl;
   bool isLoading = false;
   String? outfitImageUrl; // To store the fetched outfit image URL
   final List<Comment> dummyComments = [
@@ -82,10 +83,13 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
     try {
       setState(() {
         isLoading = true;
-        outfitImageUrl = null; // Clear previous image while loading
+        outfitImageUrl = null;
+        backgroundurl=null;
+        // Clear previous image while loading
       });
       print(token);
       print(selectedDate);
+
 
       final response = await _outfitController.getOutfitByDate(
         token: token!,
@@ -94,7 +98,9 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
       );
 
       setState(() {
-        outfitImageUrl = response;
+
+        outfitImageUrl = response?.avatar_url??"";
+        backgroundurl=response?.backgroundimage??"";
         isLoading = false;
       });
 
@@ -104,7 +110,7 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
         });
       }
 
-      if (response == null || response.isEmpty) {
+      if (response == null ) {
         setState(() {
           status = false;
         });
@@ -541,15 +547,26 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
                                   child: ClipRRect(
                                     borderRadius: status
                                         ? BorderRadius.only(
-                                            topLeft: Radius.circular(
-                                                Responsive.radius(12)),
-                                            topRight: Radius.circular(
-                                                Responsive.radius(12)),
-                                          )
+                                      topLeft: Radius.circular(Responsive.radius(12)),
+                                      topRight: Radius.circular(Responsive.radius(12)),
+                                    )
                                         : BorderRadius.circular(12),
                                     child: Opacity(
                                       opacity: 0.7,
-                                      child: Image.asset(
+                                      child: backgroundurl != null && backgroundurl!.isNotEmpty
+                                          ? CachedNetworkImage(
+                                        imageUrl: backgroundurl!,
+                                        fit: BoxFit.cover,
+                                        placeholder: (context, url) => Image.asset(
+                                          'assets/Images/new.jpg',
+                                          fit: BoxFit.cover,
+                                        ),
+                                        errorWidget: (context, error, stackTrace) => Image.asset(
+                                          'assets/Images/new.jpg',
+                                          fit: BoxFit.cover,
+                                        ),
+                                      )
+                                          : Image.asset(
                                         'assets/Images/new.jpg',
                                         fit: BoxFit.cover,
                                       ),
@@ -557,47 +574,37 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
                                   ),
                                 ),
                                 Container(
-                                  margin: EdgeInsets.only(
-                                      top: Responsive.height(15)),
+                                  margin: EdgeInsets.only(top: Responsive.height(15)),
                                   height: Responsive.height(300),
                                   width: double.infinity,
                                   child: isLoading
                                       ? Center(
+                                    child: LoadingAnimationWidget.fourRotatingDots(
+                                        color: appcolor, size: 20),
+                                  )
+                                      : outfitImageUrl != null && outfitImageUrl!.isNotEmpty
+                                      ? ClipRRect(
+                                    borderRadius: BorderRadius.vertical(
+                                      top: Radius.circular(Responsive.radius(12)),
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: CachedNetworkImage(
+                                        imageUrl: outfitImageUrl!,
+                                        scale: 4,
+                                        width: double.infinity,
+                                        fit: BoxFit.contain,
+                                        placeholder: (context, url) => Center(
                                           child: LoadingAnimationWidget.fourRotatingDots(
-                                              color:appcolor,size:20
-                                          ),
-                                        )
-                                      : outfitImageUrl != null &&
-                                              outfitImageUrl!.isNotEmpty
-                                          ? ClipRRect(
-                                              borderRadius:
-                                                  BorderRadius.vertical(
-                                                top: Radius.circular(
-                                                    Responsive.radius(12)),
-                                              ),
-                                              child: Padding(
-                                                padding:
-                                                    const EdgeInsets.all(8.0),
-                                                child: CachedNetworkImage(
-                                                  imageUrl: outfitImageUrl!,
-                                                  scale: 4,
-                                                  width: double.infinity,
-                                                  fit: BoxFit.contain,
-                                                  placeholder: (context, url) =>
-                                                      Center(
-                                                    child:
-                                                        LoadingAnimationWidget.fourRotatingDots(
-                                                            color:appcolor,size:20
-                                                    ),
-                                                  ),
-                                                  errorWidget: (context, error,
-                                                      stackTrace) {
-                                                    return _buildNoOutfitAvailable();
-                                                  },
-                                                ),
-                                              ),
-                                            )
-                                          : _buildNoOutfitAvailable(),
+                                              color: appcolor, size: 20),
+                                        ),
+                                        errorWidget: (context, error, stackTrace) {
+                                          return _buildNoOutfitAvailable();
+                                        },
+                                      ),
+                                    ),
+                                  )
+                                      : _buildNoOutfitAvailable(),
                                 ),
                                 Positioned(
                                   top: Responsive.height(16),
@@ -611,14 +618,12 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
                                       ),
                                       decoration: BoxDecoration(
                                         color: const Color(0xFFB8860B),
-                                        borderRadius: BorderRadius.circular(
-                                            Responsive.radius(8)),
+                                        borderRadius: BorderRadius.circular(Responsive.radius(8)),
                                       ),
                                       child: Column(
                                         children: [
                                           Text(
-                                            DateFormat('dd')
-                                                .format(selectedDate),
+                                            DateFormat('dd').format(selectedDate),
                                             style: GoogleFonts.poppins(
                                               color: Colors.white,
                                               fontWeight: FontWeight.bold,
@@ -626,8 +631,7 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
                                             ),
                                           ),
                                           Text(
-                                            DateFormat('MMM')
-                                                .format(selectedDate),
+                                            DateFormat('MMM').format(selectedDate),
                                             style: GoogleFonts.poppins(
                                               color: Colors.white,
                                               fontSize: Responsive.fontSize(12),

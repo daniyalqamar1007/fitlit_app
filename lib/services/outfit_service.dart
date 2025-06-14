@@ -154,7 +154,7 @@ class OutfitService {
         'pant_id': pantId,
         'shoe_id': shoeId,
         'avatarUrl': avatarurl,
-          'backgroundimageurl':backgroundimageurl,
+        'backgroundimageurl':backgroundimageurl,
         'accessories_id': accessoryId.toString(),
         'stored_message':message,
         'date': formattedDate,
@@ -189,16 +189,16 @@ class OutfitService {
           success: false, message: 'Network error: ${e.toString()}');
     }
   }
-
-  Future<String?> getOutfitByDate({
+// Updated getOutfitByDate method in OutfitService
+  Future<OutfitResponse?> getOutfitByDate({
     required String token,
     required DateTime date,
-    required int id
+    required int id,
   }) async {
     try {
       final formattedDate = DateFormat('dd/MM/yyyy').format(date);
       print("Fetching avatar for date: $formattedDate");
-      print(id);
+      print("User ID: $id");
 
       final response = await client.get(
         Uri.parse('$baseUrl/avatar/check?date=$formattedDate&id=$id'),
@@ -207,28 +207,85 @@ class OutfitService {
           'Authorization': 'Bearer $token',
         },
       );
+
       print("API Response: ${response.body}");
+      print("Status Code: ${response.statusCode}");
 
       if (response.statusCode == 200) {
         final jsonResponse = jsonDecode(response.body);
 
-        if (jsonResponse['success'] == true) {
-          return jsonResponse['avatarUrl'].toString();
+        // Parse the response using OutfitResponse model
+        final outfitResponse = OutfitResponse.fromJson(jsonResponse);
+
+        if (outfitResponse.success) {
+          print("Successfully fetched outfit data");
+          print("Avatar URL: ${outfitResponse.avatar_url}");
+          print("Background Image: ${outfitResponse.backgroundimage}");
+          return outfitResponse;
         } else {
-          avatarindex = 3; // Default index for fallback
-          print("API returned success=false, using default avatar");
-          return null;
+          print("API returned success=false: ${outfitResponse.message}");
+          return OutfitResponse(
+              success: false,
+              message: outfitResponse.message ?? "No outfit found for this date"
+          );
         }
       } else {
         final errorMessage = getErrorMessage(response);
         print("API Error: $errorMessage");
-        return null;
+        return OutfitResponse(
+            success: false,
+            message: errorMessage
+        );
       }
     } catch (e) {
       print("Exception during API call: ${e.toString()}");
-      return null;
+      return OutfitResponse(
+          success: false,
+          message: "Network error: ${e.toString()}"
+      );
     }
   }
+
+  // Future<String?> getOutfitByDate({
+  //   required String token,
+  //   required DateTime date,
+  //   required int id
+  // }) async
+  // {
+  //   try {
+  //     final formattedDate = DateFormat('dd/MM/yyyy').format(date);
+  //     print("Fetching avatar for date: $formattedDate");
+  //     print(id);
+  //
+  //     final response = await client.get(
+  //       Uri.parse('$baseUrl/avatar/check?date=$formattedDate&id=$id'),
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //         'Authorization': 'Bearer $token',
+  //       },
+  //     );
+  //     print("API Response: ${response.body}");
+  //
+  //     if (response.statusCode == 200) {
+  //       final jsonResponse = jsonDecode(response.body);
+  //
+  //       if (jsonResponse['success'] == true) {
+  //         return jsonResponse['avatarUrl'].toString();
+  //       } else {
+  //         avatarindex = 3; // Default index for fallback
+  //         print("API returned success=false, using default avatar");
+  //         return null;
+  //       }
+  //     } else {
+  //       final errorMessage = getErrorMessage(response);
+  //       print("API Error: $errorMessage");
+  //       return null;
+  //     }
+  //   } catch (e) {
+  //     print("Exception during API call: ${e.toString()}");
+  //     return null;
+  //   }
+  // }
 
   // New method to get all avatar dates
   Future<AvatarListResponse> getAllAvatarsByDate({

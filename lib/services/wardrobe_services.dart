@@ -9,25 +9,13 @@ import 'package:http_parser/http_parser.dart';
 import 'package:path_provider/path_provider.dart';
 import '../model/wardrobe_model.dart';
 import '../view/Utils/globle_variable/globle.dart';
-import 'dart:io';
-import 'dart:convert';
+
 import 'dart:typed_data' as typed_data;
 import 'package:http/http.dart' as http;
 import 'package:image/image.dart' as img;
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
-import 'package:http_parser/http_parser.dart';
-import 'package:image/image.dart' as img; // Import for image processing
-import 'package:path_provider/path_provider.dart'; // Import for temp directory access
-import 'package:path/path.dart' as path;
-import 'dart:io';
-import 'dart:convert';
-import 'dart:typed_data' as typed_data;
-import 'package:http/http.dart' as http;
-import 'package:image/image.dart' as img;
-import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart' as path;
-import 'package:http_parser/http_parser.dart';
+
 class WardrobeService {
 
   WardrobeService(); // Constructor with optional token parameter
