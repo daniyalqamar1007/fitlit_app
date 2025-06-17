@@ -52,7 +52,29 @@ class _WardrobeScreenState extends State<WardrobeScreen>
   bool _isGeneratingAvatar = false;
   final ImagePicker _picker = ImagePicker();
   String? _avatarUrl;
+  final List<String> avatarUrls = [
+    'https://fitlit-assets.s3.us-east-2.amazonaws.com/wardrobe/1747930630870-image.png',
+    'https://fitlit-assets.s3.us-east-2.amazonaws.com/wardrobe/1747934549164-image.png',
+    'https://fitlit-assets.s3.us-east-2.amazonaws.com/wardrobe/1747935456493-image.png',
+    'https://fitlit-assets.s3.us-east-2.amazonaws.com/wardrobe/1747937370671-image.png',
+    'https://fitlit-assets.s3.us-east-2.amazonaws.com/wardrobe/1747938354346-image.png',
+    'https://fitlit-assets.s3.us-east-2.amazonaws.com/wardrobe/1747938907353-image.png',
+  ];
 
+  int currentIndexx = 0;
+  bool _isLoadingg = false;
+
+  void _goToNext() {
+    setState(() {
+      currentIndexx = (currentIndexx + 1) % avatarUrls.length;
+    });
+  }
+
+  void _goToPrevious() {
+    setState(() {
+      currentIndexx = (currentIndexx - 1 + avatarUrls.length) % avatarUrls.length;
+    });
+  }
   SharedPreferences? _prefs;
 
   int _currentShirtIndex = 0;
@@ -1054,7 +1076,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
           height: Responsive.height(35),
           child: RawMaterialButton(
               onPressed: _showBackgroundSelectionSheet,
-              fillColor: appcolor,
+              fillColor: appcolor.withOpacity(0.8),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(30),
               ),
@@ -1071,10 +1093,10 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Text(
-                          " background",
+                          "Background",
                           style: TextStyle(
                             color: Colors.white,
-                            fontSize: Responsive.fontSize(8),
+                            fontSize: Responsive.fontSize(12),
                           ),
                         ),
                       ],
@@ -1103,12 +1125,8 @@ class _WardrobeScreenState extends State<WardrobeScreen>
           fit: BoxFit.cover,
           loadingBuilder: (context, child, loadingProgress) {
             if (loadingProgress == null) return child;
-            return Container(
-              color: Colors.grey[200],
-              child: Center(
-                child: LoadingAnimationWidget.fourRotatingDots(
-                    color: appcolor, size: 20),
-              ),
+            return Center(
+              child:SizedBox()
             );
           },
           errorBuilder: (context, error, stackTrace) => Container(
@@ -1143,7 +1161,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
     // Priority 3: Try to find the selected background from API backgrounds
     try {
       final selectedBackground = _apiBackgrounds.firstWhere(
-            (bg) => bg.status == true,
+        (bg) => bg.status == true,
       );
 
       return Container(
@@ -1221,6 +1239,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
       );
     }
   }
+
   Widget _buildTopRow() {
     final localizations = AppLocalizations.of(context)!;
 
@@ -1341,7 +1360,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
           // Second Column - Avatar
           Expanded(
             flex: 8,
-            child: _buildAvatarColumn(),
+            child: _buildAvatarColumn2(),
           ),
 
           // Third Column - Similar to first column
@@ -1598,7 +1617,8 @@ class _WardrobeScreenState extends State<WardrobeScreen>
             valueListenable: _wardrobeController.uploadProgressNotifier,
             builder: (context, uploadProgress, child) {
               // Check if there's an active upload for this category
-              List<UploadProgress> categoryUploads = _getCategoryUploads(category, uploadProgress);
+              List<UploadProgress> categoryUploads =
+                  _getCategoryUploads(category, uploadProgress);
               bool hasActiveUpload = categoryUploads.isNotEmpty;
 
               return Container(
@@ -1619,8 +1639,10 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                   border: _isItemSelected(category)
                       ? Border.all(color: appcolor, width: 3)
                       : hasActiveUpload
-                      ? Border.all(color: appcolor.withOpacity(0.7), width: 2)
-                      : Border.all(color: Colors.grey.withOpacity(0.3), width: 1),
+                          ? Border.all(
+                              color: appcolor.withOpacity(0.7), width: 2)
+                          : Border.all(
+                              color: Colors.grey.withOpacity(0.3), width: 1),
                 ),
                 child: Stack(
                   children: [
@@ -1663,8 +1685,10 @@ class _WardrobeScreenState extends State<WardrobeScreen>
       ),
     );
   }
+
   List<UploadProgress> _getCategoryUploads(
-      String category, Map<String, UploadProgress> uploadProgress) {
+      String category, Map<String, UploadProgress> uploadProgress)
+  {
     List<UploadProgress> categoryUploads = [];
 
     for (var progress in uploadProgress.values) {
@@ -1733,7 +1757,8 @@ class _WardrobeScreenState extends State<WardrobeScreen>
   }
 
   WardrobeItem? _getSelectedItemForCategory(
-      String category, List<WardrobeItem> items) {
+      String category, List<WardrobeItem> items)
+  {
     String? selectedId;
 
     switch (category) {
@@ -1763,7 +1788,8 @@ class _WardrobeScreenState extends State<WardrobeScreen>
   }
 
   void _showItemSelectionDialog(
-      String category, ValueNotifier<List<WardrobeItem>> notifier) {
+      String category, ValueNotifier<List<WardrobeItem>> notifier)
+  {
     final localizations = AppLocalizations.of(context)!;
 
     showDialog(
@@ -1960,6 +1986,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
       ),
     );
   }
+
   Widget _buildUploadingGridItem(UploadProgress progress) {
     return Container(
       decoration: BoxDecoration(
@@ -1978,7 +2005,6 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                   color: appcolor,
                   size: 25,
                 ),
-
                 SizedBox(height: 4),
                 Text(
                   '${progress.progress?.toInt()}%',
@@ -2034,6 +2060,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
       ),
     );
   }
+
   IconData _getIconForCategory(String category) {
     switch (category.toLowerCase()) {
       case 'shirt':
@@ -2082,6 +2109,144 @@ class _WardrobeScreenState extends State<WardrobeScreen>
         _handleShoeSwipe(direction);
         break;
     }
+  }
+  void _handleSwipe(DragEndDetails details) {
+    final velocity = details.primaryVelocity;
+    if (velocity == null) return;
+
+    // Swipe left - go to next avatar
+    if (velocity < -100) {
+      _goToNext();
+
+    }
+    // Swipe right - go to previous avatar
+    else if (velocity > 100) {
+      _goToPrevious();
+      showAppSnackBar(context, 'The Feature is in Progress',
+          backgroundColor: appcolor);
+    }
+  }
+  double _startX = 0.0;
+
+  void _handlePanStart(DragStartDetails details) {
+    _startX = details.localPosition.dx;
+  }
+
+  void _handlePanEnd(DragEndDetails details) {
+    final endX = details.localPosition.dx;
+    final deltaX = endX - _startX;
+
+    // Minimum swipe distance to trigger action
+    const minSwipeDistance = 50.0;
+
+    if (deltaX.abs() > minSwipeDistance) {
+      if (deltaX > 0) {
+        _goToPrevious();
+
+        showAppSnackBar(context, 'The Feature is in Progress',
+            backgroundColor: appcolor);
+
+      } else {
+        _goToNext();
+        // Swiped left - go to next
+        showAppSnackBar(context, 'The Feature is in Progress',
+            backgroundColor: appcolor);
+
+      }
+    }
+  }
+
+
+  Widget _buildAvatarColumn2() {
+    return Container(
+      alignment: Alignment.center,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          // Avatar image container
+          Container(
+            width: 350,
+            height: 350,
+            child: GestureDetector(
+              onPanStart: _handlePanStart,
+              onPanEnd: _handlePanEnd,
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                transitionBuilder: (child, animation) {
+                  return SlideTransition(
+                    position: Tween<Offset>(
+                      begin: const Offset(1.0, 0.0),
+                      end: Offset.zero,
+                    ).animate(animation),
+                    child: FadeTransition(
+                      opacity: animation,
+                      child: child,
+                    ),
+                  );
+                },
+                child: ClipRRect(
+                  key: ValueKey(currentIndexx),
+                  borderRadius: BorderRadius.circular(10),
+                  child: Image.network(
+                    avatarUrls[currentIndexx],
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                    height: double.infinity,
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      return Center(
+                        child: LoadingAnimationWidget.fourRotatingDots(color: appcolor, size: 15)
+                      );
+                    },
+                    errorBuilder: (context, error, stackTrace) {
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.error,
+                              color: Colors.grey,
+                              size: 50,
+                            ),
+                            SizedBox(height: 8),
+                            Text(
+                              'Failed to load image',
+                              style: TextStyle(color: Colors.grey),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ),
+          ),
+          //
+          //
+          //
+          // // Current index indicator
+          // Positioned(
+          //   bottom: 20,
+          //   child: Container(
+          //     padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          //     decoration: BoxDecoration(
+          //       color: Colors.black54,
+          //       borderRadius: BorderRadius.circular(20),
+          //     ),
+          //     child: Text(
+          //       '${currentIndexx + 1} / ${avatarUrls.length}',
+          //       style: TextStyle(
+          //         color: Colors.white,
+          //         fontSize: 12,
+          //         fontWeight: FontWeight.w500,
+          //       ),
+          //     ),
+          //   ),
+          // ),
+        ],
+      ),
+    );
   }
 
   Widget _buildAvatarColumn() {
@@ -3206,7 +3371,8 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                         return Container(
                           decoration: BoxDecoration(
                             color: Colors.white,
-                            borderRadius: BorderRadius.circular(Responsive.radius(16)),
+                            borderRadius:
+                                BorderRadius.circular(Responsive.radius(16)),
                             boxShadow: [
                               BoxShadow(
                                 color: Colors.grey.withOpacity(0.2),
@@ -3221,9 +3387,11 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                             lastDay: DateTime.utc(2030, 12, 31),
                             focusedDay: focusedDay,
                             calendarFormat: calendarFormat,
-                            selectedDayPredicate: (day) => isSameDay(selectedDay, day),
+                            selectedDayPredicate: (day) =>
+                                isSameDay(selectedDay, day),
                             onDaySelected: (selectedDay, focusedDay) {
-                              controller.selectedDayNotifier.value = selectedDay;
+                              controller.selectedDayNotifier.value =
+                                  selectedDay;
                               controller.focusedDayNotifier.value = focusedDay;
                               setState(() {
                                 _selectedDay = selectedDay;
@@ -3245,7 +3413,8 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                               return [];
                             },
                             calendarStyle: CalendarStyle(
-                              markersMaxCount: 1, // Only show one marker per day
+                              markersMaxCount:
+                                  1, // Only show one marker per day
                               outsideDaysVisible: false,
                               isTodayHighlighted: true,
                               todayDecoration: BoxDecoration(
@@ -3281,7 +3450,8 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                             ),
                             calendarBuilders: CalendarBuilders(
                               selectedBuilder: (context, date, _) {
-                                final hasOutfit = _outfitController.hasAvatarForDate(date);
+                                final hasOutfit =
+                                    _outfitController.hasAvatarForDate(date);
                                 return Container(
                                   alignment: Alignment.center,
                                   decoration: BoxDecoration(
@@ -3317,7 +3487,8 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                                 );
                               },
                               todayBuilder: (context, date, _) {
-                                final hasOutfit = _outfitController.hasAvatarForDate(date);
+                                final hasOutfit =
+                                    _outfitController.hasAvatarForDate(date);
                                 return Container(
                                   alignment: Alignment.center,
                                   decoration: BoxDecoration(
@@ -3337,7 +3508,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                                       if (hasOutfit)
                                         Positioned(
                                           top: 4,
-                                          right: 5,
+                                          right: 9,
                                           child: Container(
                                             width: 8,
                                             height: 10,
@@ -3352,8 +3523,10 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                                 );
                               },
                               defaultBuilder: (context, date, _) {
-                                final hasOutfit = _outfitController.hasAvatarForDate(date);
-                                if (!hasOutfit) return null; // Use default styling
+                                final hasOutfit =
+                                    _outfitController.hasAvatarForDate(date);
+                                if (!hasOutfit)
+                                  return null; // Use default styling
 
                                 return Container(
                                   alignment: Alignment.center,
@@ -3368,7 +3541,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                                         style: TextStyle(color: Colors.black),
                                       ),
                                       Positioned(
-                                        top: 0,
+                                        top: 5,
                                         right: 3,
                                         child: Container(
                                           width: 6,
@@ -3398,6 +3571,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
       ],
     );
   }
+
 // Method to show avatar message popup on long press
   void _showAvatarMessage(DateTime date) {
     final message = _outfitController.getMessageForDate(date);
