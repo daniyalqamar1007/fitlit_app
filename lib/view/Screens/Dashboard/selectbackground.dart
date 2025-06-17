@@ -20,6 +20,7 @@ import '../../../model/wardrobe_model.dart';
 import '../../Utils/globle_variable/globle.dart';
 import '../../Utils/responsivness.dart';
 import '../../Widgets/custom_message.dart';
+import '../../Widgets/tabbar_gradient.dart';
 
 class BackgroundSelectionSheet extends StatefulWidget {
   final Function(String) onBackgroundSelected;
@@ -40,8 +41,10 @@ class BackgroundSelectionSheet extends StatefulWidget {
 
 class _BackgroundSelectionSheetState extends State<BackgroundSelectionSheet>
     with TickerProviderStateMixin {
+
   List<BackgroundImageModel> _apiBackgrounds = [];
-  bool _isLoadingBackgrounds = false;
+  bool _isLoadingBackgrounds = false;  bool _isGeneratingFromImage = false;
+
   final BackgroundImageController _backgroundImageController = BackgroundImageController();
 // Update your initState method
   @override
@@ -117,57 +120,41 @@ class _BackgroundSelectionSheetState extends State<BackgroundSelectionSheet>
     _backgroundImageController.dispose();
     super.dispose();
   }
-
-  // Updated backgrounds list with unique identifiers
-  final List<Map<String, String>> backgrounds = [
-    {
-      'id': 'back2_winter',
-      'path': 'assets/Images/back2.png',
-      'name': 'Winter Scene'
-    },
-    {
-      'id': 'back1_mountain',
-      'path': 'assets/Images/back1.png',
-      'name': 'Mountain View'
-    },
-    {
-      'id': 'back3_forest',
-      'path': 'assets/Images/back3.png',
-      'name': 'Forest Path'
-    },
-  ];
-
-  Future<void> _pickImageFromCamera() async {
+  Future<void> _pickImageFromCamera(BuildContext context) async {
     try {
+      print("gping to ");
       final XFile? image = await _picker.pickImage(
         source: ImageSource.camera,
-        imageQuality: 80,
-      );
 
+      );
+print(image?.path);
       if (image != null) {
-        await _generateFromImageFile(File(image.path));
+        await _generateFromImageFile(File(image.path),context);
       }
     } catch (e) {
       _showErrorSnackBar("Failed to capture image: $e");
     }
   }
 
-  Future<void> _pickImageFromGallery() async {
+  Future<void> _pickImageFromGallery(BuildContext context) async {
     try {
+      print("going ");
       final XFile? image = await _picker.pickImage(
         source: ImageSource.gallery,
         imageQuality: 80,
       );
+      print(image?.path);
 
       if (image != null) {
-        await _generateFromImageFile(File(image.path));
+        await _generateFromImageFile(File(image.path),context);
       }
     } catch (e) {
       _showErrorSnackBar("Failed to select image: $e");
     }
   }
 
-  Future<void> _generateFromImageFile(File imageFile) async {
+  Future<void> _generateFromImageFile(File imageFile, BuildContext context) async {
+    if (!mounted) return;
 
     if (token == null) {
       _showErrorSnackBar("Authentication required");
@@ -175,7 +162,7 @@ class _BackgroundSelectionSheetState extends State<BackgroundSelectionSheet>
     }
 
     setState(() {
-      _isGenerating = true;
+      _isGeneratingFromImage = true;
     });
 
     try {
@@ -184,25 +171,35 @@ class _BackgroundSelectionSheetState extends State<BackgroundSelectionSheet>
         imageFile: imageFile,
       );
 
+      if (!mounted) return;
+
       if (success) {
-        showAppSnackBar(context,'Background generated successfully!', backgroundColor: appcolor);
+        showAppSnackBar(
+            context,
+            "Background Generated Successfully!",
+            backgroundColor: appcolor
+        );
+        print("cominggg");
         await _loadBackgroundImages();
-
-        Navigator.pop(context); // Close the bottom sheet
-
+        if (mounted) Navigator.pop(context);
       } else {
         final error = _backgroundImageController.errorNotifier.value;
-        _showErrorSnackBar(error ?? "Failed to generate background from image");
+        _showErrorSnackBar(error ?? "Failed to generate the Background!");
       }
     } catch (e) {
-      _showErrorSnackBar("Error generating background: $e");
+      if (mounted) {
+        _showErrorSnackBar("Error generating background: $e");
+      }
     } finally {
-      setState(() {
-        _isGenerating = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isGeneratingFromImage = false;
+        });
+      }
     }
   }
-  Future<void> _selectApiBackground(BackgroundImageModel background) async {
+  Future<void> _selectApiBackground(BackgroundImageModel background,BuildContext context) async {
+    final localizations = AppLocalizations.of(context)!;
     if (token == null) {
       _showErrorSnackBar("Authentication required");
       return;
@@ -218,7 +215,7 @@ class _BackgroundSelectionSheetState extends State<BackgroundSelectionSheet>
         // Set as current background
         widget.onBackgroundSelected(background.imageUrl);
 
-        showAppSnackBar(context, 'Background selected successfully!', backgroundColor: appcolor);
+        showAppSnackBar(context, localizations.backgroundSelectedSuccessfully, backgroundColor: appcolor);
 
         // Refresh the background images list
         await _loadBackgroundImages();
@@ -226,13 +223,14 @@ class _BackgroundSelectionSheetState extends State<BackgroundSelectionSheet>
         Navigator.pop(context);
       } else {
         final error = _backgroundImageController.errorNotifier.value;
-        _showErrorSnackBar(error ?? "Failed to select background");
+        _showErrorSnackBar(error ?? localizations.failedToSelectBackground);
       }
     } catch (e) {
       _showErrorSnackBar("Error selecting background: $e");
     }
   }
-  void _showImagePickerBottomSheet() {
+  void _showImagePickerBottomSheet(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     showModalBottomSheet(
       backgroundColor: Colors.white,
       context: context,
@@ -248,19 +246,41 @@ class _BackgroundSelectionSheetState extends State<BackgroundSelectionSheet>
               mainAxisSize: MainAxisSize.min,
               children: [
                 ListTile(
-                  leading: Icon(Icons.photo_camera, color: appcolor),
-                  title: const Text("Take a Photo"),
-                  onTap: () {
+                  leading: _isGeneratingFromImage
+                      ? SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: LoadingAnimationWidget.fourRotatingDots(
+                      color: appcolor,
+                      size: 20,
+                    ),
+                  )
+                      : Icon(Icons.photo_camera, color: appcolor),
+                  title: Text(localizations.takeAPhoto),
+                  onTap: _isGeneratingFromImage
+                      ? null
+                      : () {
                     Navigator.pop(context);
-                    _pickImageFromCamera();
+                    _pickImageFromCamera(context);
                   },
                 ),
                 ListTile(
-                  leading: Icon(Icons.photo_library, color: appcolor),
-                  title: const Text("Choose from Gallery"),
-                  onTap: () {
+                  leading: _isGeneratingFromImage
+                      ? SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: LoadingAnimationWidget.fourRotatingDots(
+                      color: appcolor,
+                      size: 20,
+                    ),
+                  )
+                      : Icon(Icons.photo_library, color: appcolor),
+                  title: Text(localizations.chooseFromGallery),
+                  onTap: _isGeneratingFromImage
+                      ? null
+                      : () {
                     Navigator.pop(context);
-                    _pickImageFromGallery();
+                    _pickImageFromGallery(context);
                   },
                 ),
               ],
@@ -270,7 +290,6 @@ class _BackgroundSelectionSheetState extends State<BackgroundSelectionSheet>
       },
     );
   }
-
   // Category selection dialog for wardrobe items
   void _showAnimatedCategoryDialog(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
@@ -833,7 +852,8 @@ class _BackgroundSelectionSheetState extends State<BackgroundSelectionSheet>
     );
   }
 
-  Widget _buildBackgroundTab() {
+  Widget _buildBackgroundTab(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     return Padding(
       padding: Responsive.allPadding(16),
       child: Stack(
@@ -842,17 +862,26 @@ class _BackgroundSelectionSheetState extends State<BackgroundSelectionSheet>
             children: [
               // AI Generation Section
               Card(
-                child: Container(
+                child:
+                Container(
                   padding: Responsive.allPadding(4),
                   decoration: BoxDecoration(
                     color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.shade400,
+                        offset: Offset(0, -1), // Top shadow
+                        blurRadius: 6,
+                        spreadRadius: 1,
+                      ),
+                    ],
                     borderRadius: BorderRadius.circular(Responsive.radius(12)),
                   ),
                   child: Row(
                     children: [
                       Icon(
-                        Icons.auto_awesome,
-                        color: Colors.amber,
+                        Icons.auto_awesome_outlined,
+                        color: appcolor,
                         size: Responsive.fontSize(20),
                       ),
                       SizedBox(width: Responsive.width(8)),
@@ -860,7 +889,7 @@ class _BackgroundSelectionSheetState extends State<BackgroundSelectionSheet>
                         child: TextField(
                           onChanged: (value) => _generatePrompt = value,
                           decoration: InputDecoration(
-                            hintText: "Generate From any Prompt",
+                            hintText: localizations.generateFromPrompt,
                             hintStyle: GoogleFonts.poppins(
                               color: Colors.grey[500],
                               fontSize: Responsive.fontSize(12),
@@ -872,31 +901,27 @@ class _BackgroundSelectionSheetState extends State<BackgroundSelectionSheet>
                         ),
                       ),
                       SizedBox(width: Responsive.width(8)),
-                      Container(
-                        height: Responsive.height(32),
-                        child: ElevatedButton(
-                          onPressed: _isGenerating ? null : _generateFromPrompt,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: appcolor,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(Responsive.radius(16)),
-                            ),
-                            padding: EdgeInsets.symmetric(horizontal: Responsive.width(16)),
+                      GestureDetector(
+                        onTap: (){
+                          _isGenerating ? null : _generateFromPrompt;
+                        },
+                        child: Container(
+                          height: Responsive.height(30),width: Responsive.width(40),
+                          decoration: BoxDecoration(
+                              color: appcolor,
+
+                              borderRadius: BorderRadius.circular(12)
                           ),
                           child: _isGenerating
                               ? SizedBox(
                             height: Responsive.height(16),
-                            width: Responsive.width(16),
+                            width: Responsive.width(12),
                             child: LoadingAnimationWidget.fourRotatingDots(
                                 color:appcolor,size:20
                             ),
                           )
-                              : Text(
-                            "Send",
-                            style: GoogleFonts.poppins(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w500,
-                              fontSize: Responsive.fontSize(10),
+                              : Center(
+                            child: Icon(Icons.send,color: white,size: 20,
                             ),
                           ),
                         ),
@@ -930,7 +955,7 @@ class _BackgroundSelectionSheetState extends State<BackgroundSelectionSheet>
                         apiBackground.status;
 
                     return GestureDetector(
-                      onTap: () => _selectApiBackground(apiBackground),
+                      onTap: () => _selectApiBackground(apiBackground,context),
                       child: Container(
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(Responsive.radius(14)),
@@ -1032,17 +1057,33 @@ class _BackgroundSelectionSheetState extends State<BackgroundSelectionSheet>
           Positioned(
             bottom: Responsive.height(10),
             right: Responsive.width(130),
-            child: Container(
-              width: Responsive.width(60),
-              height: Responsive.height(60),
-              decoration: BoxDecoration(
-                color: widget.appColor,
-                shape: BoxShape.circle,
-              ),
-              child: GestureDetector(
-                onTap: _showImagePickerBottomSheet,
-                child: Image.asset('assets/Icons/camera.png', scale: 3),
-              ),
+            child: ValueListenableBuilder<bool>(
+              valueListenable: _backgroundImageController.generateFromImageLoadingNotifier,
+              builder: (context, isLoading, _) {
+                return Container(
+                  width: Responsive.width(60),
+                  height: Responsive.height(60),
+                  decoration: BoxDecoration(
+                    color: widget.appColor,
+                    shape: BoxShape.circle,
+                  ),
+                  child: isLoading
+                      ? Center(
+                    child: SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: LoadingAnimationWidget.fourRotatingDots(
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                    ),
+                  )
+                      : GestureDetector(
+                    onTap: () => _showImagePickerBottomSheet(context),
+                    child: Image.asset('assets/Icons/camera.png', scale: 3),
+                  ),
+                );
+              },
             ),
           ),
         ],
@@ -1051,21 +1092,19 @@ class _BackgroundSelectionSheetState extends State<BackgroundSelectionSheet>
   }
 
 
-  Widget _buildWardrobeTab() {
+  Widget _buildWardrobeTab(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     return Padding(
-      padding: Responsive.allPadding(16),
+      padding: Responsive.allPadding(1),
       child: Stack(
         children: [
           Column(
             children: [
 
-
-
-              // Wardrobe Items
               Expanded(
                 child: isLoadingItems
                     ? Center(child: LoadingAnimationWidget.fourRotatingDots(        color:appcolor,size:20))
-                    : _buildWardrobeItems(),
+                    : _buildWardrobeItems(context),
               ),
 
               // Bottom Container
@@ -1111,7 +1150,8 @@ class _BackgroundSelectionSheetState extends State<BackgroundSelectionSheet>
     );
   }
 
-  Widget _buildWardrobeItems() {
+  Widget _buildWardrobeItems(BuildContext context) {
+
     return ValueListenableBuilder<List<WardrobeItem>>(
       valueListenable: _wardrobeController.shirtsNotifier,
       builder: (context, shirts, _) {
@@ -1126,7 +1166,7 @@ class _BackgroundSelectionSheetState extends State<BackgroundSelectionSheet>
                   builder: (context, accessories, _) {
                     // Check if all categories are empty
                     if (shirts.isEmpty && pants.isEmpty && shoes.isEmpty && accessories.isEmpty) {
-                      return _buildAllCategoriesEmptyState();
+                      return _buildAllCategoriesEmptyState(context);
                     }
 
                     return ListView(
@@ -1134,22 +1174,22 @@ class _BackgroundSelectionSheetState extends State<BackgroundSelectionSheet>
                         if (shirts.isNotEmpty)
                           _buildWardrobeCategorySection('Shirts', shirts)
                         else
-                          _buildEmptyCategoryState('shirts'),
+                          _buildEmptyCategoryState('shirts',context),
 
                         if (pants.isNotEmpty)
                           _buildWardrobeCategorySection('Pants', pants)
                         else
-                          _buildEmptyCategoryState('pants'),
+                          _buildEmptyCategoryState('pants',context),
 
                         if (shoes.isNotEmpty)
                           _buildWardrobeCategorySection('Shoes', shoes)
                         else
-                          _buildEmptyCategoryState('shoes'),
+                          _buildEmptyCategoryState('shoes',context),
 
                         if (accessories.isNotEmpty)
                           _buildWardrobeCategorySection('Accessories', accessories)
                         else
-                          _buildEmptyCategoryState('accessories'),
+                          _buildEmptyCategoryState('accessories',context),
                       ],
                     );
                   },
@@ -1161,9 +1201,10 @@ class _BackgroundSelectionSheetState extends State<BackgroundSelectionSheet>
       },
     );
   }
-  Widget _buildEmptyCategoryState(String category) {
+  Widget _buildEmptyCategoryState(String category,BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     String categoryName = category[0].toUpperCase() + category.substring(1);
-    String message = 'No $category available in your wardrobe';
+    String message = localizations.noCategoryAvailable(category);
 
     return Padding(
       padding: EdgeInsets.symmetric(
@@ -1207,27 +1248,7 @@ class _BackgroundSelectionSheetState extends State<BackgroundSelectionSheet>
             ),
             textAlign: TextAlign.center,
           ),
-          // SizedBox(height: Responsive.height(8)),
-          // ElevatedButton(
-          //   onPressed: () => _showAnimatedCategoryDialog(context),
-          //   style: ElevatedButton.styleFrom(
-          //     backgroundColor: appcolor,
-          //     shape: RoundedRectangleBorder(
-          //       borderRadius: BorderRadius.circular(Responsive.radius(20)),
-          //     ),
-          //     padding: EdgeInsets.symmetric(
-          //         horizontal: Responsive.width(16),
-          //         vertical: Responsive.height(8)),
-          //   ),
-          //
-          // child: Text(
-          //   'Add $categoryName',
-          //   style: GoogleFonts.poppins(
-          //     color: Colors.white,
-          //     fontSize: Responsive.fontSize(12),
-          //   ),
-          // ),
-          //       ),
+
                 ],
               ),
               ),
@@ -1382,7 +1403,8 @@ class _BackgroundSelectionSheetState extends State<BackgroundSelectionSheet>
     );
   }
 
-  Widget _buildAllCategoriesEmptyState() {
+  Widget _buildAllCategoriesEmptyState(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     return Container(
       height: Responsive.height(200),
       width: double.infinity,
@@ -1391,7 +1413,7 @@ class _BackgroundSelectionSheetState extends State<BackgroundSelectionSheet>
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            'Your wardrobe is empty',
+            localizations.wardrobeEmpty,
             style: GoogleFonts.poppins(
               fontSize: Responsive.fontSize(16),
               fontWeight: FontWeight.bold,
@@ -1400,7 +1422,7 @@ class _BackgroundSelectionSheetState extends State<BackgroundSelectionSheet>
           ),
           SizedBox(height: Responsive.height(8)),
           Text(
-            'Add items to get started',
+            localizations.addItemsToGetStarted,
             style: GoogleFonts.poppins(
               fontSize: Responsive.fontSize(12),
               color: Colors.grey[500],
@@ -1408,7 +1430,7 @@ class _BackgroundSelectionSheetState extends State<BackgroundSelectionSheet>
           ),
           SizedBox(height: Responsive.height(16)),
           ElevatedButton(
-            onPressed: _pickImageFromGallery,
+            onPressed:(){ _pickImageFromGallery(context);},
             style: ElevatedButton.styleFrom(
               backgroundColor: appcolor,
               shape: RoundedRectangleBorder(
@@ -1420,7 +1442,7 @@ class _BackgroundSelectionSheetState extends State<BackgroundSelectionSheet>
               ),
             ),
             child: Text(
-              'Add First Item',
+              localizations.addFirstItem,
               style: GoogleFonts.poppins(
                 color: Colors.white,
                 fontSize: Responsive.fontSize(14),
@@ -1483,6 +1505,7 @@ class _BackgroundSelectionSheetState extends State<BackgroundSelectionSheet>
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     return Container(
       height: Responsive.height(600),
       decoration: BoxDecoration(
@@ -1496,8 +1519,8 @@ class _BackgroundSelectionSheetState extends State<BackgroundSelectionSheet>
           // Handle bar
           Container(
             margin: Responsive.verticalPadding(10),
-            width: Responsive.width(50),
-            height: Responsive.height(5),
+            width: Responsive.width(60),
+            height: Responsive.height(3),
             decoration: BoxDecoration(
               color: appcolor,
               borderRadius: BorderRadius.circular(Responsive.radius(10)),
@@ -1508,16 +1531,18 @@ class _BackgroundSelectionSheetState extends State<BackgroundSelectionSheet>
             margin: Responsive.horizontalPadding(16),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(Responsive.radius(25)),
+              borderRadius: BorderRadius.circular(Responsive.radius(10)),
             ),
             child: TabBar(
               controller: _tabController,
-              indicator: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(Responsive.radius(25)),
+              indicator: GradientHalfScreenTabIndicator(
+                color: appcolor,
+                tabController: _tabController,
               ),
-              labelColor: appcolor,
-              unselectedLabelColor: appcolor,
+              // ✅ Custom indicator
+              labelColor: Colors.black,
+              unselectedLabelColor: Colors.black.withOpacity(0.5),
+              dividerColor: Colors.transparent,
               labelStyle: GoogleFonts.poppins(
                 fontSize: Responsive.fontSize(14),
                 fontWeight: FontWeight.w600,
@@ -1527,11 +1552,12 @@ class _BackgroundSelectionSheetState extends State<BackgroundSelectionSheet>
                 fontWeight: FontWeight.normal,
               ),
               tabs: [
-                Tab(text: "Backgrounds"),
-                Tab(text: "Wardrobe"),
+                Tab(text: localizations.backgrounds),
+                Tab(text: localizations.wardrobe),
               ],
             ),
           ),
+
 
           SizedBox(height: Responsive.height(16)),
 
@@ -1540,8 +1566,8 @@ class _BackgroundSelectionSheetState extends State<BackgroundSelectionSheet>
             child: TabBarView(
               controller: _tabController,
               children: [
-                _buildBackgroundTab(),
-                _buildWardrobeTab(),
+                _buildBackgroundTab(context),
+                _buildWardrobeTab(context),
               ],
             ),
           ),

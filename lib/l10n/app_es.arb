@@ -20,13 +20,13 @@
   "@loading": {
     "description": "Texto de carga"
   },
-  "noOutfitAvailable": "No Hay Outfit Disponible",
+  "noOutfitAvailable": "No Hay Atuendo Disponible",
   "@noOutfitAvailable": {
-    "description": "Mensaje de no hay outfit disponible"
+    "description": "Mensaje de atuendo no disponible"
   },
-  "errorFetchingOutfit": "Error al obtener outfit",
+  "errorFetchingOutfit": "Error al obtener atuendo",
   "@errorFetchingOutfit": {
-    "description": "Mensaje de error cuando falla la obtención del outfit"
+    "description": "Mensaje de error cuando falla la obtención de atuendo"
   },
   "like": "Me Gusta",
   "@like": {
@@ -66,16 +66,15 @@
   },
   "email": "Correo Electrónico",
   "@email": {
-    "description": "Etiqueta del campo email"
+    "description": "Etiqueta del campo correo"
   },
-  "gender": "Other",
+  "gender": "Otro",
   "@gender": {
     "description": "Etiqueta del campo género"
   },
-   "calendarTitle": "Calendario",
   "selectGender": "Seleccionar Género",
   "@selectGender": {
-    "description": "Sugerencia del dropdown de género"
+    "description": "Sugerencia del desplegable de género"
   },
   "male": "Masculino",
   "@male": {
@@ -139,7 +138,7 @@
   },
   "confirmLogout": "Confirmar Cierre de Sesión",
   "@confirmLogout": {
-    "description": "Título del diálogo de confirmación de cierre de sesión"
+    "description": "Título del diálogo de confirmación de cierre"
   },
   "areYouSureLogout": "¿Estás seguro de que quieres cerrar sesión?",
   "@areYouSureLogout": {
@@ -149,19 +148,20 @@
   "@cancel": {
     "description": "Texto del botón cancelar"
   },
+  "calendarTitle": "Calendario",
   "deleteAccount": "Eliminar Cuenta",
   "@deleteAccount": {
     "description": "Título del diálogo eliminar cuenta"
   },
   "deleteAccountConfirmation": "¿Estás seguro de que quieres eliminar tu cuenta? Esta acción no se puede deshacer y todos tus datos serán eliminados permanentemente.",
   "@deleteAccountConfirmation": {
-    "description": "Mensaje de confirmación de eliminación de cuenta"
+    "description": "Mensaje de confirmación para eliminar cuenta"
   },
-  "rateOurApp": "Califica Nuestra App",
+  "rateOurApp": "Califica nossa Aplicación",
   "@rateOurApp": {
     "description": "Título del diálogo calificar app"
   },
-  "rateAppDescription": "¡Nos encantaría escuchar tu opinión!\n¿Cómo calificarías tu experiencia?",
+  "rateAppDescription": "¡Nos encantaría conocer tus comentarios!\n¿Cómo calificarías tu experiencia?",
   "@rateAppDescription": {
     "description": "Descripción del diálogo calificar app"
   },
@@ -175,7 +175,7 @@
   },
   "authTokenNotFound": "Token de autenticación no encontrado",
   "@authTokenNotFound": {
-    "description": "Mensaje de error para token de autenticación faltante"
+    "description": "Mensaje de error para token de auth faltante"
   },
   "thankYouForRating": "¡Gracias por calificarnos con {rating} estrella{plural}!",
   "@thankYouForRating": {
@@ -197,7 +197,7 @@
   "@ratingResponse2": {
     "description": "Respuesta para calificación de 2 estrellas"
   },
-  "ratingResponse3": "¡Gracias por la retroalimentación! 😊",
+  "ratingResponse3": "¡Gracias por los comentarios! 😊",
   "@ratingResponse3": {
     "description": "Respuesta para calificación de 3 estrellas"
   },
@@ -205,12 +205,11 @@
   "@ratingResponse4": {
     "description": "Respuesta para calificación de 4 estrellas"
   },
-  "ratingResponse5": "¡Increíble! ¡Eres genial! 🎉",
+  "ratingResponse5": "¡Increíble! ¡Eres increíble! 🎉",
   "@ratingResponse5": {
     "description": "Respuesta para calificación de 5 estrellas"
   },
-
-  "pleaseSelectAtLeastOneItem": "Por favor selecciona al menos un artículo para generar el avatar",
+  "pleaseSelectAtLeastOneItem": "Por favor selecciona al menos un artículo para generar avatar",
   "@pleaseSelectAtLeastOneItem": {
     "description": "Mensaje de error cuando no se seleccionan artículos para generar avatar"
   },
@@ -231,19 +230,19 @@
   },
   "updateAvailableForThisDate": "Actualización disponible para esta fecha",
   "@updateAvailableForThisDate": {
-    "description": "Mensaje mostrado cuando hay actualización de outfit disponible"
+    "description": "Mensaje mostrado cuando hay actualización de atuendo disponible"
   },
-  "noOutfitAvailableForThisDate": "No hay outfit disponible para esta fecha",
+  "noOutfitAvailableForThisDate": "No hay atuendo disponible para esta fecha",
   "@noOutfitAvailableForThisDate": {
-    "description": "Mensaje mostrado cuando no existe outfit para la fecha seleccionada"
+    "description": "Mensaje mostrado cuando no existe atuendo para fecha seleccionada"
   },
-  "saveOutfit": "Guardar Outfit",
+  "saveOutfit": "Guardar Atuendo",
   "@saveOutfit": {
-    "description": "Título del diálogo guardar outfit"
+    "description": "Título del diálogo guardar atuendo"
   },
-  "doYouWantToSaveThisOutfit": "¿Quieres guardar este outfit para {date}",
+  "doYouWantToSaveThisOutfit": "¿Quieres guardar este atuendo para {date}?",
   "@doYouWantToSaveThisOutfit": {
-    "description": "Mensaje de confirmación para guardar outfit",
+    "description": "Mensaje de confirmación para guardar atuendo",
     "placeholders": {
       "date": {}
     }
@@ -252,16 +251,16 @@
   "@save": {
     "description": "Texto del botón guardar"
   },
-  "outfitSavedSuccessfully": "Outfit guardado exitosamente para {date}",
+  "outfitSavedSuccessfully": "Atuendo guardado exitosamente para {date}",
   "@outfitSavedSuccessfully": {
-    "description": "Mensaje de éxito para guardar outfit",
+    "description": "Mensaje de éxito para guardar atuendo",
     "placeholders": {
       "date": {}
     }
   },
-  "failedToSaveOutfit": "Error al guardar outfit",
+  "failedToSaveOutfit": "Error al guardar atuendo",
   "@failedToSaveOutfit": {
-    "description": "Mensaje de error cuando falla el guardado del outfit"
+    "description": "Mensaje de error cuando falla guardar atuendo"
   },
   "error": "Error: {error}",
   "@error": {
@@ -294,134 +293,184 @@
   "@shoes": {
     "description": "Etiqueta de categoría zapatos"
   },
-   "january": "Enero",
-    "february": "Febrero",
-    "march": "Marzo",
-    "april": "Abril",
-    "may": "Mayo",
-    "june": "Junio",
-    "july": "Julio",
-    "august": "Agosto",
-    "september": "Septiembre",
-    "october": "Octubre",
-    "november": "Noviembre",
-    "december": "Diciembre",
-
-    "jan": "Ene",
-    "feb": "Feb",
-    "mar": "Mar",
-    "apr": "Abr",
-    "mayShort": "May",
-    "jun": "Jun",
-    "jul": "Jul",
-    "aug": "Ago",
-    "sep": "Sep",
-    "oct": "Oct",
-    "nov": "Nov",
-    "dec": "Dic",
-
-    "shirt": "Camisa",
-    "pant": "Pantalón",
-    "shoe": "Zapato",
-    "accessory": "Accesorio",
-    "shirts": "Camisas",
-    "pants": "Pantalones",
-    "shoes": "Zapatos",
-    "accessories": "Accesorios",
-
-    "selectCategory": "Seleccionar Categoría",
-    "selectSubcategory": "Seleccionar Tipo de {category}",
-    "@selectSubcategory": {
-      "placeholders": {
-        "category": {
-          "type": "String"
-        }
+  "january": "Enero",
+  "february": "Febrero",
+  "march": "Marzo",
+  "april": "Abril",
+  "may": "Mayo",
+  "june": "Junio",
+  "july": "Julio",
+  "august": "Agosto",
+  "september": "Septiembre",
+  "october": "Octubre",
+  "november": "Noviembre",
+  "december": "Diciembre",
+  "jan": "Ene",
+  "feb": "Feb",
+  "mar": "Mar",
+  "apr": "Abr",
+  "mayShort": "May",
+  "jun": "Jun",
+  "jul": "Jul",
+  "aug": "Ago",
+  "sep": "Sep",
+  "oct": "Oct",
+  "nov": "Nov",
+  "dec": "Dic",
+  "shirt": "Camisa",
+  "pant": "Pantalón",
+  "shoe": "Zapato",
+  "accessory": "Accesorio",
+  "selectCategory": "Seleccionar Categoría",
+  "selectSubcategory": "Seleccionar Tipo de {category}",
+  "@selectSubcategory": {
+    "placeholders": {
+      "category": {
+        "type": "String"
       }
-    },
-
-    "tShirt": "Camiseta",
-    "halfShirt": "Camisa Corta",
-    "casualShirt": "Camisa Casual",
-    "dressShirt": "Camisa de Vestir",
-    "poloShirt": "Camisa Polo",
-
-    "necklace": "Collar",
-    "bracelet": "Pulsera",
-    "earring": "Pendiente",
-    "watch": "Reloj",
-    "belt": "Cinturón",
-    "hat": "Sombrero",
-    "scarf": "Bufanda",
-
-    "jeans": "Vaqueros",
-    "trousers": "Pantalón",
-    "shorts": "Pantalones Cortos",
-    "cargo": "Pantalón Cargo",
-    "trackPants": "Pantalón de Chándal",
-    "formalPants": "Pantalón Formal",
-
-
-    "sneakers": "Zapatillas",
-    "formalShoes": "Zapatos Formales",
-    "boots": "Botas",
-    "loafers": "Mocasines",
-    "sandals": "Sandalias",
-    "sportsShoes": "Zapatos Deportivos",
-
-    "generate": "Generar",
-    "generating": "Generando...",
-    "openCamera": "Abrir Cámara",
-    "addToWardrobe": "Agregar al Guardarropa",
-    "cancel": "Cancelar",
-    "back": "Atrás",
-    "ok": "Aceptar",
-
-    "noItemsAvailable": "No hay {category}s disponibles. Por favor, sube algunos primero.",
-    "@noItemsAvailable": {
-      "placeholders": {
-        "category": {
-          "type": "String"
-        }
+    }
+  },
+  "tShirt": "Camiseta",
+  "halfShirt": "Media Camisa",
+  "casualShirt": "Camisa Casual",
+  "dressShirt": "Camisa de Vestir",
+  "poloShirt": "Camisa Polo",
+  "necklace": "Collar",
+  "bracelet": "Pulsera",
+  "earring": "Arete",
+  "watch": "Reloj",
+  "belt": "Cinturón",
+  "hat": "Sombrero",
+  "scarf": "Bufanda",
+  "jeans": "Jeans",
+  "trousers": "Pantalones",
+  "shorts": "Shorts",
+  "cargo": "Cargo",
+  "trackPants": "Pantalones de Entrenamiento",
+  "formalPants": "Pantalones Formales",
+  "sneakers": "Tenis",
+  "formalShoes": "Zapatos Formales",
+  "boots": "Botas",
+  "loafers": "Mocasines",
+  "sandals": "Sandalias",
+  "sportsShoes": "Zapatos Deportivos",
+  "generate": "Generar",
+  "generating": "Generando...",
+  "openCamera": "Abrir Cámara",
+  "addToWardrobe": "Agregar al Guardarropa",
+  "back": "Atrás",
+  "ok": "OK",
+  "noItemsAvailable": "No hay {category}s disponibles. Por favor sube algunos primero.",
+  "@noItemsAvailable": {
+    "placeholders": {
+      "category": {
+        "type": "String"
       }
-    },
-    "openingCamera": "Abriendo cámara...",
-    "itemCaptured": "Artículo Capturado",
-    "uploadingItem": "Subiendo Artículo",
-    "addingToWardrobe": "Agregando a tu guardarropa...",
-    "itemSuccessfullyCaptured": "Tu {subcategory} ha sido capturado e identificado exitosamente usando Google Vision AI.",
-    "@itemSuccessfullyCaptured": {
-      "placeholders": {
-        "subcategory": {
-          "type": "String"
-        }
+    }
+  },
+  "openingCamera": "Abriendo cámara...",
+  "itemCaptured": "Artículo Capturado",
+  "uploadingItem": "Subiendo Artículo",
+  "addingToWardrobe": "Agregando a tu guardarropa...",
+  "itemSuccessfullyCaptured": "Tu {subcategory} ha sido capturado exitosamente e identificado usando Google Vision AI.",
+  "@itemSuccessfullyCaptured": {
+    "placeholders": {
+      "subcategory": {
+        "type": "String"
       }
-    },
-    "imageSuccessfullySaved": "Imagen guardada exitosamente en el guardarropa bajo \"{category} > {subcategory}\".",
-    "@imageSuccessfullySaved": {
-      "placeholders": {
-        "category": {
-          "type": "String"
-        },
-        "subcategory": {
-          "type": "String"
-        }
+    }
+  },
+  "imageSuccessfullySaved": "Imagen guardada exitosamente en el guardarropa bajo \"{category} > {subcategory}\".",
+  "@imageSuccessfullySaved": {
+    "placeholders": {
+      "category": {
+        "type": "String"
+      },
+      "subcategory": {
+        "type": "String"
       }
-    },
-    "failedToSaveImage": "Error al guardar imagen: {error}",
-    "@failedToSaveImage": {
-      "placeholders": {
-        "error": {
-          "type": "String"
-        }
+    }
+  },
+  "failedToSaveImage": "Error al guardar imagen: {error}",
+  "@failedToSaveImage": {
+    "placeholders": {
+      "error": {
+        "type": "String"
       }
-    },
-    "failedToOpenCamera": "Error al abrir cámara: {error}",
-    "@failedToOpenCamera": {
-      "placeholders": {
-        "error": {
-          "type": "String"
-        }
+    }
+  },
+  "failedToOpenCamera": "Error al abrir cámara: {error}",
+  "@failedToOpenCamera": {
+    "placeholders": {
+      "error": {
+        "type": "String"
       }
-    },
-    "error": "Error"
+    }
+  },
+  "backgroundGeneratedSuccessfully": "¡Fondo generado exitosamente!",
+  "@backgroundGeneratedSuccessfully": {
+    "description": "Mensaje de éxito para generación de fondo"
+  },
+  "failedToGenerateBackground": "Error al generar fondo desde imagen",
+  "@failedToGenerateBackground": {
+    "description": "Mensaje de error para fallo en generación de fondo"
+  },
+  "backgroundSelectedSuccessfully": "¡Fondo seleccionado exitosamente!",
+  "@backgroundSelectedSuccessfully": {
+    "description": "Mensaje de éxito para selección de fondo"
+  },
+  "failedToSelectBackground": "Error al seleccionar fondo",
+  "@failedToSelectBackground": {
+    "description": "Mensaje de error para fallo en selección de fondo"
+  },
+  "takeAPhoto": "Tomar una Foto",
+  "@takeAPhoto": {
+    "description": "Opción tomar foto"
+  },
+  "chooseFromGallery": "Elegir de la Galería",
+  "@chooseFromGallery": {
+    "description": "Opción elegir de galería"
+  },
+  "selectCategoryType": "Seleccionar Tipo de {selectedCategory}",
+  "@selectCategoryType": {
+    "description": "Mensaje para seleccionar tipo de categoría",
+    "placeholders": {
+      "selectedCategory": {}
+    }
+  },
+  "pleaseEnterPrompt": "Por favor ingresa un prompt",
+  "@pleaseEnterPrompt": {
+    "description": "Mensaje de error para prompt vacío"
+  },
+  "generateFromPrompt": "Generar desde cualquier Prompt",
+  "@generateFromPrompt": {
+    "description": "Opción generar desde prompt"
+  },
+  "noCategoryAvailable": "No hay {category} disponible en tu guardarropa",
+  "@noCategoryAvailable": {
+    "description": "Mensaje sin artículos para categoría específica",
+    "placeholders": {
+      "category": {}
+    }
+  },
+  "wardrobeEmpty": "Tu guardarropa está vacío",
+  "@wardrobeEmpty": {
+    "description": "Mensaje de guardarropa vacío"
+  },
+  "addItemsToGetStarted": "Agrega artículos para comenzar",
+  "@addItemsToGetStarted": {
+    "description": "Instrucción para guardarropa vacío"
+  },
+  "addFirstItem": "Agregar Primer Artículo",
+  "@addFirstItem": {
+    "description": "Botón agregar primer artículo"
+  },
+  "backgrounds": "Fondos",
+  "@backgrounds": {
+    "description": "Título de sección fondos"
+  },
+  "wardrobe": "Guardarropa",
+  "@wardrobe": {
+    "description": "Título de sección guardarropa"
+  }
 }

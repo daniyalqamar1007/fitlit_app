@@ -29,11 +29,7 @@ class ProfileController {
     errorNotifier.value = null;
 
     try {
-      // bool hasInternet =
-      //     await checkInternetAndShowDialog(context as BuildContext);
-      // if (!hasInternet) {
-      //   return;
-      // }
+
       final profile = await _profileService.getUserProfile();
 print(profile);
       Future.microtask(() {
@@ -58,11 +54,7 @@ print(profile);
 
 
     try {
-      // bool hasInternet =
-      //     await checkInternetAndShowDialog(context);
-      // if (!hasInternet) {
-      //   return false;
-      // }
+
 
       final updatedProfile =
           await _profileService.updateUserProfile(profile, imageFile);
@@ -78,9 +70,9 @@ print(profile);
     }
   }
 
-  // Clean up resources when done
+
   void dispose() {
-    // Dispose all ValueNotifiers properly
+
     profileNotifier.dispose();
     isLoadingNotifier.dispose();
     errorNotifier.dispose();
