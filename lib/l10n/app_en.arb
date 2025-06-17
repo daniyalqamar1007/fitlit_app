@@ -209,7 +209,6 @@
   "@ratingResponse5": {
     "description": "Response for 5-star rating"
   },
-
   "pleaseSelectAtLeastOneItem": "Please select at least one item to generate avatar",
   "@pleaseSelectAtLeastOneItem": {
     "description": "Error message when no items selected for avatar generation"
@@ -295,128 +294,183 @@
     "description": "Shoes category label"
   },
   "january": "January",
-    "february": "February",
-    "march": "March",
-    "april": "April",
-    "may": "May",
-    "june": "June",
-    "july": "July",
-    "august": "August",
-    "september": "September",
-    "october": "October",
-    "november": "November",
-    "december": "December",
-    "jan": "Jan",
-    "feb": "Feb",
-    "mar": "Mar",
-    "apr": "Apr",
-    "mayShort": "May",
-    "jun": "Jun",
-    "jul": "Jul",
-    "aug": "Aug",
-    "sep": "Sep",
-    "oct": "Oct",
-    "nov": "Nov",
-    "dec": "Dec",
-    "shirt": "Shirt",
-    "pant": "Pant",
-    "shoe": "Shoe",
-    "accessory": "Accessory",
-    "shirts": "Shirts",
-    "pants": "Pants",
-    "shoes": "Shoes",
-    "accessories": "Accessories",
-    "selectCategory": "Select Category",
-    "selectSubcategory": "Select {category} Type",
-    "@selectSubcategory": {
-      "placeholders": {
-        "category": {
-          "type": "String"
-        }
+  "february": "February",
+  "march": "March",
+  "april": "April",
+  "may": "May",
+  "june": "June",
+  "july": "July",
+  "august": "August",
+  "september": "September",
+  "october": "October",
+  "november": "November",
+  "december": "December",
+  "jan": "Jan",
+  "feb": "Feb",
+  "mar": "Mar",
+  "apr": "Apr",
+  "mayShort": "May",
+  "jun": "Jun",
+  "jul": "Jul",
+  "aug": "Aug",
+  "sep": "Sep",
+  "oct": "Oct",
+  "nov": "Nov",
+  "dec": "Dec",
+  "shirt": "Shirt",
+  "pant": "Pant",
+  "shoe": "Shoe",
+  "accessory": "Accessory",
+  "selectCategory": "Select Category",
+  "selectSubcategory": "Select {category} Type",
+  "@selectSubcategory": {
+    "placeholders": {
+      "category": {
+        "type": "String"
       }
-    },
-    "tShirt": "T-Shirt",
-    "halfShirt": "Half Shirt",
-    "casualShirt": "Casual Shirt",
-    "dressShirt": "Dress Shirt",
-    "poloShirt": "Polo Shirt",
-
-    "necklace": "Necklace",
-    "bracelet": "Bracelet",
-    "earring": "Earring",
-    "watch": "Watch",
-    "belt": "Belt",
-    "hat": "Hat",
-    "scarf": "Scarf",
-
-    "jeans": "Jeans",
-    "trousers": "Trousers",
-    "shorts": "Shorts",
-    "cargo": "Cargo",
-    "trackPants": "Track Pants",
-    "formalPants": "Formal Pants",
-
-    "sneakers": "Sneakers",
-    "formalShoes": "Formal Shoes",
-    "boots": "Boots",
-    "loafers": "Loafers",
-    "sandals": "Sandals",
-    "sportsShoes": "Sports Shoes",
-
-    "generate": "Generate",
-    "generating": "Generating...",
-    "openCamera": "Open Camera",
-    "addToWardrobe": "Add to Wardrobe",
-    "cancel": "Cancel",
-    "back": "Back",
-    "ok": "OK",
-
-    "noItemsAvailable": "No {category}s available. Please upload some first.",
-    "@noItemsAvailable": {
-      "placeholders": {
-        "category": {
-          "type": "String"
-        }
+    }
+  },
+  "tShirt": "T-Shirt",
+  "halfShirt": "Half Shirt",
+  "casualShirt": "Casual Shirt",
+  "dressShirt": "Dress Shirt",
+  "poloShirt": "Polo Shirt",
+  "necklace": "Necklace",
+  "bracelet": "Bracelet",
+  "earring": "Earring",
+  "watch": "Watch",
+  "belt": "Belt",
+  "hat": "Hat",
+  "scarf": "Scarf",
+  "jeans": "Jeans",
+  "trousers": "Trousers",
+  "shorts": "Shorts",
+  "cargo": "Cargo",
+  "trackPants": "Track Pants",
+  "formalPants": "Formal Pants",
+  "sneakers": "Sneakers",
+  "formalShoes": "Formal Shoes",
+  "boots": "Boots",
+  "loafers": "Loafers",
+  "sandals": "Sandals",
+  "sportsShoes": "Sports Shoes",
+  "generate": "Generate",
+  "generating": "Generating...",
+  "openCamera": "Open Camera",
+  "addToWardrobe": "Add to Wardrobe",
+  "back": "Back",
+  "ok": "OK",
+  "noItemsAvailable": "No {category}s available. Please upload some first.",
+  "@noItemsAvailable": {
+    "placeholders": {
+      "category": {
+        "type": "String"
       }
-    },
-    "openingCamera": "Opening camera...",
-    "itemCaptured": "Item Captured",
-    "uploadingItem": "Uploading Item",
-    "addingToWardrobe": "Adding to your wardrobe...",
-    "itemSuccessfullyCaptured": "Your {subcategory} has been successfully captured and identified using Google Vision AI.",
-    "@itemSuccessfullyCaptured": {
-      "placeholders": {
-        "subcategory": {
-          "type": "String"
-        }
+    }
+  },
+  "openingCamera": "Opening camera...",
+  "itemCaptured": "Item Captured",
+  "uploadingItem": "Uploading Item",
+  "addingToWardrobe": "Adding to your wardrobe...",
+  "itemSuccessfullyCaptured": "Your {subcategory} has been successfully captured and identified using Google Vision AI.",
+  "@itemSuccessfullyCaptured": {
+    "placeholders": {
+      "subcategory": {
+        "type": "String"
       }
-    },
-    "imageSuccessfullySaved": "Image successfully saved to wardrobe under \"{category} > {subcategory}\".",
-    "@imageSuccessfullySaved": {
-      "placeholders": {
-        "category": {
-          "type": "String"
-        },
-        "subcategory": {
-          "type": "String"
-        }
+    }
+  },
+  "imageSuccessfullySaved": "Image successfully saved to wardrobe under \"{category} > {subcategory}\".",
+  "@imageSuccessfullySaved": {
+    "placeholders": {
+      "category": {
+        "type": "String"
+      },
+      "subcategory": {
+        "type": "String"
       }
-    },
-    "failedToSaveImage": "Failed to save image: {error}",
-    "@failedToSaveImage": {
-      "placeholders": {
-        "error": {
-          "type": "String"
-        }
+    }
+  },
+  "failedToSaveImage": "Failed to save image: {error}",
+  "@failedToSaveImage": {
+    "placeholders": {
+      "error": {
+        "type": "String"
       }
-    },
-    "failedToOpenCamera": "Failed to open camera: {error}",
-    "@failedToOpenCamera": {
-      "placeholders": {
-        "error": {
-          "type": "String"
-        }
+    }
+  },
+  "failedToOpenCamera": "Failed to open camera: {error}",
+  "@failedToOpenCamera": {
+    "placeholders": {
+      "error": {
+        "type": "String"
       }
-    },
-    "error": "Error"
+    }
+  },
+  "backgroundGeneratedSuccessfully": "Background generated successfully!",
+  "@backgroundGeneratedSuccessfully": {
+    "description": "Success message for background generation"
+  },
+  "failedToGenerateBackground": "Failed to generate background from image",
+  "@failedToGenerateBackground": {
+    "description": "Error message for background generation failure"
+  },
+  "backgroundSelectedSuccessfully": "Background selected successfully!",
+  "@backgroundSelectedSuccessfully": {
+    "description": "Success message for background selection"
+  },
+  "failedToSelectBackground": "Failed to select background",
+  "@failedToSelectBackground": {
+    "description": "Error message for background selection failure"
+  },
+  "takeAPhoto": "Take a Photo",
+  "@takeAPhoto": {
+    "description": "Take photo option"
+  },
+  "chooseFromGallery": "Choose from Gallery",
+  "@chooseFromGallery": {
+    "description": "Choose from gallery option"
+  },
+  "selectCategoryType": "Select {selectedCategory} Type",
+  "@selectCategoryType": {
+    "description": "Select category type prompt",
+    "placeholders": {
+      "selectedCategory": {}
+    }
+  },
+  "pleaseEnterPrompt": "Please enter a prompt",
+  "@pleaseEnterPrompt": {
+    "description": "Error message for empty prompt"
+  },
+  "generateFromPrompt": "Generate From any Prompt",
+  "@generateFromPrompt": {
+    "description": "Generate from prompt option"
+  },
+  "noCategoryAvailable": "No {category} available in your wardrobe",
+  "@noCategoryAvailable": {
+    "description": "No items message for specific category",
+    "placeholders": {
+      "category": {}
+    }
+  },
+  "wardrobeEmpty": "Your wardrobe is empty",
+  "@wardrobeEmpty": {
+    "description": "Empty wardrobe message"
+  },
+  "addItemsToGetStarted": "Add items to get started",
+  "@addItemsToGetStarted": {
+    "description": "Empty wardrobe instruction"
+  },
+  "addFirstItem": "Add First Item",
+  "@addFirstItem": {
+    "description": "Add first item button"
+  },
+  "backgrounds": "Backgrounds",
+  "@backgrounds": {
+    "description": "Backgrounds section title"
+  },
+  "wardrobe": "Wardrobe",
+  "@wardrobe": {
+    "description": "Wardrobe section title"
+  }
 }

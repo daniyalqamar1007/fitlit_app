@@ -36,8 +36,6 @@ class WardrobeController {
   final ValueNotifier<CalendarFormat> calendarFormatNotifier =
       ValueNotifier<CalendarFormat>(CalendarFormat.month);
 
-
-  // Upload tracking
   final Map<String, StreamSubscription> _activeUploads = {};
   final ValueNotifier<Map<String, UploadProgress>> uploadProgressNotifier =
   ValueNotifier({});
@@ -45,18 +43,14 @@ class WardrobeController {
   Future<void> loadWardrobeItems() async {
     try {
       statusNotifier.value = WardrobeStatus.loading;
-
       List<WardrobeItem> allItems = await _wardrobeService.getWardrobeItems();
-
-      print(allItems.length);
-
       shirtsNotifier.value = [];
       pantsNotifier.value = [];
       shoesNotifier.value = [];
       accessoriesNotifier.value = [];
       print(allItems.length);
       for (var item in allItems) {
-        print("comihg");
+
         _categorizeItem(item);
       }
       statusNotifier.value = WardrobeStatus.success;
@@ -77,13 +71,9 @@ class WardrobeController {
       required String? avatarurl}) async
   {
     try {
-      print("coming");
+
       statusNotifier.value = WardrobeStatus.loading;
-      // bool hasInternet =
-      // // await checkInternetAndShowDialog(context);
-      // // if (!hasInternet) {
-      // //   return;
-      // // }
+
       WardrobeItem newItem = await _wardrobeService.uploadWardrobeItem(
         category: category,
         subCategory: subCategory,
