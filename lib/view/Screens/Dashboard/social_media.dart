@@ -256,7 +256,7 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
                                   return const SizedBox(); // ❌ No dot on today
                                 }
                                 return Positioned(
-                                  right: 9,
+                                  right: 17,
                                   top: 10,
                                   child: Container(
                                     width: 6,

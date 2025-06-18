@@ -540,27 +540,18 @@ class _WardrobeScreenState extends State<WardrobeScreen>
           height: double.infinity,
           child: ClipRRect(
             borderRadius: BorderRadius.circular(8),
-            child: Image.network(
-              selectedItem.imageUrl ?? '',
+            child: CachedNetworkImage(
+              imageUrl:selectedItem.imageUrl ?? '',
               fit: BoxFit.cover,
-              loadingBuilder: (context, child, loadingProgress) {
-                if (loadingProgress == null) return child;
-                return Center(
+
+              placeholder: (context, url) => Center(
+                child: Container(
                   child: LoadingAnimationWidget.fourRotatingDots(
                     color: appcolor,
                     size: 15,
                   ),
-                );
-              },
-              errorBuilder: (context, error, stackTrace) {
-                return Center(
-                  child: Icon(
-                    _getIconForCategory(category),
-                    color: Colors.grey,
-                    size: MediaQuery.of(context).size.width * 0.05,
-                  ),
-                );
-              },
+                ),
+              ),
             ),
           ),
         ),
@@ -1216,38 +1207,17 @@ class _WardrobeScreenState extends State<WardrobeScreen>
             ),
           ),
         ),
-        floatingActionButton: Padding(
-          padding: EdgeInsets.only(bottom: 16.0), // Adjust this value as needed
-          child: SizedBox(
-            width: Responsive.width(100),
-            height: Responsive.height(50),
-            child: RawMaterialButton(
-              onPressed: _showBackgroundSelectionSheet,
-              fillColor: appcolor.withOpacity(0.8),
-              shape: CircleBorder(),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    bool isLargeScreen = constraints.maxWidth > 600;
-                    return Flex(
-                      direction: isLargeScreen ? Axis.horizontal : Axis.vertical,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Image.asset(
-                          'assets/Icons/home_icon.png',
-                          scale: 4,
-                          color: Colors.white,
-                        ),
-                      ],
-                    );
-                  },
-                ),
-              ),
-            ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: _showBackgroundSelectionSheet,
+          backgroundColor: appcolor.withOpacity(0.8),
+          shape: CircleBorder(),
+          child: Image.asset(
+            'assets/Icons/home_icon.png',
+            scale: 4,
+            color: Colors.white,
           ),
         ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       ),
     );
   }
@@ -2048,18 +2018,11 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                                   child: Center(
                                     child: ClipRRect(
                                       borderRadius: BorderRadius.circular(6),
-                                      child: Image.network(
-                                        item.imageUrl ?? '',
-                                        fit: BoxFit.contain,
-                                        errorBuilder:
-                                            (context, error, stackTrace) {
-                                          return Center(
-                                            child: Icon(
-                                              _getIconForCategory(category),
-                                              color: Colors.grey,
-                                            ),
-                                          );
-                                        },
+                                      child: CachedNetworkImage(
+                                     imageUrl:    item.imageUrl ?? '',
+                                        fit: BoxFit.contain
+
+
                                       ),
                                     ),
                                   ),
@@ -3566,7 +3529,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                                   return const SizedBox();
                                 }
                                 return Positioned(
-                                  right: 9,
+                                  right: 20,
                                   top: 10,
                                   child: Container(
                                     width: 6,
