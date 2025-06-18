@@ -149,7 +149,7 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
   Future<void> _selectDate(BuildContext context) async {
     DateTime? selectedTempDate = selectedDate;
 
-    final DateTime? picked = await showDialog<DateTime>(
+    await showDialog<DateTime>(
       context: context,
       builder: (BuildContext context) {
         return Dialog(
@@ -164,6 +164,18 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    /// Cross Icon to Close
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.close, color: Colors.grey),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                      ],
+                    ),
+
+                    /// Title
                     Text(
                       'Select Date',
                       style: GoogleFonts.poppins(
@@ -172,7 +184,9 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
                         color: appcolor,
                       ),
                     ),
-                    SizedBox(height: 16),
+                    SizedBox(height: 8),
+
+                    /// Calendar
                     ValueListenableBuilder<List<AvatarData>>(
                       valueListenable: _outfitController.avatarDatesNotifier,
                       builder: (context, List<AvatarData> avatarDates, _) {
@@ -197,6 +211,12 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
                               setModalState(() {
                                 selectedTempDate = selectedDay;
                               });
+                              setState(() {
+                                selectedDate = selectedDay;
+                              });
+
+                              _fetchOutfitForSelectedDate();
+                              Navigator.pop(context);
                             },
                             onDayLongPressed: (selectedDay, focusedDay) {
                               _showAvatarMessage(selectedDay);
@@ -236,8 +256,8 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
                                   return const SizedBox(); // ❌ No dot on today
                                 }
                                 return Positioned(
-                                  right: 4,
-                                  top: 4,
+                                  right: 9,
+                                  top: 10,
                                   child: Container(
                                     width: 6,
                                     height: 6,
@@ -253,31 +273,6 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
                         );
                       },
                     ),
-                    SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: Text(
-                            'Cancel',
-                            style: GoogleFonts.poppins(color: Colors.grey),
-                          ),
-                        ),
-                        ElevatedButton(
-                          onPressed: () {
-                            Navigator.pop(context, selectedTempDate);
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: appcolor,
-                          ),
-                          child: Text(
-                            'Select',
-                            style: GoogleFonts.poppins(color: Colors.white),
-                          ),
-                        ),
-                      ],
-                    ),
                   ],
                 ),
               );
@@ -286,14 +281,8 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
         );
       },
     );
-
-    if (picked != null && picked != selectedDate) {
-      setState(() {
-        selectedDate = picked;
-      });
-      _fetchOutfitForSelectedDate(); // Fetch outfit for new date
-    }
   }
+
 
   void _showAvatarMessage(DateTime date) {
     final message = _outfitController.getMessageForDate(date);

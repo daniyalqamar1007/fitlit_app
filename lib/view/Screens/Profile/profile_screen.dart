@@ -69,7 +69,7 @@ class _ProfileScreenState extends State<ProfileScreen>
   }
 
   Future<void> _navigateToEditProfile() async {
-    Navigator.pushNamed(context, AppRoutes.editprofile);
+    Navigator.pushReplacementNamed(context, AppRoutes.editprofile);
   }
 
   Future<void> _navigateToContactUs() async {
@@ -591,12 +591,15 @@ class _ProfileScreenState extends State<ProfileScreen>
                   children: [
                     _buildProfileHeader(userProfile),
                     const SizedBox(height: 20),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        localizations.settings,
-                        style: GoogleFonts.poppins(
-                            fontWeight: FontWeight.w600, fontSize: 16),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 2),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          localizations.settings,
+                          style: GoogleFonts.poppins(
+                              fontWeight: FontWeight.w600, fontSize: 16),
+                        ),
                       ),
                     ),
                     // const SizedBox(height: 16),
@@ -614,7 +617,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                       },
                     ),
                     CustomListTile(
-                      image: "assets/Icons/policy.png",
+                      image: "assets/Icons/neww.png",
                       title: localizations.privacyPolicy,
                       onTap: () {
                         Navigator.pushNamed(context, AppRoutes.privacypolicy);

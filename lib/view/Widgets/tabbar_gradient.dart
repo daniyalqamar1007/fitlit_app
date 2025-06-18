@@ -30,10 +30,10 @@ class _GradientHalfTabIndicatorPainter extends BoxPainter {
   });
   @override
   void paint(Canvas canvas, Offset offset, ImageConfiguration configuration) {
-    final double screenWidth = configuration.size!.width*2; // Total 2 tabs
+    final double screenWidth = configuration.size!.width; // Total 2 tabs
     final bool isLeft = tabController.index == 0;
 
-    final double indicatorWidth = screenWidth;
+    final double indicatorWidth = screenWidth+60;
     final double indicatorHeight = 3;
 
     final double dx = isLeft ? 0 : indicatorWidth;
@@ -41,7 +41,7 @@ class _GradientHalfTabIndicatorPainter extends BoxPainter {
     final Rect rect = Rect.fromLTWH(
       dx,
       offset.dy + configuration.size!.height - indicatorHeight,
-      indicatorWidth,
+      isLeft?indicatorWidth-20:indicatorWidth+90,
       indicatorHeight,
     );
 

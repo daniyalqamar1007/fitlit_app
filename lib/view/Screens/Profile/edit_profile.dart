@@ -36,6 +36,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final ValueNotifier<String?> _imageLinkNotifier =
       ValueNotifier<String?>(null);
 
+  final _formKey = GlobalKey<FormState>();
+
   // Progress tracking variables for loading overlay
   final ValueNotifier<double> _progressValue = ValueNotifier<double>(0.0);
   final ValueNotifier<bool> _showLoadingOverlay = ValueNotifier<bool>(false);
@@ -54,7 +56,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       return;
     }
 
-    Navigator.push(
+    Navigator.pushReplacement(
       context,
       MaterialPageRoute(
         builder: (_) => Scaffold(
@@ -563,41 +565,55 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           ),
         ),
         const SizedBox(height: 6),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          decoration: BoxDecoration(
-            color: Colors.grey.shade100,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.grey.withOpacity(0.3)),
-          ),
-          child: DropdownButtonHideUnderline(
-            child: ValueListenableBuilder<String?>(
+        // Wrapped in a SizedBox to control dropdown height
+        SizedBox(
+          height: 60, // Fixed height to prevent layout jumps
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade100,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.grey.withOpacity(0.3)),
+            ),
+            child: DropdownButtonHideUnderline(
+              child: ValueListenableBuilder<String?>(
                 valueListenable: _selectedGenderNotifier,
                 builder: (context, selectedGender, _) {
                   return DropdownButton<String>(
                     value: selectedGender,
+
                     hint: Text(localizations.selectGender),
                     isExpanded: true,
+                    dropdownColor: Colors.white, // Match background
+                    menuMaxHeight: 200, // Limit dropdown height
+                    itemHeight: 50, // Consistent item height
                     items: [
                       DropdownMenuItem(
-                          value: 'male', child: Text(localizations.male)),
+                        value: 'male',
+                        child: Text(localizations.male),
+                      ),
                       DropdownMenuItem(
-                          value: 'female', child: Text(localizations.female)),
+                        value: 'female',
+                        child: Text(localizations.female),
+                      ),
                       DropdownMenuItem(
-                          value: 'other', child: Text(localizations.gender)),
+                        value: 'other',
+                        child: Text(localizations.gender),
+                      ),
                     ],
                     onChanged: (value) {
                       _selectedGenderNotifier.value = value;
                     },
                   );
-                }),
+                },
+              ),
+            ),
           ),
         ),
         const SizedBox(height: 16),
       ],
     );
   }
-
   Widget _buildSaveButton() {
     final localizations = AppLocalizations.of(context)!;
     return ValueListenableBuilder<bool>(

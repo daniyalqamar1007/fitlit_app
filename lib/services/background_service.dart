@@ -45,7 +45,7 @@ class BackgroundImageService {
         );
       }
 
-      final url = Uri.parse('$baseUrl/background-images/generate-from-prompt');
+      final url = Uri.parse('$baseUrl/background-images/generate');
 
       final body = jsonEncode({
         'prompt': prompt.trim(),
@@ -101,7 +101,7 @@ class BackgroundImageService {
         );
       }
 
-      final url = Uri.parse('$baseUrl/background-images/generate-from-image');
+      final url = Uri.parse('$baseUrl/background-images/generate');
 
       print('Generating image from file: ${imageFile.path}');
 

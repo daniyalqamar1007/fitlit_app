@@ -53,6 +53,33 @@ class _WardrobeScreenState extends State<WardrobeScreen>
   final ImagePicker _picker = ImagePicker();
   String? _avatarUrl;
 
+
+  final List<String> avatarUrls = [
+    'https://fitlit-assets.s3.us-east-2.amazonaws.com/wardrobe/1747930630870-image.png',
+    'https://fitlit-assets.s3.us-east-2.amazonaws.com/wardrobe/1747934549164-image.png',
+    'https://fitlit-assets.s3.us-east-2.amazonaws.com/wardrobe/1747935456493-image.png',
+    'https://fitlit-assets.s3.us-east-2.amazonaws.com/wardrobe/1747937370671-image.png',
+    'https://fitlit-assets.s3.us-east-2.amazonaws.com/wardrobe/1747938354346-image.png',
+    'https://fitlit-assets.s3.us-east-2.amazonaws.com/wardrobe/1747938907353-image.png',
+  ];
+
+  int currentIndexx = 0;
+  String? staticurl="https://fitlit-assets.s3.us-east-2.amazonaws.com/wardrobe/1747930630870-image.png";
+  bool _isLoadingg = false;
+
+  void _goToNext() {
+    setState(() {
+      currentIndexx = (currentIndexx + 1) % avatarUrls.length;
+      staticurl=avatarUrls[currentIndexx];
+    });
+  }
+
+  void _goToPrevious() {
+    setState(() {
+      currentIndexx = (currentIndexx - 1 + avatarUrls.length) % avatarUrls.length;
+      staticurl=avatarUrls[currentIndexx];
+    });
+  }
   SharedPreferences? _prefs;
 
   int _currentShirtIndex = 0;
@@ -108,14 +135,19 @@ class _WardrobeScreenState extends State<WardrobeScreen>
   }
 
   Future<void> _startBackgroundUpload(
-      String category, String subcategory, File imageFile) async {
+      String category, String subcategory, File imageFile) async
+  {
     try {
-      // Start upload in background
+      print("cojgdsuds");
+      print(category);
+      print(subcategory);
+      print(imageFile);
+
       final uploadId = await _wardrobeController.uploadWardrobeItemInBackground(
         category: category,
         subCategory: subcategory,
         imageFile: imageFile,
-        avatarurl: profileImage!,
+        avatarurl: _profileController.profileNotifier.value!.profileImage,
         token: token,
       );
 
@@ -260,6 +292,9 @@ class _WardrobeScreenState extends State<WardrobeScreen>
             _apiBackgrounds =
                 _backgroundImageController.backgroundImagesNotifier.value;
           });
+          print("teh first ");
+          print(_apiBackgrounds.length);
+          print(_apiBackgrounds.first);
         }
       }
     } catch (e) {
@@ -693,7 +728,9 @@ class _WardrobeScreenState extends State<WardrobeScreen>
       } else {}
 
       setState(() {
-        isLoadingItems = false; // Hide loading indicator
+        isLoadingItems = false;
+        currenturl="";
+        // Hide loading indicator
       });
     } catch (e) {
       print("Error checking existing outfit: $e");
@@ -729,7 +766,6 @@ class _WardrobeScreenState extends State<WardrobeScreen>
       });
     }
   }
-
   Future<void> _saveOutfit(BuildContext context) async {
     // Show confirmation dialog
     bool hasInternet = await checkInternetAndShowDialog(context);
@@ -745,48 +781,48 @@ class _WardrobeScreenState extends State<WardrobeScreen>
 
     try {
       // Get the current avatar URL being displayed
-      final currentAvatarUrl =
-          _getCurrentAvatarImage(_profileController.profileNotifier.value);
+      // final currentAvatarUrl =
+      // _getCurrentAvatarImage(_profileController.profileNotifier.value);
 
-      if (currentAvatarUrl == null || currentAvatarUrl.isEmpty) {
-        setState(() {
-          isSavingOutfit = false;
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('No avatar available to save'),
-            backgroundColor: appcolor,
-          ),
-        );
-        return;
-      }
-      if (selectedShirtId == null ||
-          selectedPantId == null ||
-          selectedShoeId == null ||
-          selectedAccessoryId == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Please select item first,missing item"),
-            backgroundColor: appcolor,
-          ),
-        );
-        setState(() {
-          isSavingOutfit = false;
-        });
-
-        return;
-      }
+      // if (currentAvatarUrl == null || currentAvatarUrl.isEmpty) {
+      //   setState(() {
+      //     isSavingOutfit = false;
+      //   });
+      //   ScaffoldMessenger.of(context).showSnackBar(
+      //     SnackBar(
+      //       content: Text('No avatar available to save'),
+      //       backgroundColor: appcolor,
+      //     ),
+      //   );
+      //   return;
+      // }
+      // if (selectedShirtId == null ||
+      //     selectedPantId == null ||
+      //     selectedShoeId == null ||
+      //     selectedAccessoryId == null) {
+      //   ScaffoldMessenger.of(context).showSnackBar(
+      //     SnackBar(
+      //       content: Text("Please select item first,missing item"),
+      //       backgroundColor: appcolor,
+      //     ),
+      //   );
+      //   setState(() {
+      //     isSavingOutfit = false;
+      //   });
+      //
+      //   return;
+      // }
 
       final result = await _outfitController.saveOutfit(
         token: token!,
-        shirtId: selectedShirtId ?? "",
-        pantId: selectedPantId ?? "",
-        shoeId: selectedShoeId ?? "",
-        accessoryId: selectedAccessoryId,
+        shirtId:  "681e413544c5377f3cdb4575",
+        pantId:  "68247bacab8a78ba02e03623",
+        shoeId:  "682c271bf00363d7967c29fe",
+        accessoryId: "6828e27c408e9791407522c2",
         backgroundimageurl: currenturl,
         message: outfitMessage,
         // accessoryId: selectedAccessoryId ?? "",
-        avatarurl: currentAvatarUrl,
+        avatarurl: staticurl!,
         date: _selectedDay ?? _focusedDay,
       );
 
@@ -858,6 +894,134 @@ class _WardrobeScreenState extends State<WardrobeScreen>
     }
   }
 
+  // Future<void> _saveOutfit(BuildContext context) async {
+  //   // Show confirmation dialog
+  //   bool hasInternet = await checkInternetAndShowDialog(context);
+  //   if (!hasInternet) {
+  //     return;
+  //   }
+  //   bool confirmed = await _showSaveOutfitConfirmationDialog();
+  //   if (!confirmed) return;
+  //
+  //   setState(() {
+  //     isSavingOutfit = true;
+  //   });
+  //
+  //   try {
+  //     // Get the current avatar URL being displayed
+  //     final currentAvatarUrl =
+  //         _getCurrentAvatarImage(_profileController.profileNotifier.value);
+  //
+  //     if (currentAvatarUrl == null || currentAvatarUrl.isEmpty) {
+  //       setState(() {
+  //         isSavingOutfit = false;
+  //       });
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(
+  //           content: Text('No avatar available to save'),
+  //           backgroundColor: appcolor,
+  //         ),
+  //       );
+  //       return;
+  //     }
+  //     if (selectedShirtId == null ||
+  //         selectedPantId == null ||
+  //         selectedShoeId == null ||
+  //         selectedAccessoryId == null) {
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(
+  //           content: Text("Please select item first,missing item"),
+  //           backgroundColor: appcolor,
+  //         ),
+  //       );
+  //       setState(() {
+  //         isSavingOutfit = false;
+  //       });
+  //
+  //       return;
+  //     }
+  //
+  //     final result = await _outfitController.saveOutfit(
+  //       token: token!,
+  //       shirtId: selectedShirtId ?? "",
+  //       pantId: selectedPantId ?? "",
+  //       shoeId: selectedShoeId ?? "",
+  //       accessoryId: selectedAccessoryId,
+  //       backgroundimageurl: currenturl,
+  //       message: outfitMessage,
+  //       // accessoryId: selectedAccessoryId ?? "",
+  //       avatarurl: currentAvatarUrl,
+  //       date: _selectedDay ?? _focusedDay,
+  //     );
+  //
+  //     setState(() {
+  //       isSavingOutfit = false;
+  //     });
+  //
+  //     if (result) {
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(
+  //           content: Text(
+  //             'Outfit saved successfully for ${_getFormattedDate(_selectedDay ?? _focusedDay)}',
+  //             style: GoogleFonts.poppins(
+  //               fontSize: 12,
+  //               fontWeight: FontWeight.w500,
+  //             ),
+  //           ),
+  //           backgroundColor: appcolor,
+  //           duration: Duration(seconds: 1),
+  //           behavior: SnackBarBehavior.floating,
+  //           margin: EdgeInsets.all(10),
+  //           shape: RoundedRectangleBorder(
+  //             borderRadius: BorderRadius.circular(10),
+  //           ),
+  //         ),
+  //       );
+  //     } else {
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(
+  //           content: Text(
+  //             'Failed to save outfit',
+  //             style: GoogleFonts.poppins(
+  //               fontSize: 12,
+  //               fontWeight: FontWeight.w500,
+  //             ),
+  //           ),
+  //           backgroundColor: appcolor,
+  //           duration: Duration(seconds: 1),
+  //           behavior: SnackBarBehavior.floating,
+  //           margin: EdgeInsets.all(10),
+  //           shape: RoundedRectangleBorder(
+  //             borderRadius: BorderRadius.circular(10),
+  //           ),
+  //         ),
+  //       );
+  //     }
+  //   } catch (e) {
+  //     setState(() {
+  //       isSavingOutfit = false;
+  //     });
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(
+  //         content: Text(
+  //           'Error: ${e.toString()}',
+  //           style: GoogleFonts.poppins(
+  //             fontSize: 12,
+  //             fontWeight: FontWeight.w500,
+  //           ),
+  //         ),
+  //         backgroundColor: appcolor,
+  //         duration: Duration(seconds: 1),
+  //         behavior: SnackBarBehavior.floating,
+  //         margin: EdgeInsets.all(10),
+  //         shape: RoundedRectangleBorder(
+  //           borderRadius: BorderRadius.circular(10),
+  //         ),
+  //       ),
+  //     );
+  //   }
+  // }
+
   Future<void> _loadAvatarDates() async {
     if (token != null) {
       await _outfitController.loadAllAvatarDates(token: token!);
@@ -865,6 +1029,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
   }
 
   void _showBackgroundSelectionSheet() async {
+
     await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -874,14 +1039,15 @@ class _WardrobeScreenState extends State<WardrobeScreen>
         appColor: appcolor,
         onBackgroundSelected: (backgroundPath) async {
           setState(() {
+            currenturl="";
             _currentBackgroundPath = backgroundPath;
           });
+          print("haseeb is coming");
+          print(_currentBackgroundPath);
+
 
           // Reload background images to get the updated status
           await _loadBackgroundImages();
-
-          // Force rebuild of the entire screen to show new background
-          setState(() {});
 
           _showSuccessSnackBar("Background updated successfully!");
         },
@@ -993,6 +1159,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
     _outfitController.dispose();
     _avatarController.statusNotifier.removeListener(_handleAvatarStatusChange);
     _avatarController.dispose();
+    _backgroundImageController.dispose();
 
     super.dispose();
   }
@@ -1049,83 +1216,73 @@ class _WardrobeScreenState extends State<WardrobeScreen>
             ),
           ),
         ),
-        floatingActionButton: SizedBox(
-          width: Responsive.width(100),
-          height: Responsive.height(35),
-          child: RawMaterialButton(
+        floatingActionButton: Padding(
+          padding: EdgeInsets.only(bottom: 16.0), // Adjust this value as needed
+          child: SizedBox(
+            width: Responsive.width(100),
+            height: Responsive.height(50),
+            child: RawMaterialButton(
               onPressed: _showBackgroundSelectionSheet,
-              fillColor: appcolor,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30),
-              ),
+              fillColor: appcolor.withOpacity(0.8),
+              shape: CircleBorder(),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                padding: const EdgeInsets.symmetric(horizontal: 10.0),
                 child: LayoutBuilder(
                   builder: (context, constraints) {
                     bool isLargeScreen = constraints.maxWidth > 600;
-
                     return Flex(
-                      direction:
-                          isLargeScreen ? Axis.horizontal : Axis.vertical,
+                      direction: isLargeScreen ? Axis.horizontal : Axis.vertical,
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Text(
-                          " background",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: Responsive.fontSize(8),
-                          ),
+                        Image.asset(
+                          'assets/Icons/home_icon.png',
+                          scale: 4,
+                          color: Colors.white,
                         ),
                       ],
                     );
                   },
                 ),
-              )),
+              ),
+            ),
+          ),
         ),
       ),
     );
   }
 
   Widget _buildBackgroundImage() {
-    // Show loading state while backgrounds are being fetched
     if (_isLoadingBackgrounds) {
       return Container();
     }
 
-    // Priority 1: Use currenturl if it's set (from selected outfit)
+    // Priority 1: Use currenturl if set
     if (currenturl != null && currenturl!.isNotEmpty) {
-      return Container(
+      return CachedNetworkImage(
+        imageUrl: currenturl!,
+        fit: BoxFit.cover,
         width: double.infinity,
         height: double.infinity,
-        child: Image.network(
-          currenturl!,
-          fit: BoxFit.cover,
-          loadingBuilder: (context, child, loadingProgress) {
-            if (loadingProgress == null) return child;
-            return Container(
-              color: Colors.grey[200],
-              child: Center(
-                child: LoadingAnimationWidget.fourRotatingDots(
-                    color: appcolor, size: 20),
-              ),
-            );
-          },
-          errorBuilder: (context, error, stackTrace) => Container(
-            color: Colors.grey[200],
-            child: Center(
-              child: Icon(
-                Icons.broken_image,
-                color: Colors.grey,
-                size: 50,
-              ),
+        placeholder: (context, url) => Container(
+          color: Colors.grey[200],
+        ),
+        errorWidget: (context, url, error) => Container(
+          color: Colors.grey[200],
+          child: Center(
+            child: Icon(
+              Icons.broken_image,
+              color: Colors.grey,
+              size: 50,
             ),
           ),
         ),
+        memCacheWidth: (MediaQuery.of(context).size.width * 2).toInt(),
+        memCacheHeight: (MediaQuery.of(context).size.height * 2).toInt(),
       );
     }
 
-    // Priority 2: Check if we have any backgrounds loaded from API
+    // Priority 2: Check API backgrounds
     if (_apiBackgrounds.isEmpty) {
       return Container(
         color: Colors.grey[200],
@@ -1140,29 +1297,48 @@ class _WardrobeScreenState extends State<WardrobeScreen>
       );
     }
 
-    // Priority 3: Try to find the selected background from API backgrounds
+    // Priority 3: Find selected background
     try {
-      final selectedBackground = _apiBackgrounds.firstWhere(
-            (bg) => bg.status == true,
-      );
+      final selectedBackground = _apiBackgrounds.firstWhere((bg) => bg.status == true);
+      currenturl = selectedBackground.imageUrl;
 
-      return Container(
+      return CachedNetworkImage(
+        imageUrl: selectedBackground.imageUrl,
+        fit: BoxFit.cover,
         width: double.infinity,
         height: double.infinity,
-        child: Image.network(
-          selectedBackground.imageUrl,
+        placeholder: (context, url) => Container(
+          color: Colors.grey[200],
+        ),
+        errorWidget: (context, url, error) => Container(
+          color: Colors.grey[200],
+          child: Center(
+            child: Icon(
+              Icons.broken_image,
+              color: Colors.grey,
+              size: 50,
+            ),
+          ),
+        ),
+      );
+    } catch (e) {
+      // Priority 4: Show first available background
+      if (_apiBackgrounds.isNotEmpty) {
+        return CachedNetworkImage(
+          imageUrl: _apiBackgrounds.first.imageUrl,
           fit: BoxFit.cover,
-          loadingBuilder: (context, child, loadingProgress) {
-            if (loadingProgress == null) return child;
-            return Container(
-              color: Colors.grey[200],
-              child: Center(
-                child: LoadingAnimationWidget.fourRotatingDots(
-                    color: appcolor, size: 20),
+          width: double.infinity,
+          height: double.infinity,
+          placeholder: (context, url) => Container(
+            color: Colors.grey[200],
+            child: Center(
+              child: LoadingAnimationWidget.fourRotatingDots(
+                color: appcolor,
+                size: 20,
               ),
-            );
-          },
-          errorBuilder: (context, error, stackTrace) => Container(
+            ),
+          ),
+          errorWidget: (context, url, error) => Container(
             color: Colors.grey[200],
             child: Center(
               child: Icon(
@@ -1172,42 +1348,10 @@ class _WardrobeScreenState extends State<WardrobeScreen>
               ),
             ),
           ),
-        ),
-      );
-    } catch (e) {
-      // Priority 4: No background with status == true found, show first available
-      if (_apiBackgrounds.isNotEmpty) {
-        return Container(
-          width: double.infinity,
-          height: double.infinity,
-          child: Image.network(
-            _apiBackgrounds.first.imageUrl,
-            fit: BoxFit.cover,
-            loadingBuilder: (context, child, loadingProgress) {
-              if (loadingProgress == null) return child;
-              return Container(
-                color: Colors.grey[200],
-                child: Center(
-                  child: LoadingAnimationWidget.fourRotatingDots(
-                      color: appcolor, size: 20),
-                ),
-              );
-            },
-            errorBuilder: (context, error, stackTrace) => Container(
-              color: Colors.grey[200],
-              child: Center(
-                child: Icon(
-                  Icons.broken_image,
-                  color: Colors.grey,
-                  size: 50,
-                ),
-              ),
-            ),
-          ),
         );
       }
 
-      // Fallback if no background is available
+      // Fallback
       return Container(
         color: Colors.grey[200],
         width: double.infinity,
@@ -1238,7 +1382,9 @@ class _WardrobeScreenState extends State<WardrobeScreen>
               builder: (context, userProfile, _) {
                 if (userProfile == null) {
                   return LoadingAnimationWidget.fourRotatingDots(
-                      color: appcolor, size: 20);
+                      color: appcolor,
+                      size: 20
+                  );
                 }
 
                 return ClipOval(
@@ -1250,36 +1396,33 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                       shape: BoxShape.circle,
                     ),
                     child: userProfile.profileImage.isNotEmpty
-                        ? Image.network(
-                            userProfile.profileImage,
-                            fit: BoxFit.cover,
-                            alignment: Alignment.topCenter,
-                            loadingBuilder: (context, child, loadingProgress) {
-                              if (loadingProgress == null) return child;
-                              return Center(
-                                child: LoadingAnimationWidget.fourRotatingDots(
-                                    color: appcolor, size: 20),
-                              );
-                            },
-                            errorBuilder: (context, error, stackTrace) =>
-                                Image.asset(
-                              'assets/Images/circle_image.png',
-                              fit: BoxFit.cover,
-                            ),
-                          )
+                        ? CachedNetworkImage(
+                      imageUrl: userProfile.profileImage,
+                      fit: BoxFit.cover,
+                      alignment: Alignment.topCenter,
+                      placeholder: (context, url) => Center(
+                        child: LoadingAnimationWidget.fourRotatingDots(
+                          color: appcolor,
+                          size: 20,
+                        ),
+                      ),
+                      errorWidget: (context, url, error) => Image.asset(
+                        'assets/Images/circle_image.png',
+                        fit: BoxFit.cover,
+                      ),
+
+                    )
                         : Image.asset(
-                            'assets/Images/circle_image.png',
-                            fit: BoxFit.cover,
-                          ),
+                      'assets/Images/circle_image.png',
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 );
               },
             ),
           ),
         ),
-        SizedBox(
-          width: Responsive.width(10),
-        ),
+        SizedBox(width: Responsive.width(10)),
         Expanded(
           flex: 3,
           child: Text(
@@ -1291,15 +1434,13 @@ class _WardrobeScreenState extends State<WardrobeScreen>
             ),
           ),
         ),
-        SizedBox(
-          width: Responsive.width(40),
-        ),
+        SizedBox(width: Responsive.width(40)),
         GestureDetector(
           onTap: isSavingOutfit
               ? null
               : () async {
-                  await _saveOutfit(context);
-                },
+            await _saveOutfit(context);
+          },
           child: Container(
             padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
             height: 30,
@@ -1309,18 +1450,21 @@ class _WardrobeScreenState extends State<WardrobeScreen>
             ),
             child: isSavingOutfit
                 ? SizedBox(
-                    width: 16,
-                    height: 16,
-                    child: LoadingAnimationWidget.fourRotatingDots(
-                        color: appcolor, size: 20),
-                  )
+              width: 16,
+              height: 16,
+              child: LoadingAnimationWidget.fourRotatingDots(
+                color: appcolor,
+                size: 20,
+              ),
+            )
                 : Text(
-                    localizations.save,
-                    style: GoogleFonts.poppins(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 10),
-                  ),
+              localizations.save,
+              style: GoogleFonts.poppins(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 10,
+              ),
+            ),
           ),
         ),
       ],
@@ -1341,7 +1485,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
           // Second Column - Avatar
           Expanded(
             flex: 8,
-            child: _buildAvatarColumn(),
+            child: _buildAvatarColumn2(),
           ),
 
           // Third Column - Similar to first column
@@ -1598,7 +1742,8 @@ class _WardrobeScreenState extends State<WardrobeScreen>
             valueListenable: _wardrobeController.uploadProgressNotifier,
             builder: (context, uploadProgress, child) {
               // Check if there's an active upload for this category
-              List<UploadProgress> categoryUploads = _getCategoryUploads(category, uploadProgress);
+              List<UploadProgress> categoryUploads =
+                  _getCategoryUploads(category, uploadProgress);
               bool hasActiveUpload = categoryUploads.isNotEmpty;
 
               return Container(
@@ -1619,8 +1764,10 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                   border: _isItemSelected(category)
                       ? Border.all(color: appcolor, width: 3)
                       : hasActiveUpload
-                      ? Border.all(color: appcolor.withOpacity(0.7), width: 2)
-                      : Border.all(color: Colors.grey.withOpacity(0.3), width: 1),
+                          ? Border.all(
+                              color: appcolor.withOpacity(0.7), width: 2)
+                          : Border.all(
+                              color: Colors.grey.withOpacity(0.3), width: 1),
                 ),
                 child: Stack(
                   children: [
@@ -1663,8 +1810,10 @@ class _WardrobeScreenState extends State<WardrobeScreen>
       ),
     );
   }
+
   List<UploadProgress> _getCategoryUploads(
-      String category, Map<String, UploadProgress> uploadProgress) {
+      String category, Map<String, UploadProgress> uploadProgress)
+  {
     List<UploadProgress> categoryUploads = [];
 
     for (var progress in uploadProgress.values) {
@@ -1733,7 +1882,8 @@ class _WardrobeScreenState extends State<WardrobeScreen>
   }
 
   WardrobeItem? _getSelectedItemForCategory(
-      String category, List<WardrobeItem> items) {
+      String category, List<WardrobeItem> items)
+  {
     String? selectedId;
 
     switch (category) {
@@ -1763,7 +1913,8 @@ class _WardrobeScreenState extends State<WardrobeScreen>
   }
 
   void _showItemSelectionDialog(
-      String category, ValueNotifier<List<WardrobeItem>> notifier) {
+      String category, ValueNotifier<List<WardrobeItem>> notifier)
+  {
     final localizations = AppLocalizations.of(context)!;
 
     showDialog(
@@ -1960,6 +2111,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
       ),
     );
   }
+
   Widget _buildUploadingGridItem(UploadProgress progress) {
     return Container(
       decoration: BoxDecoration(
@@ -1978,7 +2130,6 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                   color: appcolor,
                   size: 25,
                 ),
-
                 SizedBox(height: 4),
                 Text(
                   '${progress.progress?.toInt()}%',
@@ -2034,6 +2185,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
       ),
     );
   }
+
   IconData _getIconForCategory(String category) {
     switch (category.toLowerCase()) {
       case 'shirt':
@@ -2082,6 +2234,149 @@ class _WardrobeScreenState extends State<WardrobeScreen>
         _handleShoeSwipe(direction);
         break;
     }
+  }
+  void _handleSwipe(DragEndDetails details) {
+    final velocity = details.primaryVelocity;
+    if (velocity == null) return;
+
+    // Swipe left - go to next avatar
+    if (velocity < -100) {
+      _goToNext();
+
+    }
+    // Swipe right - go to previous avatar
+    else if (velocity > 100) {
+      _goToPrevious();
+      showAppSnackBar(context, 'The Feature is in Progress',
+          backgroundColor: appcolor);
+    }
+  }
+  double _startX = 0.0;
+
+  void _handlePanStart(DragStartDetails details) {
+    _startX = details.localPosition.dx;
+  }
+
+  void _handlePanEnd(DragEndDetails details) {
+    final endX = details.localPosition.dx;
+    final deltaX = endX - _startX;
+
+    // Minimum swipe distance to trigger action
+    const minSwipeDistance = 50.0;
+
+    if (deltaX.abs() > minSwipeDistance) {
+      if (deltaX > 0) {
+        _goToPrevious();
+
+        showAppSnackBar(context, 'The Feature is in Progress',
+            backgroundColor: appcolor);
+
+      } else {
+        _goToNext();
+        // Swiped left - go to next
+        showAppSnackBar(context, 'The Feature is in Progress',
+            backgroundColor: appcolor);
+
+      }
+    }
+  }
+
+
+  Widget _buildAvatarColumn2() {
+    return Container(
+      alignment: Alignment.center,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          // Avatar image container
+          Container(
+            width: 350,
+            height: 350,
+            child: GestureDetector(
+              onPanStart: _handlePanStart,
+              onPanEnd: _handlePanEnd,
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                transitionBuilder: (child, animation) {
+                  return SlideTransition(
+                    position: Tween<Offset>(
+                      begin: const Offset(1.0, 0.0),
+                      end: Offset.zero,
+                    ).animate(animation),
+                    child: FadeTransition(
+                      opacity: animation,
+                      child: child,
+                    ),
+                  );
+                },
+                child: ClipRRect(
+                  key: ValueKey(currentIndexx),
+                  borderRadius: BorderRadius.circular(10),
+                  child: CachedNetworkImage(
+                    imageUrl: avatarUrls[currentIndexx],
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                    height: double.infinity,
+                    placeholder: (context, url) => Center(
+                      child: LoadingAnimationWidget.fourRotatingDots(
+                        color: appcolor,
+                        size: 15,
+                      )),
+                    // loadingBuilder: (context, child, loadingProgress) {
+                    //   if (loadingProgress == null) return child;
+                    //   return Center(
+                    //     child: LoadingAnimationWidget.fourRotatingDots(color: appcolor, size: 15)
+                    //   );
+                    // },
+                    // errorBuilder: (context, error, stackTrace) {
+                    //   return Center(
+                    //     child: Column(
+                    //       mainAxisAlignment: MainAxisAlignment.center,
+                    //       children: [
+                    //         Icon(
+                    //           Icons.error,
+                    //           color: Colors.grey,
+                    //           size: 50,
+                    //         ),
+                    //         SizedBox(height: 8),
+                    //         Text(
+                    //           'Failed to load image',
+                    //           style: TextStyle(color: Colors.grey),
+                    //         ),
+                    //       ],
+                    //     ),
+                    //   );
+                    // },
+                  ),
+                ),
+              ),
+            ),
+          ),
+          //
+          //
+          //
+          // // Current index indicator
+          // Positioned(
+          //   bottom: 20,
+          //   child: Container(
+          //     padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          //     decoration: BoxDecoration(
+          //       color: Colors.black54,
+          //       borderRadius: BorderRadius.circular(20),
+          //     ),
+          //     child: Text(
+          //       '${currentIndexx + 1} / ${avatarUrls.length}',
+          //       style: TextStyle(
+          //         color: Colors.white,
+          //         fontSize: 12,
+          //         fontWeight: FontWeight.w500,
+          //       ),
+          //     ),
+          //   ),
+          // ),
+        ],
+      ),
+    );
   }
 
   Widget _buildAvatarColumn() {
@@ -3206,7 +3501,8 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                         return Container(
                           decoration: BoxDecoration(
                             color: Colors.white,
-                            borderRadius: BorderRadius.circular(Responsive.radius(16)),
+                            borderRadius:
+                                BorderRadius.circular(Responsive.radius(16)),
                             boxShadow: [
                               BoxShadow(
                                 color: Colors.grey.withOpacity(0.2),
@@ -3215,8 +3511,15 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                               ),
                             ],
                           ),
-                          child: TableCalendar(
-                            availableGestures: AvailableGestures.none,
+                          child:
+                          TableCalendar(
+                            availableGestures: AvailableGestures.all, // Allow long-press
+                            // Or at least enable long-press:
+                            onDayLongPressed: (selectedDay, _) {
+                              print('Long-pressed: $selectedDay');
+                              _showAvatarMessage(selectedDay);
+                            },
+
                             firstDay: DateTime.utc(2020, 1, 1),
                             lastDay: DateTime.utc(2030, 12, 31),
                             focusedDay: focusedDay,
@@ -3231,23 +3534,12 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                               });
                               _checkExistingOutfit(selectedDay);
                             },
-                            onDayLongPressed: (selectedDay, focusedDay) {
-                              _showAvatarMessage(selectedDay);
-                            },
-                            onPageChanged: (focusedDay) {
-                              controller.focusedDayNotifier.value = focusedDay;
-                            },
                             eventLoader: (day) {
-                              // Check if this day has an outfit/avatar
-                              if (_outfitController.hasAvatarForDate(day)) {
-                                return ['outfit']; // Return a marker identifier
-                              }
-                              return [];
+                              return _outfitController.hasAvatarForDate(day) ? ['outfit'] : [];
                             },
                             calendarStyle: CalendarStyle(
-                              markersMaxCount: 1, // Only show one marker per day
+                              markersMaxCount: 1,
                               outsideDaysVisible: false,
-                              isTodayHighlighted: true,
                               todayDecoration: BoxDecoration(
                                 color: appcolor.withOpacity(0.4),
                                 shape: BoxShape.circle,
@@ -3255,11 +3547,6 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                               selectedDecoration: BoxDecoration(
                                 color: appcolor,
                                 shape: BoxShape.circle,
-                              ),
-                              // Hide default markers since we're using custom builder
-                              markersAlignment: Alignment.bottomCenter,
-                              markerDecoration: BoxDecoration(
-                                color: Colors.transparent,
                               ),
                             ),
                             headerStyle: HeaderStyle(
@@ -3270,120 +3557,27 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                                 fontWeight: FontWeight.w600,
                                 color: appcolor,
                               ),
-                              leftChevronIcon: Icon(
-                                Icons.chevron_left,
-                                color: appcolor,
-                              ),
-                              rightChevronIcon: Icon(
-                                Icons.chevron_right,
-                                color: appcolor,
-                              ),
+                              leftChevronIcon: Icon(Icons.chevron_left, color: appcolor),
+                              rightChevronIcon: Icon(Icons.chevron_right, color: appcolor),
                             ),
                             calendarBuilders: CalendarBuilders(
-                              selectedBuilder: (context, date, _) {
-                                final hasOutfit = _outfitController.hasAvatarForDate(date);
-                                return Container(
-                                  alignment: Alignment.center,
-                                  decoration: BoxDecoration(
-                                    color: appcolor,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: Stack(
-                                    alignment: Alignment.center,
-                                    children: [
-                                      Text(
-                                        '${date.day}',
-                                        style: TextStyle(color: Colors.white),
-                                      ),
-                                      if (hasOutfit)
-                                        Positioned(
-                                          top: 4,
-                                          right: 7,
-                                          child: Container(
-                                            width: 8,
-                                            height: 8,
-                                            decoration: BoxDecoration(
-                                              color: Colors.white,
-                                              shape: BoxShape.circle,
-                                              border: Border.all(
-                                                color: appcolor,
-                                                width: 1,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                    ],
+                              markerBuilder: (context, day, events) {
+                                if (events.isEmpty || isSameDay(day, DateTime.now())) {
+                                  return const SizedBox();
+                                }
+                                return Positioned(
+                                  right: 9,
+                                  top: 10,
+                                  child: Container(
+                                    width: 6,
+                                    height: 6,
+                                    decoration: BoxDecoration(
+                                      color: appcolor,
+                                      shape: BoxShape.circle,
+                                    ),
                                   ),
                                 );
                               },
-                              todayBuilder: (context, date, _) {
-                                final hasOutfit = _outfitController.hasAvatarForDate(date);
-                                return Container(
-                                  alignment: Alignment.center,
-                                  decoration: BoxDecoration(
-                                    color: appcolor,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: Stack(
-                                    alignment: Alignment.center,
-                                    children: [
-                                      Text(
-                                        '${date.day}',
-                                        style: TextStyle(
-                                          color: Colors.black,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                      if (hasOutfit)
-                                        Positioned(
-                                          top: 4,
-                                          right: 5,
-                                          child: Container(
-                                            width: 8,
-                                            height: 10,
-                                            decoration: BoxDecoration(
-                                              color: appcolor,
-                                              shape: BoxShape.circle,
-                                            ),
-                                          ),
-                                        ),
-                                    ],
-                                  ),
-                                );
-                              },
-                              defaultBuilder: (context, date, _) {
-                                final hasOutfit = _outfitController.hasAvatarForDate(date);
-                                if (!hasOutfit) return null; // Use default styling
-
-                                return Container(
-                                  alignment: Alignment.center,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: Stack(
-                                    alignment: Alignment.center,
-                                    children: [
-                                      Text(
-                                        '${date.day}',
-                                        style: TextStyle(color: Colors.black),
-                                      ),
-                                      Positioned(
-                                        top: 0,
-                                        right: 3,
-                                        child: Container(
-                                          width: 6,
-                                          height: 6,
-                                          decoration: BoxDecoration(
-                                            color: appcolor,
-                                            shape: BoxShape.circle,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
-                              // Remove the markerBuilder since we're handling markers in the day builders
                             ),
                           ),
                         );
@@ -3398,6 +3592,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
       ],
     );
   }
+
 // Method to show avatar message popup on long press
   void _showAvatarMessage(DateTime date) {
     final message = _outfitController.getMessageForDate(date);
