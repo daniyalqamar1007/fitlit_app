@@ -939,7 +939,7 @@ print(image?.path);
               ),
             ),
 
-            SizedBox(height: Responsive.height(16)),
+
 
             // Background Grid - Only API Backgrounds
             Expanded(
@@ -1271,7 +1271,7 @@ print(image?.path);
 
         // Items Grid
         SizedBox(
-          height: Responsive.height(60),
+          height: Responsive.height(70),
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             itemCount: items.length,
@@ -1303,7 +1303,7 @@ print(image?.path);
 
           child: Container(
 
-            width: Responsive.width(60),
+            width: Responsive.width(70),
             padding: EdgeInsets.all( 5),
 
             decoration: BoxDecoration(
@@ -1522,7 +1522,7 @@ print(image?.path);
           ),
 
 
-          SizedBox(height: Responsive.height(16)),
+          SizedBox(height: Responsive.height(11)),
 
           // Tab Views
           Expanded(
