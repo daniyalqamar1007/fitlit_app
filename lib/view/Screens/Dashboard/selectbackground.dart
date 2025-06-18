@@ -2,6 +2,7 @@ import  'dart:core';
 import 'dart:io';
 import 'dart:async';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fitlip_app/view/Utils/Colors.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -54,7 +55,8 @@ class _BackgroundSelectionSheetState extends State<BackgroundSelectionSheet>
     _getUserInfoAndLoadItems();
     _loadBackgroundImages(); // Add this line
   }
-
+  @override
+  bool get wantKeepAlive => true;
 // Add this method to load background images from API
   Future<void> _loadBackgroundImages() async {
     setState(() {
@@ -772,7 +774,6 @@ print(image?.path);
     const interval = 50;
     const steps = totalDuration ~/ interval;
     const incrementPerStep = 0.95 / steps;
-
     _uploadProgressTimer = Timer.periodic(Duration(milliseconds: interval), (timer) {
       if (_uploadProgress >= 0.95) {
         timer.cancel();
@@ -867,204 +868,182 @@ print(image?.path);
     final localizations = AppLocalizations.of(context)!;
     return Stack(
       children: [
-        Expanded(
-          child: Column(
-            children: [
-              // AI Generation Section
-              Padding(
-                padding: EdgeInsets.all(10),
-                child: Card(
-                  child:
-                  Container(
-                    padding: Responsive.allPadding(4),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.shade400,
-                          offset: Offset(0, -1), // Top shadow
-                          blurRadius: 6,
-                          spreadRadius: 1,
-                        ),
-                      ],
-                      borderRadius: BorderRadius.circular(Responsive.radius(12)),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.auto_awesome_outlined,
-                          color: appcolor,
-                          size: Responsive.fontSize(20),
-                        ),
-                        SizedBox(width: Responsive.width(8)),
-                        Expanded(
-                          child: TextField(
-                            onChanged: (value) => _generatePrompt = value,
-                            decoration: InputDecoration(
-                              hintText: localizations.generateFromPrompt,
-                              hintStyle: GoogleFonts.poppins(
-                                color: Colors.grey[500],
-                                fontSize: Responsive.fontSize(12),
-                              ),
-                              border: InputBorder.none,
-                              contentPadding: EdgeInsets.zero,
-                            ),
-                            style: GoogleFonts.poppins(fontSize: Responsive.fontSize(12)),
-                          ),
-                        ),
-                        SizedBox(width: Responsive.width(8)),
-                        GestureDetector(
-                          onTap: (){
-                            _isGenerating ? null : _generateFromPrompt();
-                          },
-                          child: Container(
-                            height: Responsive.height(30),width: Responsive.width(40),
-                            decoration: BoxDecoration(
-                                color: appcolor,
-                
-                                borderRadius: BorderRadius.circular(12)
-                            ),
-                            child: _isGenerating
-                                ? SizedBox(
-                              height: Responsive.height(16),
-                              width: Responsive.width(12),
-                              child: LoadingAnimationWidget.fourRotatingDots(
-                                  color:Colors.white,size:20
-                              ),
-                            )
-                                : Center(
-                              child: Icon(Icons.send,color: white,size: 20,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
+        Column(
+          children: [
 
-              SizedBox(height: Responsive.height(16)),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 10),
+              child: Card(
+                elevation: 2,
+                child:
+                Container(
+                  padding: Responsive.horizontalPadding(4),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
 
-              // Background Grid - Only API Backgrounds
-              Expanded(
-                child: _isLoadingBackgrounds
-                    ? Center(
-                  child: LoadingAnimationWidget.fourRotatingDots(
-                      color:appcolor,size:20
+
+                    borderRadius: BorderRadius.circular(Responsive.radius(12)),
                   ),
-                )
-                    :Padding(
-                  padding: EdgeInsets.all(10),
-                      child: GridView.builder(
-                                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3,
-                      crossAxisSpacing: Responsive.width(8),
-                      mainAxisSpacing: Responsive.height(8),
-                      childAspectRatio: 1.0,
-                                        ),
-                                        itemCount: _apiBackgrounds.length,
-                                        itemBuilder: (context, index) {
-                      final apiBackground = _apiBackgrounds[index];
-                      final isSelected = widget.currentBackgroundPath == apiBackground.imageUrl ||
-                          apiBackground.status;
-                      
-                      return GestureDetector(
-                        onTap: () => _selectApiBackground(apiBackground,context),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.auto_awesome_outlined,
+                        color: appcolor,
+                        size: Responsive.fontSize(20),
+                      ),
+                      SizedBox(width: Responsive.width(8)),
+                      Expanded(
+                        child: TextField(
+                          onChanged: (value) => _generatePrompt = value,
+                          decoration: InputDecoration(
+                            hintText: localizations.generateFromPrompt,
+                            hintStyle: GoogleFonts.poppins(
+                              color: Colors.grey[500],
+                              fontSize: Responsive.fontSize(12),
+                            ),
+                            border: InputBorder.none,
+                            contentPadding: EdgeInsets.zero,
+                          ),
+                          style: GoogleFonts.poppins(fontSize: Responsive.fontSize(12)),
+                        ),
+                      ),
+                      SizedBox(width: Responsive.width(8)),
+                      GestureDetector(
+                        onTap: (){
+                          _isGenerating ? null : _generateFromPrompt();
+                        },
                         child: Container(
+                          height: Responsive.height(30),width: Responsive.width(40),
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(Responsive.radius(14)),
-                            border: Border.all(
-                              color: isSelected ? widget.appColor : Colors.grey[300]!,
-                              width: isSelected ? 3 : 1,
-                            ),
+                              color: appcolor,
+
+                              borderRadius: BorderRadius.circular(12)
                           ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(Responsive.radius(11)),
-                            child: Stack(
-                              fit: StackFit.expand,
-                              children: [
-                                Image.network(
-                                  apiBackground.imageUrl,
-                                  fit: BoxFit.cover,
-                                  loadingBuilder: (context, child, loadingProgress) {
-                                    if (loadingProgress == null) return child;
-                                    return Container(
-                                      color: Colors.grey[200],
-                                      child: Center(
-                                        child: LoadingAnimationWidget.fourRotatingDots(
-                                            color:appcolor,size:20
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                  errorBuilder: (context, error, stackTrace) =>
-                                      Container(
-                                        color: Colors.grey[200],
-                                        child: Icon(
-                                          Icons.broken_image,
-                                          color: Colors.grey,
-                                          size: Responsive.fontSize(20),
-                                        ),
-                                      ),
-                                ),
-                                // Selection overlay
-                                if (isSelected)
-                                  Container(
-                                    color: widget.appColor.withOpacity(0.3),
-                                    child: Center(
-                                      child: Icon(
-                                        Icons.check_circle,
-                                        color: Colors.white,
-                                        size: Responsive.fontSize(24),
-                                      ),
-                                    ),
-                                  ),
-                                // Status indicator for active backgrounds
-                                if (apiBackground.status)
-                                  Positioned(
-                                    top: 4,
-                                    right: 4,
-                                    child: Container(
-                                      padding: EdgeInsets.all(2),
-                                      decoration: BoxDecoration(
-                                        color: Colors.green,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: Icon(
-                                        Icons.star,
-                                        color: Colors.white,
-                                        size: 12,
-                                      ),
-                                    ),
-                                  ),
-                              ],
+                          child: _isGenerating
+                              ? SizedBox(
+                            height: Responsive.height(16),
+                            width: Responsive.width(12),
+                            child: LoadingAnimationWidget.fourRotatingDots(
+                                color:Colors.white,size:20
+                            ),
+                          )
+                              : Center(
+                            child: Icon(Icons.send,color: white,size: 20,
                             ),
                           ),
                         ),
-                      );
-                                        },
-                                      ),
-                    ),
-              ),
-
-
-              // Bottom Container
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(30),
-                  border: Border(
-                    top: BorderSide(
-                      color: widget.appColor,
-                      width: 1.5,
-                    ),
+                      ),
+                    ],
                   ),
                 ),
-                child: SizedBox(height: 40, width: double.infinity),
+              ),
+            ),
+
+            SizedBox(height: Responsive.height(16)),
+
+            // Background Grid - Only API Backgrounds
+            Expanded(
+              child: _isLoadingBackgrounds
+                  ? Center(
+                child: LoadingAnimationWidget.fourRotatingDots(
+                    color:appcolor,size:20
+                ),
               )
-            ],
-          ),
+                  :Padding(
+                padding: EdgeInsets.all(14),
+                    child: GridView.builder(
+                                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                                        // Max width per item
+                                        mainAxisExtent: Responsive.height(135), // Fixed height (optional)
+
+                    crossAxisSpacing: Responsive.width(8),
+                    mainAxisSpacing: Responsive.height(8),
+                    childAspectRatio:1.0,
+                                      ),
+                                      itemCount: _apiBackgrounds.length,
+                                      itemBuilder: (context, index) {
+                    final apiBackground = _apiBackgrounds[index];
+                    final isSelected = widget.currentBackgroundPath == apiBackground.imageUrl ||
+                        apiBackground.status;
+
+                    return GestureDetector(
+                      onTap: () => _selectApiBackground(apiBackground,context),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(Responsive.radius(14)),
+                          border: Border.all(
+                            color: isSelected ? widget.appColor : Colors.grey[300]!,
+                            width: isSelected ? 3 : 1,
+                          ),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(Responsive.radius(11)),
+                          child: Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              CachedNetworkImage(
+                                imageUrl: apiBackground.imageUrl,
+                                fit: BoxFit.cover,
+                                placeholder: (context, url) => Container(
+                                  color: Colors.grey[200],
+                                  child: Center(
+                                    child: LoadingAnimationWidget.fourRotatingDots(
+                                      color: appcolor,
+                                      size: 20,
+                                    ),
+                                  ),
+                                ),
+                                errorWidget: (context, url, error) => Container(
+                                  color: Colors.grey[200],
+                                  child: Icon(
+                                    Icons.broken_image,
+                                    color: Colors.grey,
+                                    size: Responsive.fontSize(20),
+                                  ),
+                                ),
+                              ),
+                              // Selection overlay
+                              if (isSelected)
+                                Container(
+                                  color: appcolor.withOpacity(0.3),
+                                  child: Align(
+                                    alignment: Alignment.topLeft,
+                                    child: Icon(
+                                      Icons.check_circle,
+                                      color: Colors.white,
+                                      size: Responsive.fontSize(24),
+                                    ),
+                                  ),
+                                ),
+                              // Status indicator for active backgrounds
+
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                                      },
+                                    ),
+                  ),
+            ),
+
+
+            // Bottom Container
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(30),
+                border: Border(
+                  top: BorderSide(
+                    color: widget.appColor,
+                    width: 1.5,
+                  ),
+                ),
+              ),
+              child: SizedBox(height: 40, width: double.infinity),
+            )
+          ],
         ),
         Positioned(
           bottom: Responsive.height(10),
@@ -1280,18 +1259,19 @@ print(image?.path);
       children: [
         // Category Header
         Text(
-          categoryName,
+          " $categoryName",
           style: GoogleFonts.poppins(
             fontSize: Responsive.fontSize(16),
             fontWeight: FontWeight.bold,
             color: Colors.black87,
           ),
+
         ),
         SizedBox(height: Responsive.height(8)),
 
         // Items Grid
         SizedBox(
-          height: Responsive.height(70),
+          height: Responsive.height(60),
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             itemCount: items.length,
@@ -1312,38 +1292,56 @@ print(image?.path);
 
     return GestureDetector(
       onTap: () => _selectWardrobeItem(item.id!, category),
-      child: Card(
-        color: Colors.white,shadowColor:Colors.grey.shade400,
-        elevation: 2,
-        child: Container(
-          width: Responsive.width(80),
+      child: Container(
+        margin: EdgeInsets.only(right: 3),
+        child: Card(
+          color: Colors.white,
+          elevation: 2,
 
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(Responsive.radius(7)),
-            // border: Border.all(
-            //   color:  Colors.grey[300]!,
-            //   width: isSelected ? 2 : 1,
-            // ),
-            // boxShadow: isSelected
-            //     ? [
-            //   BoxShadow(
-            //     color: appcolor.withOpacity(0.3),
-            //     blurRadius: 8,
-            //     offset: Offset(0, 2),
-            //   ),
-            // ]
-            //     : [],
-          ),
-          child: Stack(
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(Responsive.radius(11)),
-                child: Image.network(
-                  item.imageUrl ?? '',
+            shadowColor: Colors.black.withOpacity(0.5),
+
+
+          child: Container(
+
+            width: Responsive.width(60),
+            padding: EdgeInsets.all( 5),
+
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(Responsive.radius(7)),
+              border: Border.all(
+                color:  Colors.grey[300]!,
+                width: isSelected ? 2 : 1,
+              ),
+
+
+              //     : [],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(Responsive.radius(11)),
+              child: Center(
+                child: CachedNetworkImage(
+                  imageUrl: item.imageUrl ?? '',
                   fit: BoxFit.contain,
-                  width: double.infinity,
+
                   height: 70,
-                  errorBuilder: (context, error, stackTrace) => Container(
+                  maxWidthDiskCache: 1000,
+                  maxHeightDiskCache: 1000,
+                  memCacheWidth: 300,
+                  memCacheHeight: 300,
+                  placeholder: (context, url) => Container(
+
+                    child: Center(
+                      child: SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: LoadingAnimationWidget.fourRotatingDots(
+                          color: appcolor,
+                          size: 20,
+                        ),
+                      ),
+                    ),
+                  ),
+                  errorWidget: (context, url, error) => Container(
                     color: Colors.grey[200],
                     child: Icon(
                       _getIconForCategory(category),
@@ -1351,73 +1349,9 @@ print(image?.path);
                       size: Responsive.fontSize(20),
                     ),
                   ),
-                  loadingBuilder: (context, child, loadingProgress) {
-                    if (loadingProgress == null) return child;
-                    return Container(
-                      color: Colors.grey[100],
-                      child: Center(
-                        child: SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: LoadingAnimationWidget.fourRotatingDots(
-                              color:appcolor,size:20
-                          ),
-                        ),
-                      ),
-                    );
-                  },
                 ),
-              ),
-              // Selection indicator
-              // if (isSelected)
-              //   Positioned(
-              //     top: 4,
-              //     right: 4,
-              //     child: Container(
-              //       padding: EdgeInsets.all(2),
-              //       decoration: BoxDecoration(
-              //         color: appcolor,
-              //         shape: BoxShape.circle,
-              //       ),
-              //       child: Icon(
-              //         Icons.check,
-              //         color: Colors.white,
-              //         size: 12,
-              //       ),
-              //     ),
-              //   ),
-              //
-              // // Item name overlay
-              // Positioned(
-              //   bottom: 0,
-              //   left: 0,
-              //   right: 0,
-              //   child: Container(
-              //     padding: EdgeInsets.symmetric(
-              //       horizontal: Responsive.width(4),
-              //       vertical: Responsive.height(2),
-              //     ),
-              //     decoration: BoxDecoration(
-              //       color: Colors.black.withOpacity(0.7),
-              //       borderRadius: BorderRadius.only(
-              //         bottomLeft: Radius.circular(Responsive.radius(11)),
-              //         bottomRight: Radius.circular(Responsive.radius(11)),
-              //       ),
-              //     ),
-              //     child: Text(
-              //       item.category ?? 'Item',
-              //       style: GoogleFonts.poppins(
-              //         color: Colors.white,
-              //         fontSize: Responsive.fontSize(8),
-              //         fontWeight: FontWeight.w500,
-              //       ),
-              //       textAlign: TextAlign.center,
-              //       maxLines: 1,
-              //       overflow: TextOverflow.ellipsis,
-              //     ),
-              //   ),
-              // ),
-            ],
+              )
+            ),
           ),
         ),
       ),
@@ -1555,15 +1489,15 @@ print(image?.path);
               color: Colors.white,
               borderRadius: BorderRadius.circular(Responsive.radius(10)),
             ),
-            child: TabBar(
+            child:TabBar(
               controller: _tabController,
               indicator: GradientHalfScreenTabIndicator(
                 color: appcolor,
                 tabController: _tabController,
               ),
-              // ✅ Custom indicator
               labelColor: Colors.black,
-              labelPadding: EdgeInsets.symmetric(horizontal: Responsive.width(40)),
+              // Remove fixed symmetric padding and handle spacing in the tabs themselves
+              labelPadding: EdgeInsets.zero, // Reset to zero since we'll handle it in tabs
               unselectedLabelColor: Colors.black.withOpacity(0.5),
               dividerColor: Colors.transparent,
               labelStyle: GoogleFonts.poppins(
@@ -1575,8 +1509,14 @@ print(image?.path);
                 fontWeight: FontWeight.normal,
               ),
               tabs: [
-                Tab(text: localizations.backgrounds),
-                Tab(text: localizations.wardrobe),
+                Padding(
+                  padding: EdgeInsets.only(right: Responsive.width(60)), // Right space for first tab
+                  child: Tab(text: localizations.backgrounds),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(left: Responsive.width(5)), // Left space for second tab
+                  child: Tab(text: localizations.wardrobe),
+                ),
               ],
             ),
           ),

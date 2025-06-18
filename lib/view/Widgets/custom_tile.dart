@@ -20,6 +20,7 @@ class CustomListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
+      contentPadding: EdgeInsets.symmetric(horizontal: 1.0),
       leading: image == "" || image == null
           ? Icon(icon, color: appcolor)
           : Image.asset(
