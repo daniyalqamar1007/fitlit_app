@@ -29,9 +29,9 @@ class ProfileController {
     errorNotifier.value = null;
 
     try {
-
       final profile = await _profileService.getUserProfile();
-print(profile);
+      print('Profile data: $profile');
+
       Future.microtask(() {
         profileNotifier.value = profile;
       });
@@ -45,7 +45,6 @@ print(profile);
       });
     }
   }
-
   // Update user profile
   Future<bool> updateUserProfile(
       UserProfileModel profile, File? imageFile) async {
