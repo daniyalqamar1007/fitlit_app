@@ -250,6 +250,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         email: _emailController.text,
         gender: _selectedGenderNotifier.value ?? '',
         profileImage: _profileController.profileNotifier.value!.profileImage,
+        followers:_profileController.profileNotifier.value!.followers,
+        following: _profileController.profileNotifier.value!.following
+
       );
 
       // Use the PNG file that was created in _pickImage()

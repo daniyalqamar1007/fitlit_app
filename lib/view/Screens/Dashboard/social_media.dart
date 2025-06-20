@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fitlip_app/controllers/profile_controller.dart';
 import 'package:fitlip_app/routes/App_routes.dart';
@@ -10,12 +12,15 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../../../controllers/outfit_controller.dart';
+import '../../../controllers/user_suggestion_controller.dart';
 import '../../../model/outfit_model.dart';
 import '../../../model/profile_model.dart';
+import '../../../model/user_suggestion_model.dart';
 import '../../Utils/Colors.dart';
 import '../../Utils/globle_variable/globle.dart';
 import '../../Utils/responsivness.dart';
 import '../../Widgets/Custom_buttons.dart';
+import '../../Widgets/suggestion_user_card.dart';
 
 class SocialMediaProfile extends StatefulWidget {
   const SocialMediaProfile({Key? key}) : super(key: key);
@@ -26,6 +31,8 @@ class SocialMediaProfile extends StatefulWidget {
 
 class _SocialMediaProfileState extends State<SocialMediaProfile> {
   bool isLiked = false;
+  final UserSuggestionController _suggestionController = UserSuggestionController();
+
   bool status = true;
   int likeCount = 42;
   final OutfitController _outfitController = OutfitController();
@@ -56,15 +63,18 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
   @override
   void initState() {
     super.initState();
+    _suggestionController.loadUsers(token: token!);
     _loadAvatarDates();
     _outfitController.statusNotifier.addListener(_updateLoadingStatus);
     _fetchOutfitForSelectedDate(); // Initial fetch
+
   }
 
   @override
   void dispose() {
     _outfitController.statusNotifier.removeListener(_updateLoadingStatus);
     _outfitController.dispose();
+    _suggestionController.dispose();
     super.dispose();
   }
   Future<void> _loadAvatarDates() async {
@@ -273,6 +283,8 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
                         );
                       },
                     ),
+                    SizedBox(height: 16),
+
                   ],
                 ),
               );
@@ -411,111 +423,134 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
       ),
     );
   }
+  Future<void> show()async{
+    log("there is no something to day");
+    return;
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Header
-            Padding(
-              padding: Responsive.allPadding(12),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    AppLocalizations.of(context)!.socialMediaPage,
-                    style: GoogleFonts.poppins(
-                      fontSize: Responsive.fontSize(20),
-                      fontWeight: FontWeight.w600,
-                      color: appcolor,
+      body: SingleChildScrollView(
+        child: SafeArea(
+          child: Column(
+            children: [
+              // Header
+              Padding(
+                padding: Responsive.allPadding(12),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      AppLocalizations.of(context)!.socialMediaPage,
+                      style: GoogleFonts.poppins(
+                        fontSize: Responsive.fontSize(20),
+                        fontWeight: FontWeight.w600,
+                        color: appcolor,
+                      ),
                     ),
-                  ),
-                ],
+
+          Container(
+            padding: EdgeInsets.symmetric(
+                horizontal: Responsive.width(14), vertical: Responsive.height(8)),
+            height: Responsive.height(30),
+            decoration: BoxDecoration(
+              color: appcolor.withOpacity(0.7),
+              borderRadius: BorderRadius.circular(Responsive.radius(30)),
+            ),
+            child: Text(
+              "Add Friend",
+              style: GoogleFonts.poppins(
+                fontSize: Responsive.fontSize(12),
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
               ),
             ),
+          ),
 
-            // Profile Info
-            ValueListenableBuilder<UserProfileModel?>(
-              valueListenable: _profileController.profileNotifier,
-              builder: (context, userProfile, _) {
-                return Padding(
-                  padding: Responsive.allPadding(16),
-                  child: Row(
-                    children: [GestureDetector(
-                      onTap: (){
-                        Navigator.pushNamed(context,AppRoutes.profile);
-                      },
-                        child: Container(
-                          width: Responsive.width(50),
-                          height: Responsive.height(50),
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: const Color(0xFFB8860B),
-                              width: 1,
+
+                  ],
+                ),
+              ),
+        
+              // Profile Info
+              ValueListenableBuilder<UserProfileModel?>(
+                valueListenable: _profileController.profileNotifier,
+                builder: (context, userProfile, _) {
+                  return Padding(
+                    padding: Responsive.allPadding(16),
+                    child: Row(
+                      children: [GestureDetector(
+                        onTap: (){
+                          Navigator.pushNamed(context,AppRoutes.profile);
+                        },
+                          child: Container(
+                            width: Responsive.width(50),
+                            height: Responsive.height(50),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: const Color(0xFFB8860B),
+                                width: 1,
+                              ),
                             ),
-                          ),
-                          child: ClipOval(
-                            child: userProfile?.profileImage.isNotEmpty == true
-                                ? Padding(
-                                    padding: EdgeInsets.all(7),
-                                    child: CachedNetworkImage(
-                                      imageUrl: userProfile!.profileImage,
-                                      fit: BoxFit.contain,
-                                      scale: 2,
-                                      alignment: Alignment.topCenter,
-                                      placeholderFadeInDuration:
-                                          Duration(milliseconds: 300),
-                                      placeholder: (context, url) =>
-                                          LoadingAnimationWidget.fourRotatingDots(        color:appcolor,size:20),
-                                      errorWidget: (context, url, error) =>
-                                          Image.asset(
-                                        'assets/Images/circle_image.png',
+                            child: ClipOval(
+                              child: userProfile?.profileImage.isNotEmpty == true
+                                  ? Padding(
+                                      padding: EdgeInsets.all(7),
+                                      child: CachedNetworkImage(
+                                        imageUrl: userProfile!.profileImage,
                                         fit: BoxFit.contain,
+                                        scale: 2,
+                                        alignment: Alignment.topCenter,
+                                        placeholderFadeInDuration:
+                                            Duration(milliseconds: 300),
+                                        placeholder: (context, url) =>
+                                            LoadingAnimationWidget.fourRotatingDots(        color:appcolor,size:20),
+                                        errorWidget: (context, url, error) =>
+                                            Image.asset(
+                                          'assets/Images/circle_image.png',
+                                          fit: BoxFit.contain,
+                                        ),
                                       ),
+                                    )
+                                  : Image.asset(
+                                      'assets/Images/circle_image.png',
+                                      fit: BoxFit.cover,
                                     ),
-                                  )
-                                : Image.asset(
-                                    'assets/Images/circle_image.png',
-                                    fit: BoxFit.cover,
-                                  ),
+                            ),
                           ),
                         ),
-                      ),
-                      SizedBox(width: Responsive.width(8)),
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '${userProfile?.name ?? AppLocalizations.of(context)!.loading}',
-                            style: GoogleFonts.poppins(
-                              fontSize: Responsive.fontSize(24),
-                              fontWeight: FontWeight.bold,
+                        SizedBox(width: Responsive.width(8)),
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '${userProfile?.name ?? AppLocalizations.of(context)!.loading}',
+                              style: GoogleFonts.poppins(
+                                fontSize: Responsive.fontSize(24),
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                          ),
-                          Text(
-                            userProfile?.email ?? '',
-                            style: GoogleFonts.poppins(
-                              color: Colors.grey,
-                              fontSize: Responsive.fontSize(14),
+                            Text(
+                              userProfile?.email ?? '',
+                              style: GoogleFonts.poppins(
+                                color: Colors.grey,
+                                fontSize: Responsive.fontSize(14),
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: Responsive.height(8)),
-                    ],
-                  ),
-                );
-              },
-            ),
-
-            // Post Content
-            Expanded(
-              flex: 1,
-              child: SingleChildScrollView(
+                          ],
+                        ),
+                        SizedBox(height: Responsive.height(8)),
+                      ],
+                    ),
+                  );
+                },
+              ),
+        
+              // Post Content
+              SingleChildScrollView(
                 child: Padding(
                   padding: Responsive.horizontalPadding(12),
                   child: Column(
@@ -697,15 +732,90 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
                           ],
                         ),
                       ),
-                      SizedBox(height: Responsive.height(80)),
+
                     ],
                   ),
                 ),
               ),
-            ),
-          ],
+
+              buildSuggestionsSection(),
+        
+            ],
+          ),
         ),
       ),
+    );
+  }
+  Widget buildSuggestionsSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Suggested for you',
+                style: GoogleFonts.poppins(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: appcolor,
+                ),
+              ),
+              Text(
+                "See all",
+                style: GoogleFonts.poppins(
+                  color: appcolor,
+                  fontWeight: FontWeight.w400,
+                  fontSize: 12,
+                ),
+              )
+            ],
+          ),
+        ),
+        SizedBox(
+          height: Responsive.height(200),
+          child: ValueListenableBuilder<List<UserSuggestionModel>>(
+            valueListenable: _suggestionController.usersNotifier,
+            builder: (context, users, _) {
+              // Filter out the current user by comparing emails
+              // Replace 'userProfile.email' with your actual current user email variable
+              final currentEmail = _profileController.profileNotifier.value!.email; // Adjust this to your actual current user email
+              final filteredUsers = users.where((user) {
+                return user.email != null && user.email != currentEmail;
+              }).toList();
+
+
+              return ListView.builder(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                itemCount: filteredUsers.length,
+                itemBuilder: (context, index) {
+                  final user = filteredUsers[index];
+                  return ValueListenableBuilder<Set<int>>(
+                    valueListenable: _suggestionController.followLoadingNotifier,
+                    builder: (context, loadingSet, _) {
+                      return UserSuggestionCard(
+                        user: user,
+                        onFollowTap: () => onFollowUser(user),
+                        isFollowLoading: loadingSet.contains(user.userId),
+                      );
+                    },
+                  );
+                },
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  void onFollowUser(UserSuggestionModel user) {
+    _suggestionController.toggleFollowUser(
+      token: token!,
+      userId: user.userId!,
     );
   }
 }

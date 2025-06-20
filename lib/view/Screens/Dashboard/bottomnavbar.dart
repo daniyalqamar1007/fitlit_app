@@ -21,6 +21,9 @@ class _HomeScreenState extends State<HomeScreen> {
     Center(
       child: Text("Branding"),
     ),
+    Center(
+      child: Text("Notification"),
+    ),
     SocialMediaProfile(),
   ];
 
@@ -52,6 +55,12 @@ class _HomeScreenState extends State<HomeScreen> {
             width: iconSize,
             color: Colors.white,
             height: iconSize,
+          ),
+          Image.asset(
+            'assets/Icons/notification.png',
+            width: iconSize,
+            height: iconSize,
+            color: Colors.white,
           ),
           Image.asset(
             'assets/Icons/wallet.png',
