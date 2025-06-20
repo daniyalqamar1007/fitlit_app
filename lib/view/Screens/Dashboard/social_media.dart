@@ -39,6 +39,7 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
   final ProfileController _profileController = ProfileController();
   DateTime selectedDate = DateTime.now();
   String? backgroundurl;
+  String? stackimage;
   bool isLoading = false;
   String? outfitImageUrl; // To store the fetched outfit image URL
   final List<Comment> dummyComments = [
@@ -95,6 +96,7 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
         isLoading = true;
         outfitImageUrl = null;
         backgroundurl=null;
+        stackimage=null;
         // Clear previous image while loading
       });
       print(token);
@@ -111,6 +113,7 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
 
         outfitImageUrl = response?.avatar_url??"";
         backgroundurl=response?.backgroundimage??"";
+        stackimage=response?.stackimage??"";
         isLoading = false;
       });
 
@@ -567,7 +570,7 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
                           children: [
                             Stack(
                               children: [
-                                Positioned.fill(
+                                Container(
                                   child: ClipRRect(
                                     borderRadius: status
                                         ? BorderRadius.only(
@@ -577,9 +580,9 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
                                         : BorderRadius.circular(12),
                                     child: Opacity(
                                       opacity: 0.7,
-                                      child: backgroundurl != null && backgroundurl!.isNotEmpty
+                                      child: stackimage != null && stackimage!.isNotEmpty
                                           ? CachedNetworkImage(
-                                        imageUrl: backgroundurl!,
+                                        imageUrl: stackimage!,
                                         fit: BoxFit.cover,
                                         placeholder: (context, url) => Image.asset(
                                           'assets/Images/new.jpg',
@@ -597,39 +600,69 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
                                     ),
                                   ),
                                 ),
-                                Container(
-                                  margin: EdgeInsets.only(top: Responsive.height(15)),
-                                  height: Responsive.height(300),
-                                  width: double.infinity,
-                                  child: isLoading
-                                      ? Center(
-                                    child: LoadingAnimationWidget.fourRotatingDots(
-                                        color: appcolor, size: 20),
-                                  )
-                                      : outfitImageUrl != null && outfitImageUrl!.isNotEmpty
-                                      ? ClipRRect(
-                                    borderRadius: BorderRadius.vertical(
-                                      top: Radius.circular(Responsive.radius(12)),
-                                    ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: CachedNetworkImage(
-                                        imageUrl: outfitImageUrl!,
-                                        scale: 4,
-                                        width: double.infinity,
-                                        fit: BoxFit.contain,
-                                        placeholder: (context, url) => Center(
-                                          child: LoadingAnimationWidget.fourRotatingDots(
-                                              color: appcolor, size: 20),
-                                        ),
-                                        errorWidget: (context, error, stackTrace) {
-                                          return _buildNoOutfitAvailable();
-                                        },
-                                      ),
-                                    ),
-                                  )
-                                      : _buildNoOutfitAvailable(),
-                                ),
+                                // Positioned.fill(
+                                //   child: ClipRRect(
+                                //     borderRadius: status
+                                //         ? BorderRadius.only(
+                                //       topLeft: Radius.circular(Responsive.radius(12)),
+                                //       topRight: Radius.circular(Responsive.radius(12)),
+                                //     )
+                                //         : BorderRadius.circular(12),
+                                //     child: Opacity(
+                                //       opacity: 0.7,
+                                //       child: backgroundurl != null && backgroundurl!.isNotEmpty
+                                //           ? CachedNetworkImage(
+                                //         imageUrl: backgroundurl!,
+                                //         fit: BoxFit.cover,
+                                //         placeholder: (context, url) => Image.asset(
+                                //           'assets/Images/new.jpg',
+                                //           fit: BoxFit.cover,
+                                //         ),
+                                //         errorWidget: (context, error, stackTrace) => Image.asset(
+                                //           'assets/Images/new.jpg',
+                                //           fit: BoxFit.cover,
+                                //         ),
+                                //       )
+                                //           : Image.asset(
+                                //         'assets/Images/new.jpg',
+                                //         fit: BoxFit.cover,
+                                //       ),
+                                //     ),
+                                //   ),
+                                // ),
+                                // Container(
+                                //   margin: EdgeInsets.only(top: Responsive.height(15)),
+                                //   height: Responsive.height(300),
+                                //   width: double.infinity,
+                                //   child: isLoading
+                                //       ? Center(
+                                //     child: LoadingAnimationWidget.fourRotatingDots(
+                                //         color: appcolor, size: 20),
+                                //   )
+                                //       : outfitImageUrl != null && outfitImageUrl!.isNotEmpty
+                                //       ? ClipRRect(
+                                //     borderRadius: BorderRadius.vertical(
+                                //       top: Radius.circular(Responsive.radius(12)),
+                                //     ),
+                                //     child: Padding(
+                                //       padding: const EdgeInsets.all(8.0),
+                                //       child: CachedNetworkImage(
+                                //         imageUrl: outfitImageUrl!,
+                                //         scale: 4,
+                                //         width: double.infinity,
+                                //         fit: BoxFit.contain,
+                                //         placeholder: (context, url) => Center(
+                                //           child: LoadingAnimationWidget.fourRotatingDots(
+                                //               color: appcolor, size: 20),
+                                //         ),
+                                //         errorWidget: (context, error, stackTrace) {
+                                //           return _buildNoOutfitAvailable();
+                                //         },
+                                //       ),
+                                //     ),
+                                //   )
+                                //       : _buildNoOutfitAvailable(),
+                                // ),
                                 Positioned(
                                   top: Responsive.height(16),
                                   left: Responsive.width(16),

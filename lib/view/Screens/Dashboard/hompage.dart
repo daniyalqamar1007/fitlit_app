@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:ui';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fitlip_app/routes/App_routes.dart';
@@ -9,7 +10,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image/image.dart' as img;
 import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:image_picker/image_picker.dart';
@@ -757,6 +760,72 @@ class _WardrobeScreenState extends State<WardrobeScreen>
       });
     }
   }
+  Future<Uint8List> _loadImageBytes(String pathOrUrl, {bool isNetwork = false}) async {
+    if (isNetwork) {
+      final response = await http.get(Uri.parse(pathOrUrl));
+      if (response.statusCode == 200) {
+        return response.bodyBytes;
+      } else {
+        throw Exception('Failed to load image from network: $pathOrUrl');
+      }
+    } else {
+      return await rootBundle.load(pathOrUrl).then((bd) => bd.buffer.asUint8List());
+    }
+  }
+
+// Main logic to merge two images and share them
+  Future<File> mergeAndSaveStackedImage({
+    required String backgroundUrl,
+    required String avatarUrl,
+  }) async {
+    try {
+      // Load image bytes
+      final bgBytes = await _loadImageBytes(backgroundUrl, isNetwork: true);
+      final avatarBytes = await _loadImageBytes(avatarUrl, isNetwork: true);
+
+      // Decode both images
+      final background = img.decodeImage(bgBytes);
+      final avatar = img.decodeImage(avatarBytes);
+
+      if (background == null || avatar == null) {
+        throw Exception("One of the images could not be decoded.");
+      }
+
+      // Resize avatar (optional)
+      final avatarResized = img.copyResize(
+        avatar,
+        width: (background.width * 0.6).toInt(),
+      );
+
+      // Copy background
+      img.Image merged = img.copyResize(
+        background,
+        width: background.width,
+        height: background.height,
+      );
+
+      // Center position
+      final dx = ((background.width - avatarResized.width) / 2).toInt();
+      final dy = ((background.height - avatarResized.height) / 2).toInt();
+
+      // Composite avatar onto background
+      img.compositeImage(merged, avatarResized, dstX: dx, dstY: dy);
+
+      // Encode PNG
+      final combinedBytes = img.encodePng(merged);
+
+      // Save as stackimage.png
+      final dir = await getApplicationDocumentsDirectory();
+      final file = File('${dir.path}/stackimage.png');
+      await file.writeAsBytes(combinedBytes);
+
+      return file;
+    } catch (e) {
+      print('❌ Error: $e');
+      rethrow;
+    }
+  }
+
   Future<void> _saveOutfit(BuildContext context) async {
     // Show confirmation dialog
     bool hasInternet = await checkInternetAndShowDialog(context);
@@ -771,6 +840,10 @@ class _WardrobeScreenState extends State<WardrobeScreen>
     });
 
     try {
+      File? mergedFile= await mergeAndSaveStackedImage(
+        backgroundUrl: currenturl!,
+        avatarUrl: staticurl!,
+      );
       // Get the current avatar URL being displayed
       // final currentAvatarUrl =
       // _getCurrentAvatarImage(_profileController.profileNotifier.value);
@@ -814,6 +887,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
         message: outfitMessage,
         // accessoryId: selectedAccessoryId ?? "",
         avatarurl: staticurl!,
+        file:mergedFile,
         date: _selectedDay ?? _focusedDay,
       );
 
