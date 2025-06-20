@@ -1,4 +1,6 @@
 //outfit_controller.dart
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import '../model/outfit_model.dart';
 import '../services/outfit_service.dart';
@@ -21,6 +23,8 @@ class OutfitController {
   final ValueNotifier<String?> avatarUrlNotifier = ValueNotifier(null);
   final ValueNotifier<String?> backgroundImageUrlNotifier = ValueNotifier(null);
   final ValueNotifier<OutfitModel?> outfitDataNotifier = ValueNotifier(null);
+  final ValueNotifier<String?> stackimage = ValueNotifier(null);
+
   // New notifier for avatar dates
   final ValueNotifier<List<AvatarData>> avatarDatesNotifier =
   ValueNotifier<List<AvatarData>>([]);
@@ -33,6 +37,7 @@ class OutfitController {
     String? shoeId,
     String? backgroundimageurl,
     String? accessoryId,
+    File? file,
     required String avatarurl,
     required DateTime date,
     String? message, // Optional message parameter
@@ -48,6 +53,7 @@ class OutfitController {
         accessoryId: accessoryId,
         backgroundimageurl:backgroundimageurl,
         date: date,
+        file:file,
         avatarurl: avatarurl,
         message: message, // Pass message to service
       );
@@ -99,6 +105,7 @@ class OutfitController {
         avatarUrlNotifier.value = response.avatar_url;
         backgroundImageUrlNotifier.value = response.backgroundimage;
         outfitDataNotifier.value = response.data;
+        stackimage.value=response.stackimage;
         errorNotifier.value = null;
 
         return response;
