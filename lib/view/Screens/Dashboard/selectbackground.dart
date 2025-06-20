@@ -1385,7 +1385,7 @@ print(image?.path);
           ),
           SizedBox(height: Responsive.height(16)),
           ElevatedButton(
-            onPressed:(){ _pickImageFromGallery(context);},
+            onPressed:(){ _showAnimatedCategoryDialog(context);},
             style: ElevatedButton.styleFrom(
               backgroundColor: appcolor,
               shape: RoundedRectangleBorder(
