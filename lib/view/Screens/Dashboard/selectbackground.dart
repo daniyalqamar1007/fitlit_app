@@ -1461,6 +1461,7 @@ print(image?.path);
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
+
     return Container(
       height: Responsive.height(600),
       decoration: BoxDecoration(
@@ -1471,10 +1472,8 @@ print(image?.path);
       ),
       child: Column(
         children: [
-          SizedBox(height: Responsive.height(8),),
           // Handle bar
           Container(
-
             width: Responsive.width(60),
             height: Responsive.height(3),
             decoration: BoxDecoration(
@@ -1482,52 +1481,44 @@ print(image?.path);
               borderRadius: BorderRadius.circular(Responsive.radius(10)),
             ),
           ),
+          SizedBox(height: Responsive.height(8)),
 
+          // Tab Bar
           Container(
-
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(Responsive.radius(10)),
-            ),
-            child:TabBar(
+            padding: EdgeInsets.symmetric(horizontal: Responsive.width(16)),
+            child: TabBar(
               controller: _tabController,
-              indicator: GradientHalfScreenTabIndicator(
+              indicator: CenteredTabIndicator(
                 color: appcolor,
-                tabController: _tabController,
+                indicatorHeight: 3,
+                indicatorWidth: 120,
+                radius: 2,
               ),
-              labelColor: Colors.black,
-              // Remove fixed symmetric padding and handle spacing in the tabs themselves
-              labelPadding: EdgeInsets.zero, // Reset to zero since we'll handle it in tabs
-              unselectedLabelColor: Colors.black.withOpacity(0.5),
+              indicatorWeight: 0, // Removes default indicator
+              indicatorSize: TabBarIndicatorSize.tab,
+
               dividerColor: Colors.transparent,
+              labelColor: Colors.black,
+              unselectedLabelColor: Colors.black.withOpacity(0.5),
+              // labelPadding: const EdgeInsets.only(bottom: 8),
               labelStyle: GoogleFonts.poppins(
-                fontSize: Responsive.fontSize(14),
+                fontSize: 14,
                 fontWeight: FontWeight.w600,
               ),
               unselectedLabelStyle: GoogleFonts.poppins(
-                fontSize: Responsive.fontSize(14),
+                fontSize: 14,
                 fontWeight: FontWeight.normal,
               ),
               tabs: [
-                Padding(
-                  padding: EdgeInsets.only(right: Responsive.width(60)), // Right space for first tab
-                  child: Tab(text: localizations.backgrounds),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(left: Responsive.width(5)), // Left space for second tab
-                  child: Tab(text: localizations.wardrobe),
-                ),
+                Tab(text: localizations.backgrounds),
+                Tab(text: localizations.wardrobe),
               ],
             ),
           ),
 
-
-          SizedBox(height: Responsive.height(11)),
-
-          // Tab Views
+          // Tab content
           Expanded(
             child: TabBarView(
-
               controller: _tabController,
               children: [
                 _buildBackgroundTab(context),

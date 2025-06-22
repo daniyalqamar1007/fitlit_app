@@ -1,64 +1,86 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
-class GradientHalfScreenTabIndicator extends Decoration {
+class CenteredTabIndicator extends Decoration {
   final Color color;
-  final TabController tabController;
+  final double indicatorHeight;
+  final double indicatorWidth;
+  final bool isGradient;
+  final double radius;
 
-  GradientHalfScreenTabIndicator({
+  const CenteredTabIndicator({
     required this.color,
-    required this.tabController,
+    this.indicatorHeight = 3.0,
+    this.indicatorWidth = 120,
+    this.isGradient = true,
+    this.radius = 2.0,
   });
 
   @override
   BoxPainter createBoxPainter([VoidCallback? onChanged]) {
-    return _GradientHalfTabIndicatorPainter(
+    return _CenteredTabIndicatorPainter(
       color: color,
-      tabController: tabController,
+      indicatorHeight: indicatorHeight,
+      indicatorWidth: indicatorWidth,
+      isGradient: isGradient,
+      radius: radius,
     );
   }
 }
 
-class _GradientHalfTabIndicatorPainter extends BoxPainter {
+class _CenteredTabIndicatorPainter extends BoxPainter {
   final Color color;
-  final TabController tabController;
+  final double indicatorHeight;
+  final double indicatorWidth;
+  final bool isGradient;
+  final double radius;
 
-  _GradientHalfTabIndicatorPainter({
+  _CenteredTabIndicatorPainter({
     required this.color,
-    required this.tabController,
+    required this.indicatorHeight,
+    required this.indicatorWidth,
+    required this.isGradient,
+    required this.radius,
   });
+
   @override
   void paint(Canvas canvas, Offset offset, ImageConfiguration configuration) {
-    final double screenWidth = configuration.size!.width; // Total 2 tabs
-    final bool isLeft = tabController.index == 0;
+    final tabWidth = configuration.size!.width;
+    final leftOffset = (tabWidth - indicatorWidth) / 2;
 
-    final double indicatorWidth = screenWidth+60;
-    final double indicatorHeight = 3;
-
-    final double dx = isLeft ? 0 : indicatorWidth;
-
-    final Rect rect = Rect.fromLTWH(
-      dx,
+    final rect = Rect.fromLTWH(
+      offset.dx + leftOffset,
       offset.dy + configuration.size!.height - indicatorHeight,
-      isLeft?indicatorWidth-20:indicatorWidth+90,
+      indicatorWidth,
       indicatorHeight,
     );
 
-    final gradient = LinearGradient(
-      begin: isLeft ? Alignment.centerLeft : Alignment.centerRight,
-      end: isLeft ? Alignment.centerRight : Alignment.centerLeft,
-      colors: [
-        color,
-        color.withOpacity(0.0),
-      ],
-    );
+    if (isGradient) {
+      final gradient = LinearGradient(
+        colors: [
+          color.withOpacity(0.8),
+          color,
+          color.withOpacity(0.8),
+        ],
+        stops: [0.0, 0.5, 1.0],
+      );
 
-    final paint = Paint()
-      ..shader = gradient.createShader(rect)
-      ..style = PaintingStyle.fill;
+      final paint = Paint()
+        ..shader = gradient.createShader(rect)
+        ..style = PaintingStyle.fill;
 
-    canvas.drawRect(rect, paint);
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(rect, Radius.circular(radius)),
+        paint,
+      );
+    } else {
+      final paint = Paint()
+        ..color = color
+        ..style = PaintingStyle.fill;
+
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(rect, Radius.circular(radius)),
+        paint,
+      );
+    }
   }
-
 }
