@@ -1491,21 +1491,25 @@ print(image?.path);
             ),
             child:TabBar(
               controller: _tabController,
-              indicator: GradientHalfScreenTabIndicator(
+              indicator: CenteredTabIndicator(
                 color: appcolor,
-                tabController: _tabController,
+                indicatorHeight: 3,
+                indicatorWidth: 120,
+                radius: 2,
               ),
-              labelColor: Colors.black,
-              // Remove fixed symmetric padding and handle spacing in the tabs themselves
-              labelPadding: EdgeInsets.zero, // Reset to zero since we'll handle it in tabs
-              unselectedLabelColor: Colors.black.withOpacity(0.5),
+              indicatorWeight: 0, // Removes default indicator
+              indicatorSize: TabBarIndicatorSize.tab,
+
               dividerColor: Colors.transparent,
+              labelColor: Colors.black,
+              unselectedLabelColor: Colors.black.withOpacity(0.5),
+              // labelPadding: const EdgeInsets.only(bottom: 8),
               labelStyle: GoogleFonts.poppins(
-                fontSize: Responsive.fontSize(14),
+                fontSize: 14,
                 fontWeight: FontWeight.w600,
               ),
               unselectedLabelStyle: GoogleFonts.poppins(
-                fontSize: Responsive.fontSize(14),
+                fontSize: 14,
                 fontWeight: FontWeight.normal,
               ),
               tabs: [

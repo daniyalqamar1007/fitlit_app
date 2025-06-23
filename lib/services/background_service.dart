@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 import '../model/background_image_model.dart';
 
 class BackgroundImageService {
-  static const String baseUrl = 'https://nnl056zh-3099.inc1.devtunnels.ms';
+  static const String baseUrl = 'https://wittywardrobe.store/aims-service5';
 
   // Timeout duration for requests
   static const Duration timeoutDuration = Duration(seconds: 120);

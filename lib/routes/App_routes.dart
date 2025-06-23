@@ -11,6 +11,7 @@ import 'package:flutter/cupertino.dart';
 import '../controllers/auth_controller.dart';
 import '../view/Screens/Auth/signup_screen.dart';
 import '../view/Screens/Dashboard/social_media.dart';
+import '../view/Screens/Dashboard/social_media/add_new_friend.dart';
 import '../view/Screens/Onboarding_screen/Onboarding_screen.dart';
 import '../view/Screens/Profile/setting/privacypolicy.dart';
 import '../view/Screens/Splash_screen/Splash_screen.dart';
@@ -29,6 +30,7 @@ class AppRoutes {
   static const String privacypolicy = '/privacypolicy';
   static const String editprofile = '/edit';
   static const String language = '/language';
+  static const String addfriend = '/addfriend';
 
   static const String contact = '/contact';
   static final Map<String, WidgetBuilder> routes = {
@@ -44,6 +46,7 @@ class AppRoutes {
     language: (context) => LanguageScreen(),
     privacypolicy: (context) => PrivacyPolicyScreen(),
     editprofile: (context) => EditProfileScreen(),
+    addfriend: (context) => AddFriendsPage(),
     newpassword: (context) => NewPasswordScreen(
           email: "dhsgfjh@",
 
