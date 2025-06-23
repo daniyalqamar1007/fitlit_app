@@ -1514,7 +1514,7 @@ print(image?.path);
               ),
               tabs: [
                 Padding(
-                  padding: EdgeInsets.only(right: Responsive.width(60)), // Right space for first tab
+                  padding: EdgeInsets.only(right: Responsive.width(5)), // Right space for first tab
                   child: Tab(text: localizations.backgrounds),
                 ),
                 Padding(
