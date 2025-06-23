@@ -456,7 +456,7 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
 
           GestureDetector(
             onTap: (){
-              Navigator.pushNamed(context, '/addfriend');
+              // Navigator.pushNamed(context, '/addfriend');
             },
             child: Container(
               padding: EdgeInsets.symmetric(
@@ -804,7 +804,7 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
                 ),
                 GestureDetector(
                   onTap: (){
-                    Navigator.pushNamed(context, AppRoutes.addfriend);
+                    // Navigator.pushNamed(context, AppRoutes.addfriend);
                   },
                   child: Text(
                     "See all",
