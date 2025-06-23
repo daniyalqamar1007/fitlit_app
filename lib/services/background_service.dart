@@ -3,9 +3,10 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import '../model/background_image_model.dart';
+import '../view/Utils/globle_variable/globle.dart';
 
 class BackgroundImageService {
-  static const String baseUrl = 'https://nnl056zh-3099.inc1.devtunnels.ms';
+
 
   // Timeout duration for requests
   static const Duration timeoutDuration = Duration(seconds: 120);
