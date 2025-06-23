@@ -1328,17 +1328,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
 
     // Priority 2: Check API backgrounds
     if (_apiBackgrounds.isEmpty) {
-      return Container(
-        color: Colors.grey[200],
-        width: double.infinity,
-        height: double.infinity,
-        child: Center(
-          child: Text(
-            'No backgrounds available',
-            style: TextStyle(color: Colors.grey),
-          ),
-        ),
-      );
+      return Image.asset("assets/Images/new.jpg");
     }
 
     // Priority 3: Find selected background

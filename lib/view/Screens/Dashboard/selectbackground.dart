@@ -1385,7 +1385,7 @@ print(image?.path);
           ),
           SizedBox(height: Responsive.height(16)),
           ElevatedButton(
-            onPressed:(){ _pickImageFromGallery(context);},
+            onPressed:(){ _showAnimatedCategoryDialog(context);},
             style: ElevatedButton.styleFrom(
               backgroundColor: appcolor,
               shape: RoundedRectangleBorder(
@@ -1461,6 +1461,7 @@ print(image?.path);
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
+
     return Container(
       height: Responsive.height(600),
       decoration: BoxDecoration(
@@ -1471,10 +1472,8 @@ print(image?.path);
       ),
       child: Column(
         children: [
-          SizedBox(height: Responsive.height(8),),
           // Handle bar
           Container(
-
             width: Responsive.width(60),
             height: Responsive.height(3),
             decoration: BoxDecoration(
@@ -1482,14 +1481,12 @@ print(image?.path);
               borderRadius: BorderRadius.circular(Responsive.radius(10)),
             ),
           ),
+          SizedBox(height: Responsive.height(8)),
 
+          // Tab Bar
           Container(
-
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(Responsive.radius(10)),
-            ),
-            child:TabBar(
+            padding: EdgeInsets.symmetric(horizontal: Responsive.width(16)),
+            child: TabBar(
               controller: _tabController,
               indicator: CenteredTabIndicator(
                 color: appcolor,
@@ -1513,6 +1510,7 @@ print(image?.path);
                 fontWeight: FontWeight.normal,
               ),
               tabs: [
+
                 Padding(
                   padding: EdgeInsets.only(right: Responsive.width(5)), // Right space for first tab
                   child: Tab(text: localizations.backgrounds),
@@ -1521,17 +1519,17 @@ print(image?.path);
                   padding: EdgeInsets.only(left: Responsive.width(5)), // Left space for second tab
                   child: Tab(text: localizations.wardrobe),
                 ),
+
+                Tab(text: localizations.backgrounds),
+                Tab(text: localizations.wardrobe),
+
               ],
             ),
           ),
 
-
-          SizedBox(height: Responsive.height(11)),
-
-          // Tab Views
+          // Tab content
           Expanded(
             child: TabBarView(
-
               controller: _tabController,
               children: [
                 _buildBackgroundTab(context),
