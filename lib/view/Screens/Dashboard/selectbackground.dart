@@ -1510,8 +1510,19 @@ print(image?.path);
                 fontWeight: FontWeight.normal,
               ),
               tabs: [
+
+                Padding(
+                  padding: EdgeInsets.only(right: Responsive.width(5)), // Right space for first tab
+                  child: Tab(text: localizations.backgrounds),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(left: Responsive.width(5)), // Left space for second tab
+                  child: Tab(text: localizations.wardrobe),
+                ),
+
                 Tab(text: localizations.backgrounds),
                 Tab(text: localizations.wardrobe),
+
               ],
             ),
           ),

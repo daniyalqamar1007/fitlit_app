@@ -7,6 +7,8 @@ import '../view/Utils/globle_variable/globle.dart';
 
 class BackgroundImageService {
 
+  static const String baseUrl = 'https://wittywardrobe.store/aims-service5';
+
 
   // Timeout duration for requests
   static const Duration timeoutDuration = Duration(seconds: 120);

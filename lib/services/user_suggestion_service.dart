@@ -43,12 +43,21 @@ class UserSuggestionService {
           avatars: List<String>.from(user['avatars'] ?? []),
         )).toList();
 
+        // FIXED: Better pagination detection
+        // If we got fewer users than requested, we've reached the end
+        bool hasMore = users.length == limit;
+
+        // Alternative: If your API provides total count, use this instead:
+        // int totalCount = jsonData['totalCount'] ?? 0;
+        // int totalPages = (totalCount / limit).ceil();
+        // bool hasMore = page < totalPages;
 
         return UserSuggestionResponse(
           success: true,
           users: users,
-          hasMore: users.length >= limit, // Simple pagination detection
+          hasMore: hasMore,
           currentPage: page,
+          // totalCount: totalCount, // if available from API
         );
       } else {
         return UserSuggestionResponse.error(
@@ -62,7 +71,7 @@ class UserSuggestionService {
   static Future<bool> toggleFollowUser({
     required String token,
     required int userId,
-    required String action, // 'follow' or 'unfollow'
+    required bool isCurrentlyFollowing, // Add this parameter
   }) async {
     try {
       final response = await http.post(
@@ -73,7 +82,7 @@ class UserSuggestionService {
         },
         body: json.encode({
           'userId': userId,
-          'action': action,
+          'action': isCurrentlyFollowing ? 'unfollow' : 'follow', // Determine action
         }),
       );
       print(response.body);

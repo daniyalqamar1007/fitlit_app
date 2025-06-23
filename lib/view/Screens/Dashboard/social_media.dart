@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fitlip_app/controllers/profile_controller.dart';
 import 'package:fitlip_app/routes/App_routes.dart';
 import 'package:fitlip_app/view/Utils/Constants.dart';
+import 'package:fitlip_app/view/Widgets/custom_message.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -127,12 +128,12 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
         setState(() {
           status = false;
         });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(AppLocalizations.of(context)!.noOutfitAvailable),
-            backgroundColor: appcolor,
-          ),
-        );
+       showAppSnackBar(
+         context,
+
+             AppLocalizations.of(context)!.noOutfitAvailable,
+
+          );
       }
     } catch (e) {
       setState(() {
@@ -453,20 +454,25 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
                       ),
                     ),
 
-          Container(
-            padding: EdgeInsets.symmetric(
-                horizontal: Responsive.width(14), vertical: Responsive.height(8)),
-            height: Responsive.height(30),
-            decoration: BoxDecoration(
-              color: appcolor.withOpacity(0.7),
-              borderRadius: BorderRadius.circular(Responsive.radius(30)),
-            ),
-            child: Text(
-              "Add Friend",
-              style: GoogleFonts.poppins(
-                fontSize: Responsive.fontSize(12),
-                color: Colors.white,
-                fontWeight: FontWeight.w600,
+          GestureDetector(
+            onTap: (){
+              // Navigator.pushNamed(context, '/addfriend');
+            },
+            child: Container(
+              padding: EdgeInsets.symmetric(
+                  horizontal: Responsive.width(14), vertical: Responsive.height(8)),
+              height: Responsive.height(30),
+              decoration: BoxDecoration(
+                color: appcolor.withOpacity(0.7),
+                borderRadius: BorderRadius.circular(Responsive.radius(30)),
+              ),
+              child: Text(
+                "Add Friend",
+                style: GoogleFonts.poppins(
+                  fontSize: Responsive.fontSize(12),
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           ),
@@ -779,71 +785,76 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
       ),
     );
   }
-  Widget buildSuggestionsSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Suggested for you',
-                style: GoogleFonts.poppins(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: appcolor,
+    Widget buildSuggestionsSection() {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Suggested for you',
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: appcolor,
+                  ),
                 ),
-              ),
-              Text(
-                "See all",
-                style: GoogleFonts.poppins(
-                  color: appcolor,
-                  fontWeight: FontWeight.w400,
-                  fontSize: 12,
-                ),
-              )
-            ],
+                GestureDetector(
+                  onTap: (){
+                    // Navigator.pushNamed(context, AppRoutes.addfriend);
+                  },
+                  child: Text(
+                    "See all",
+                    style: GoogleFonts.poppins(
+                      color: appcolor,
+                      fontWeight: FontWeight.w400,
+                      fontSize: 12,
+                    ),
+                  ),
+                )
+              ],
+            ),
           ),
-        ),
-        SizedBox(
-          height: Responsive.height(200),
-          child: ValueListenableBuilder<List<UserSuggestionModel>>(
-            valueListenable: _suggestionController.usersNotifier,
-            builder: (context, users, _) {
-              // Filter out the current user by comparing emails
-              // Replace 'userProfile.email' with your actual current user email variable
-              final currentEmail = _profileController.profileNotifier.value!.email; // Adjust this to your actual current user email
-              final filteredUsers = users.where((user) {
-                return user.email != null && user.email != currentEmail;
-              }).toList();
+          SizedBox(
+            height: Responsive.height(200),
+            child: ValueListenableBuilder<List<UserSuggestionModel>>(
+              valueListenable: _suggestionController.usersNotifier,
+              builder: (context, users, _) {
+                // Filter out the current user by comparing emails
+                // Replace 'userProfile.email' with your actual current user email variable
+                final currentEmail = _profileController.profileNotifier.value!.email; // Adjust this to your actual current user email
+                final filteredUsers = users.where((user) {
+                  return user.email != null && user.email != currentEmail;
+                }).toList();
 
 
-              return ListView.builder(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                itemCount: filteredUsers.length,
-                itemBuilder: (context, index) {
-                  final user = filteredUsers[index];
-                  return ValueListenableBuilder<Set<int>>(
-                    valueListenable: _suggestionController.followLoadingNotifier,
-                    builder: (context, loadingSet, _) {
-                      return UserSuggestionCard(
-                        user: user,
-                        onFollowTap: () => onFollowUser(user),
-                        isFollowLoading: loadingSet.contains(user.userId),
-                      );
-                    },
-                  );
-                },
-              );
-            },
+                return ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  itemCount: filteredUsers.length,
+                  itemBuilder: (context, index) {
+                    final user = filteredUsers[index];
+                    return ValueListenableBuilder<Set<int>>(
+                      valueListenable: _suggestionController.followLoadingNotifier,
+                      builder: (context, loadingSet, _) {
+                        return UserSuggestionCard(
+                          user: user,
+                          onFollowTap: () => onFollowUser(user),
+                          isFollowLoading: loadingSet.contains(user.userId),
+                        );
+                      },
+                    );
+                  },
+                );
+              },
+            ),
           ),
-        ),
-      ],
-    );
-  }
+        ],
+      );
+    }
 
   void onFollowUser(UserSuggestionModel user) {
     _suggestionController.toggleFollowUser(

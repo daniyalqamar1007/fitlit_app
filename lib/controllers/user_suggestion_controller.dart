@@ -11,35 +11,52 @@ class UserSuggestionController {
   ValueNotifier([]);
   final ValueNotifier<String?> errorNotifier = ValueNotifier(null);
   final ValueNotifier<bool> hasMoreNotifier = ValueNotifier(true);
-  final ValueNotifier<Set<int>> followLoadingNotifier = ValueNotifier({}); // Track loading states
+  final ValueNotifier<Set<int>> followLoadingNotifier = ValueNotifier({});
 
   int _currentPage = 1;
   static const int _limit = 10;
   bool _isDisposed = false;
-  String? _currentUserEmail; // Store current user's email
+  String? _currentUserEmail;
 
-  // Method to set current user email
+  // Track loaded user IDs to prevent duplicates
+  final Set<int> _loadedUserIds = {};
+
   void setCurrentUserEmail(String? email) {
     _currentUserEmail = email;
   }
 
-  // Filter users to exclude current user
   List<UserSuggestionModel> _filterUsers(List<UserSuggestionModel> users) {
     if (_currentUserEmail == null) return users;
 
-    return users.where((user) => user.email != _currentUserEmail).toList();
+    return users.where((user) =>
+    user.email != _currentUserEmail &&
+        user.userId != null).toList();
+  }
+
+  List<UserSuggestionModel> _removeDuplicates(List<UserSuggestionModel> users) {
+    final uniqueUsers = <UserSuggestionModel>[];
+    final seenIds = <int>{};
+
+    for (final user in users) {
+      if (user.userId != null && !seenIds.contains(user.userId)) {
+        seenIds.add(user.userId!);
+        uniqueUsers.add(user);
+      }
+    }
+
+    return uniqueUsers;
   }
 
   Future<void> loadUsers({required String token, String? currentUserEmail}) async {
     if (_isDisposed) return;
 
-    // Set current user email if provided
     if (currentUserEmail != null) {
       _currentUserEmail = currentUserEmail;
     }
 
     _setStatus(UserSuggestionStatus.loading);
     _currentPage = 1;
+    _loadedUserIds.clear();
 
     try {
       final response = await UserSuggestionService.fetchUsers(
@@ -51,8 +68,14 @@ class UserSuggestionController {
       if (_isDisposed) return;
 
       if (response.success) {
-        // Filter out current user before setting the value
         final filteredUsers = _filterUsers(response.users);
+
+        for (final user in filteredUsers) {
+          if (user.userId != null) {
+            _loadedUserIds.add(user.userId!);
+          }
+        }
+
         usersNotifier.value = filteredUsers;
         hasMoreNotifier.value = response.hasMore;
         _setStatus(UserSuggestionStatus.loaded);
@@ -80,11 +103,21 @@ class UserSuggestionController {
       if (_isDisposed) return;
 
       if (response.success) {
-        final currentUsers = [...usersNotifier.value];
-        // Filter new users before adding them
         final filteredNewUsers = _filterUsers(response.users);
-        currentUsers.addAll(filteredNewUsers);
-        usersNotifier.value = currentUsers;
+        final newUniqueUsers = filteredNewUsers.where((user) =>
+        user.userId != null && !_loadedUserIds.contains(user.userId!)).toList();
+
+        for (final user in newUniqueUsers) {
+          if (user.userId != null) {
+            _loadedUserIds.add(user.userId!);
+          }
+        }
+
+        final currentUsers = [...usersNotifier.value];
+        currentUsers.addAll(newUniqueUsers);
+        final uniqueUsers = _removeDuplicates(currentUsers);
+
+        usersNotifier.value = uniqueUsers;
         hasMoreNotifier.value = response.hasMore;
         _setStatus(UserSuggestionStatus.loaded);
       } else {
@@ -97,46 +130,92 @@ class UserSuggestionController {
     }
   }
 
-  Future<void> toggleFollowUser({
+  Future<void> refreshUsers({required String token}) async {
+    _currentPage = 1;
+    _loadedUserIds.clear();
+    await loadUsers(token: token, currentUserEmail: _currentUserEmail);
+  }
+
+  Future<bool> toggleFollowUser({
     required String token,
     required int userId,
   }) async {
-    final userIndex = usersNotifier.value.indexWhere((u) => u.userId == userId);
-    if (userIndex == -1) return;
-
-    final user = usersNotifier.value[userIndex];
-    final wasFollowing = user.isFollowing;
-
-    // Add to loading set
-    final currentLoading = {...followLoadingNotifier.value};
-    currentLoading.add(userId);
-    followLoadingNotifier.value = currentLoading;
-
     try {
+      // Add user to loading set
+      final currentLoadingSet = Set<int>.from(followLoadingNotifier.value);
+      currentLoadingSet.add(userId);
+      followLoadingNotifier.value = currentLoadingSet;
+
+      // Find the user in the current list
+      final users = usersNotifier.value;
+      final userIndex = users.indexWhere((u) => u.userId == userId);
+      if (userIndex == -1) return false;
+
+      final currentUser = users[userIndex];
+
+      // Make API call
       final success = await UserSuggestionService.toggleFollowUser(
         token: token,
         userId: userId,
-        action: wasFollowing ? 'unfollow' : 'follow',
+        isCurrentlyFollowing: currentUser.isFollowing,
       );
 
-      if (success && !_isDisposed) {
+      if (success) {
         // Update the user in the list
-        final updatedUsers = [...usersNotifier.value];
-        updatedUsers[userIndex] = user.copyWith(
-          isFollowing: !wasFollowing,
-          followers: wasFollowing ? user.followers - 1 : user.followers + 1,
+        final updatedUser = currentUser.copyWith(
+          isFollowing: !currentUser.isFollowing,
+          followers: currentUser.isFollowing
+              ? currentUser.followers - 1
+              : currentUser.followers + 1,
         );
+
+        final updatedUsers = List<UserSuggestionModel>.from(users);
+        updatedUsers[userIndex] = updatedUser;
         usersNotifier.value = updatedUsers;
       }
+
+      return success;
     } catch (e) {
-      print('Follow error: $e');
+      print('Error toggling follow status: $e');
+      return false;
     } finally {
-      // Remove from loading set
-      if (!_isDisposed) {
-        final currentLoading = {...followLoadingNotifier.value};
-        currentLoading.remove(userId);
-        followLoadingNotifier.value = currentLoading;
-      }
+      // Remove from loading set in any case
+      final updatedLoadingSet = Set<int>.from(followLoadingNotifier.value);
+      updatedLoadingSet.remove(userId);
+      _updateUserFollowStatus(userId);
+      followLoadingNotifier.value = updatedLoadingSet;
+    }
+  }
+  void _updateUserFollowStatus(int userId) {
+    final currentUsers = List<UserSuggestionModel>.from(usersNotifier.value);
+    final userIndex = currentUsers.indexWhere((user) => user.userId == userId);
+
+    if (userIndex != -1) {
+      final user = currentUsers[userIndex];
+      final updatedUser = user.copyWith(
+        isFollowing: !user.isFollowing,
+        followers: user.isFollowing ? user.followers - 1 : user.followers + 1,
+      );
+      currentUsers[userIndex] = updatedUser;
+      usersNotifier.value = currentUsers;
+    }
+  }
+
+  UserSuggestionModel? getUserById(int userId) {
+    try {
+      return usersNotifier.value.firstWhere((user) => user.userId == userId);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  void updateUser(UserSuggestionModel updatedUser) {
+    final currentUsers = List<UserSuggestionModel>.from(usersNotifier.value);
+    final userIndex = currentUsers.indexWhere((user) => user.userId == updatedUser.userId);
+
+    if (userIndex != -1) {
+      currentUsers[userIndex] = updatedUser;
+      usersNotifier.value = currentUsers;
     }
   }
 
@@ -144,7 +223,6 @@ class UserSuggestionController {
     return followLoadingNotifier.value.contains(userId);
   }
 
-  // Helper methods
   void _setStatus(UserSuggestionStatus status) {
     if (!_isDisposed) statusNotifier.value = status;
   }
@@ -158,6 +236,7 @@ class UserSuggestionController {
 
   void dispose() {
     _isDisposed = true;
+    _loadedUserIds.clear();
     statusNotifier.dispose();
     usersNotifier.dispose();
     errorNotifier.dispose();
