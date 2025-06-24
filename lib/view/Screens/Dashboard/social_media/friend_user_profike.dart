@@ -84,13 +84,13 @@ class _UserProfilePageState extends State<UserProfilePage> {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
+          icon: Icon(Icons.arrow_back, color: appcolor),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
           currentUser.name ?? 'User Profile',
           style: GoogleFonts.poppins(
-            color: Colors.black,
+            color: appcolor,
             fontSize: Responsive.fontSize(18),
             fontWeight: FontWeight.w600,
           ),
