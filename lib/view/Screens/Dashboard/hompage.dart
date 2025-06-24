@@ -1328,7 +1328,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
 
     // Priority 2: Check API backgrounds
     if (_apiBackgrounds.isEmpty) {
-      return Image.asset("assets/Images/new.jpg");
+      return Image.asset("assets/Images/new.jpg",fit: BoxFit.cover,);
     }
 
     // Priority 3: Find selected background

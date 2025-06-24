@@ -8,6 +8,8 @@ import '../../Utils/Colors.dart';
 import 'hompage.dart';
 import 'package:fitlip_app/view/Screens/Dashboard/social_media.dart';
 
+import 'notification.dart';
+
 class HomeScreen extends StatefulWidget {
   @override
   _HomeScreenState createState() => _HomeScreenState();
@@ -21,9 +23,7 @@ class _HomeScreenState extends State<HomeScreen> {
     Center(
       child: Text("Branding"),
     ),
-    Center(
-      child: Text("Notification"),
-    ),
+    NotificationScreen(),
     SocialMediaProfile(),
   ];
 

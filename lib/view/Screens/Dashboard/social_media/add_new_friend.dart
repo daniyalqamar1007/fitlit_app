@@ -2,8 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:shimmer/shimmer.dart'; // Add this import
 
 import '../../../../controllers/user_suggestion_controller.dart';
 import '../../../../controllers/profile_controller.dart';
@@ -51,8 +51,7 @@ class _AddFriendsPageState extends State<AddFriendsPage> {
   }
 
   void _onScroll() {
-    // FIXED: Better scroll detection with threshold
-    const threshold = 200.0; // Load more when 200px from bottom
+    const threshold = 200.0;
     if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent - threshold) {
       if (_controller.hasMoreNotifier.value &&
@@ -63,7 +62,6 @@ class _AddFriendsPageState extends State<AddFriendsPage> {
   }
 
   void _onSearchChanged() {
-    // This will trigger rebuild for search functionality
     setState(() {});
   }
 
@@ -78,12 +76,10 @@ class _AddFriendsPageState extends State<AddFriendsPage> {
     await _controller.loadMoreUsers(token: token!);
   }
 
-  // FIXED: Use the new refresh method instead of loadUsers for RefreshIndicator
   Future<void> _refreshUsers() async {
     await _controller.refreshUsers(token: token!);
   }
 
-  // FIXED: Enhanced follow/unfollow method with proper state management
   Future<void> _toggleFollowUser(UserSuggestionModel user) async {
     if (user.userId == null) return;
 
@@ -94,7 +90,6 @@ class _AddFriendsPageState extends State<AddFriendsPage> {
       );
 
       if (success && mounted) {
-        // No need to call setState() here since ValueListenableBuilder will handle updates
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
@@ -121,50 +116,42 @@ class _AddFriendsPageState extends State<AddFriendsPage> {
       }
     }
   }
+
   void _navigateToUserProfile(UserSuggestionModel user) async {
-    // Navigate to profile and wait for result
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => UserProfilePage(
           user: user,
           onFollowToggle: (updatedUser) {
-            // Update the user in the list when follow status changes
             _updateUserInList(updatedUser);
           },
         ),
       ),
     );
 
-    // If the profile page returned an updated user, update the list
     if (result != null && result is UserSuggestionModel) {
       _updateUserInList(result);
     }
   }
 
-  // FIXED: Method to update user in the list when follow status changes
   void _updateUserInList(UserSuggestionModel updatedUser) {
     final currentUsers = _controller.usersNotifier.value;
     final userIndex = currentUsers.indexWhere((u) => u.userId == updatedUser.userId);
 
     if (userIndex != -1) {
       currentUsers[userIndex] = updatedUser;
-      // Trigger rebuild
       setState(() {});
     }
   }
 
-  // Helper method to filter users based on search query and exclude current user
   List<UserSuggestionModel> _getFilteredUsers(List<UserSuggestionModel> users) {
-    // Get current user email from profile controller
     final currentEmail = _profileController.profileNotifier.value?.email;
 
-    // First filter out the current user
     final filteredUsers = users.where((user) {
       return user.email != null && user.email != currentEmail;
     }).toList();
 
-    // Then apply search filter if there's a search query
     final query = _searchController.text.toLowerCase().trim();
     if (query.isEmpty) {
       return filteredUsers;
@@ -220,7 +207,6 @@ class _AddFriendsPageState extends State<AddFriendsPage> {
                   ),
                   textInputAction: TextInputAction.search,
                   onSubmitted: (value) {
-                    // Handle search submit if needed
                     FocusScope.of(context).unfocus();
                   },
                   decoration: InputDecoration(
@@ -309,12 +295,7 @@ class _AddFriendsPageState extends State<AddFriendsPage> {
       valueListenable: _controller.statusNotifier,
       builder: (context, status, child) {
         if (status == UserSuggestionStatus.loading) {
-          return Center(
-            child: LoadingAnimationWidget.fourRotatingDots(
-              color: appcolor,
-              size: Responsive.height(20),
-            ),
-          );
+          return _buildShimmerLoader();
         }
 
         if (status == UserSuggestionStatus.error) {
@@ -367,7 +348,6 @@ class _AddFriendsPageState extends State<AddFriendsPage> {
             return AnimatedBuilder(
               animation: _searchController,
               builder: (context, child) {
-                // Filter users based on search query
                 final filteredUsers = _getFilteredUsers(users);
 
                 if (filteredUsers.isEmpty) {
@@ -412,7 +392,6 @@ class _AddFriendsPageState extends State<AddFriendsPage> {
                   valueListenable: _controller.hasMoreNotifier,
                   builder: (context, hasMore, child) {
                     return RefreshIndicator(
-                      // FIXED: Use the new refresh method
                       onRefresh: _refreshUsers,
                       color: appcolor,
                       child: ListView.builder(
@@ -421,19 +400,11 @@ class _AddFriendsPageState extends State<AddFriendsPage> {
                         itemCount: filteredUsers.length + (hasMore && _searchController.text.isEmpty ? 1 : 0),
                         itemBuilder: (context, index) {
                           if (index == filteredUsers.length) {
-                            // Loading more indicator (only show if not searching)
                             return ValueListenableBuilder<UserSuggestionStatus>(
                               valueListenable: _controller.statusNotifier,
                               builder: (context, loadingStatus, child) {
                                 if (loadingStatus == UserSuggestionStatus.loadingMore) {
-                                  return Container(
-                                    padding: EdgeInsets.all(Responsive.height(16)),
-                                    alignment: Alignment.center,
-                                    child: LoadingAnimationWidget.fourRotatingDots(
-                                      color: appcolor,
-                                      size: Responsive.height(20),
-                                    ),
-                                  );
+                                  return _buildShimmerLoader();
                                 }
                                 return SizedBox.shrink();
                               },
@@ -452,6 +423,131 @@ class _AddFriendsPageState extends State<AddFriendsPage> {
           },
         );
       },
+    );
+  }
+
+  Widget _buildShimmerLoader() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: ListView.builder(
+        padding: EdgeInsets.symmetric(horizontal: Responsive.width(16)),
+        itemCount: 6,
+        itemBuilder: (context, index) {
+          return Container(
+            margin: EdgeInsets.only(bottom: Responsive.height(12)),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(Responsive.radius(16)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.1),
+                  spreadRadius: 1,
+                  blurRadius: 8,
+                  offset: Offset(0, 2),
+                ),
+              ],
+              border: Border.all(color: Colors.grey[100]!, width: 1),
+            ),
+            child: Padding(
+              padding: EdgeInsets.all(Responsive.width(16)),
+              child: Row(
+                children: [
+                  // Circular Avatar with shimmer
+                  Shimmer.fromColors(
+                    baseColor: Colors.grey[300]!,
+                    highlightColor: Colors.grey[100]!,
+                    child: Container(
+                      width: Responsive.width(55),
+                      height: Responsive.width(55),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white,
+                        border: Border.all(
+                          color: appcolor.withOpacity(0.3),
+                          width: 2,
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: Responsive.width(16)),
+
+                  // User Info Column
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Name with shimmer
+                        Shimmer.fromColors(
+                          baseColor: Colors.grey[300]!,
+                          highlightColor: Colors.grey[100]!,
+                          child: Container(
+                            width: Responsive.width(120),
+                            height: Responsive.height(16),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: Responsive.height(10)),
+
+                        // Stats Row
+                        Row(
+                          children: [
+                            // Followers count with shimmer
+                            Shimmer.fromColors(
+                              baseColor: Colors.grey[300]!,
+                              highlightColor: Colors.grey[100]!,
+                              child: Container(
+                                width: Responsive.width(60),
+                                height: Responsive.height(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                              ),
+                            ),
+                            SizedBox(width: Responsive.width(12)),
+
+                            // Following count with shimmer
+                            Shimmer.fromColors(
+                              baseColor: Colors.grey[300]!,
+                              highlightColor: Colors.grey[100]!,
+                              child: Container(
+                                width: Responsive.width(60),
+                                height: Responsive.height(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // Follow Button with shimmer
+                  Shimmer.fromColors(
+                    baseColor: Colors.grey[300]!,
+                    highlightColor: Colors.grey[100]!,
+                    child: Container(
+                      width: Responsive.width(80),
+                      height: Responsive.height(36),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(Responsive.radius(10)),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 
@@ -501,10 +597,6 @@ class _AddFriendsPageState extends State<AddFriendsPage> {
                         fit: BoxFit.cover,
                         placeholder: (context, url) => Container(
                           color: Colors.grey[200],
-                          child: LoadingAnimationWidget.fourRotatingDots(
-                            color: appcolor,
-                            size: Responsive.height(20),
-                          ),
                         ),
                         errorWidget: (context, url, error) => Container(
                           color: Colors.grey[200],
@@ -525,9 +617,7 @@ class _AddFriendsPageState extends State<AddFriendsPage> {
                       ),
                     ),
                   ),
-
                   SizedBox(width: Responsive.width(16)),
-
                   // User Info
                   Expanded(
                     child: Column(
@@ -555,8 +645,7 @@ class _AddFriendsPageState extends State<AddFriendsPage> {
                       ],
                     ),
                   ),
-
-                  // FIXED: Enhanced Follow Button with immediate state update
+                  // Follow Button
                   Container(
                     width: Responsive.width(80),
                     height: Responsive.height(36),

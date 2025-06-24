@@ -113,16 +113,16 @@ class OutfitModel {
 class AvatarData {
   final String date;
   final String avatarUrl;
-  final String storedMessage;
+  final String? storedMessage;
   final String backgroundimageurl;
-  final String stackimage;
+  final String? stackimage;
 
   AvatarData({
     required this.date,
     required this.avatarUrl,
-    required this.storedMessage,
+     this.storedMessage,
     required this.backgroundimageurl,
-    required this.stackimage
+     this.stackimage
   });
 
   factory AvatarData.fromJson(Map<String, dynamic> json) {

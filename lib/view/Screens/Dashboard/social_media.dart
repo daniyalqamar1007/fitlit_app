@@ -20,6 +20,7 @@ import '../../../model/user_suggestion_model.dart';
 import '../../Utils/Colors.dart';
 import '../../Utils/globle_variable/globle.dart';
 import '../../Utils/responsivness.dart';
+import '../../Utils/shimmer.dart';
 import '../../Widgets/Custom_buttons.dart';
 import '../../Widgets/suggestion_user_card.dart';
 
@@ -80,9 +81,9 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
     super.dispose();
   }
   Future<void> _loadAvatarDates() async {
-    if (token != null) {
+
       await _outfitController.loadAllAvatarDates(token: token!);
-    }
+
   }
   void _updateLoadingStatus() {
     setState(() {
@@ -128,12 +129,12 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
         setState(() {
           status = false;
         });
-       showAppSnackBar(
-         context,
-
-             AppLocalizations.of(context)!.noOutfitAvailable,
-
-          );
+       // showAppSnackBar(
+       //   context,
+       //
+       //       AppLocalizations.of(context)!.noOutfitAvailable,
+       //
+       //    );
       }
     } catch (e) {
       setState(() {
@@ -456,7 +457,7 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
 
           GestureDetector(
             onTap: (){
-              // Navigator.pushNamed(context, '/addfriend');
+              Navigator.pushNamed(context, '/addfriend');
             },
             child: Container(
               padding: EdgeInsets.symmetric(
@@ -538,7 +539,7 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
                             Text(
                               '${userProfile?.name ?? AppLocalizations.of(context)!.loading}',
                               style: GoogleFonts.poppins(
-                                fontSize: Responsive.fontSize(24),
+                                fontSize: Responsive.fontSize(18),
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -587,7 +588,8 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
                                     child: Opacity(
                                       opacity: 0.7,
                                       child: stackimage != null && stackimage!.isNotEmpty
-                                          ? CachedNetworkImage(
+                                          ?
+                                      CachedNetworkImage(
                                         imageUrl: stackimage!,
                                         fit: BoxFit.cover,
                                         placeholder: (context, url) => Image.asset(
@@ -785,76 +787,95 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
       ),
     );
   }
-    Widget buildSuggestionsSection() {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Suggested for you',
+  Widget buildSuggestionsSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Suggested for you',
+                style: GoogleFonts.poppins(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: appcolor,
+                ),
+              ),
+              GestureDetector(
+                onTap: () {
+                  Navigator.pushNamed(context, AppRoutes.addfriend);
+                },
+                child: Text(
+                  "See all",
                   style: GoogleFonts.poppins(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
                     color: appcolor,
+                    fontWeight: FontWeight.w400,
+                    fontSize: 12,
                   ),
                 ),
-                GestureDetector(
-                  onTap: (){
-                    // Navigator.pushNamed(context, AppRoutes.addfriend);
-                  },
-                  child: Text(
-                    "See all",
-                    style: GoogleFonts.poppins(
-                      color: appcolor,
-                      fontWeight: FontWeight.w400,
-                      fontSize: 12,
-                    ),
-                  ),
-                )
-              ],
-            ),
+              )
+            ],
           ),
-          SizedBox(
-            height: Responsive.height(200),
-            child: ValueListenableBuilder<List<UserSuggestionModel>>(
-              valueListenable: _suggestionController.usersNotifier,
-              builder: (context, users, _) {
-                // Filter out the current user by comparing emails
-                // Replace 'userProfile.email' with your actual current user email variable
-                final currentEmail = _profileController.profileNotifier.value!.email; // Adjust this to your actual current user email
-                final filteredUsers = users.where((user) {
-                  return user.email != null && user.email != currentEmail;
-                }).toList();
-
-
+        ),
+        SizedBox(
+          height: Responsive.height(200),
+          child: ValueListenableBuilder<UserSuggestionStatus>(
+            valueListenable: _suggestionController.statusNotifier,
+            builder: (context, status, _) {
+              if (status == UserSuggestionStatus.loading) {
                 return ListView.builder(
                   scrollDirection: Axis.horizontal,
                   padding: const EdgeInsets.symmetric(horizontal: 16),
-                  itemCount: filteredUsers.length,
+                  itemCount: 3, // Show 3 shimmer cards
                   itemBuilder: (context, index) {
-                    final user = filteredUsers[index];
-                    return ValueListenableBuilder<Set<int>>(
-                      valueListenable: _suggestionController.followLoadingNotifier,
-                      builder: (context, loadingSet, _) {
-                        return UserSuggestionCard(
-                          user: user,
-                          onFollowTap: () => onFollowUser(user),
-                          isFollowLoading: loadingSet.contains(user.userId),
-                        );
-                      },
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 12),
+                      child: UserSuggestionCardShimmer(), // Use your custom shimmer here
                     );
                   },
                 );
-              },
-            ),
+              }
+
+              return ValueListenableBuilder<List<UserSuggestionModel>>(
+                valueListenable: _suggestionController.usersNotifier,
+                builder: (context, users, _) {
+                  final currentEmail = _profileController.profileNotifier.value?.email;
+                  final filteredUsers = users.where((user) {
+                    return user.email != null && user.email != currentEmail;
+                  }).toList();
+
+                  return ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    itemCount: filteredUsers.length,
+                    itemBuilder: (context, index) {
+                      final user = filteredUsers[index];
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 12),
+                        child: ValueListenableBuilder<Set<int>>(
+                          valueListenable: _suggestionController.followLoadingNotifier,
+                          builder: (context, loadingSet, _) {
+                            return UserSuggestionCard(
+                              user: user,
+                              onFollowTap: () => onFollowUser(user),
+                              isFollowLoading: loadingSet.contains(user.userId),
+                            );
+                          },
+                        ),
+                      );
+                    },
+                  );
+                },
+              );
+            },
           ),
-        ],
-      );
-    }
+        ),
+      ],
+    );
+  }
 
   void onFollowUser(UserSuggestionModel user) {
     _suggestionController.toggleFollowUser(

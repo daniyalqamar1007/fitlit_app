@@ -37,7 +37,8 @@ dependencies:
   internet_connection_checker:
   package_info_plus:
   share_plus:
-  
+  socket_io_client:
+  shimmer:
   url_launcher:
   font_awesome_flutter:
 dev_dependencies:
