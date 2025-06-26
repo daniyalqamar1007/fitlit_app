@@ -1520,8 +1520,6 @@ print(image?.path);
                   child: Tab(text: localizations.wardrobe),
                 ),
 
-                Tab(text: localizations.backgrounds),
-                Tab(text: localizations.wardrobe),
 
               ],
             ),

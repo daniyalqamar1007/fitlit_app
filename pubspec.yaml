@@ -39,6 +39,9 @@ dependencies:
   share_plus:
   socket_io_client:
   shimmer:
+  overlay_support:
+  flutter_local_notifications:
+  permission_handler: ^11.0.0
   url_launcher:
   font_awesome_flutter:
 dev_dependencies:

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:fitlip_app/routes/App_routes.dart';
 import 'package:fitlip_app/services/socket_service.dart';
 import 'package:fitlip_app/view/Screens/Splash_screen/Splash_screen.dart';
@@ -6,6 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart'; // generated file
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:overlay_support/overlay_support.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'controllers/themecontroller.dart';
@@ -14,7 +18,7 @@ final themeController = ThemeController();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
+  await requestNotificationPermission();
   SharedPreferences prefs = await SharedPreferences.getInstance();
   String? languageCode = prefs.getString('language_code') ?? 'en';
 
@@ -23,9 +27,15 @@ Future<void> main() async {
   final socketService = SocketService();
   print('SocketService singleton initialized');
 
-  runApp(MyApp(locale: Locale(languageCode)));
+  runApp(OverlaySupport.global(child:MyApp(locale: Locale(languageCode))));
 }
-
+Future<void> requestNotificationPermission() async {
+  if (Platform.isAndroid) {
+    if (await Permission.notification.isDenied) {
+      await Permission.notification.request();
+    }
+  }
+}
 class MyApp extends StatefulWidget {
   final Locale locale;
 
@@ -93,6 +103,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       _locale = newLocale;
     });
   }
+
 
   @override
   Widget build(BuildContext context) {

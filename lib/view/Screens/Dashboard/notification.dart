@@ -409,10 +409,7 @@ import '../../Utils/Colors.dart';
     }
 
     Future<void> _initializeScreen() async {
-      // Load notifications first
       await _controller.loadNotifications(token!);
-
-      // Setup socket connection listener to handle reconnections
       _setupSocketConnectionListener();
     }
 
@@ -667,10 +664,10 @@ import '../../Utils/Colors.dart';
 
           return InkWell(
             onTap: () async {
-              if (!notification.isRead && !isProcessing) {
+              if (!notification.isRead! && !isProcessing) {
                 final success = await _controller.markNotificationAsRead(
                   token!,
-                  notification.id,
+                  notification.id!,
                 );
                 if (!success && mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -687,12 +684,12 @@ import '../../Utils/Colors.dart';
               padding: EdgeInsets.all(16),
               margin: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(
-                color: notification.isRead
+                color: notification.isRead!
                     ? Colors.grey[50]
                     : appcolor.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: notification.isRead
+                  color: notification.isRead!
                       ? Colors.grey[300]!
                       : appcolor.withOpacity(0.3),
                   width: 1.5,
@@ -725,7 +722,7 @@ import '../../Utils/Colors.dart';
         children: [
           CircleAvatar(
             radius: 20,
-            backgroundColor: notification.isRead
+            backgroundColor: notification.isRead!
                 ? Colors.grey[200]
                 : appcolor.withOpacity(0.2),
             child: isProcessing
@@ -734,12 +731,12 @@ import '../../Utils/Colors.dart';
               size: 15,
             )
                 : Icon(
-              _getNotificationIcon(notification.type),
-              color: notification.isRead ? Colors.grey : appcolor,
+              _getNotificationIcon(notification.type!),
+              color: notification.isRead! ? Colors.grey : appcolor,
               size: 20,
             ),
           ),
-          if (!notification.isRead && !isProcessing)
+          if (!notification.isRead! && !isProcessing)
             Positioned(
               right: 0,
               top: 0,
@@ -762,13 +759,13 @@ import '../../Utils/Colors.dart';
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            notification.message,
+            notification.message!,
             style: GoogleFonts.poppins(
               fontSize: 14,
-              fontWeight: notification.isRead
+              fontWeight: notification.isRead!
                   ? FontWeight.normal
                   : FontWeight.w600,
-              color: notification.isRead
+              color: notification.isRead!
                   ? Colors.grey[700]
                   : Colors.black87,
             ),
@@ -779,7 +776,7 @@ import '../../Utils/Colors.dart';
               Icon(Icons.access_time, size: 12, color: Colors.grey[500]),
               SizedBox(width: 4),
               Text(
-                _formatDate(notification.createdAt),
+                _formatDate(notification.createdAt!),
                 style: GoogleFonts.poppins(
                   fontSize: 12,
                   color: Colors.grey[600],

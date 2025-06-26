@@ -47,7 +47,7 @@ class SocketService {
       print('Connecting to socket with token: ${token.substring(0, 10)}...');
 
       _socket = IO.io(
-        'https://nnl056zh-3099.inc1.devtunnels.ms',
+        'https://nnl056zh-3099.inc1.devtunnels.ms/notifications',
         IO.OptionBuilder()
             .setTransports(['websocket'])
             .disableAutoConnect()

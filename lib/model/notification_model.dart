@@ -1,22 +1,22 @@
 class NotificationModel {
-  final String id;
-  final int userId;
-  final String type;
-  final String message;
-  final int senderId;
-  final bool isRead;
-  final DateTime createdAt;
-  final DateTime updatedAt;
+  final String? id;
+  final int? userId;
+  final String? type;
+  final String? message;
+  final int? senderId;
+  final bool? isRead;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
 
   NotificationModel({
-    required this.id,
-    required this.userId,
-    required this.type,
-    required this.message,
-    required this.senderId,
-    required this.isRead,
-    required this.createdAt,
-    required this.updatedAt,
+     this.id,
+     this.userId,
+     this.type,
+     this.message,
+     this.senderId,
+     this.isRead,
+     this.createdAt,
+     this.updatedAt,
   });
 
   factory NotificationModel.fromJson(Map<String, dynamic> json) {
