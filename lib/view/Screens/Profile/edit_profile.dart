@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:fitlip_app/routes/App_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -352,7 +353,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               enabled: false,
                             ),
                             const SizedBox(height: 16),
-                            _buildGenderSelector(),
+                            _buildCustomGenderSelector(),
                             const SizedBox(height: 40),
                             _buildSaveButton(),
                           ],
@@ -553,70 +554,120 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       ],
     );
   }
-
-  Widget _buildGenderSelector() {
-    final localizations = AppLocalizations.of(context)!;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          localizations.gender,
-          style: GoogleFonts.poppins(
-            color: Colors.grey.shade800,
-            fontWeight: FontWeight.w600,
-            fontSize: 14,
-          ),
+   
+  Widget _buildCustomGenderSelector() {
+  final localizations = AppLocalizations.of(context)!;
+  
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(
+        localizations.gender,
+        style: GoogleFonts.poppins(
+          color: Colors.grey.shade800,
+          fontWeight: FontWeight.w600,
+          fontSize: 14,
         ),
-        const SizedBox(height: 6),
-        // Wrapped in a SizedBox to control dropdown height
-        SizedBox(
-          height: 60, // Fixed height to prevent layout jumps
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade100,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.grey.withOpacity(0.3)),
-            ),
-            child: DropdownButtonHideUnderline(
-              child: ValueListenableBuilder<String?>(
-                valueListenable: _selectedGenderNotifier,
-                builder: (context, selectedGender, _) {
-                  return DropdownButton<String>(
-                    value: selectedGender,
-
-                    hint: Text(localizations.selectGender),
-                    isExpanded: true,
-                    dropdownColor: Colors.white, // Match background
-                    menuMaxHeight: 200, // Limit dropdown height
-                    itemHeight: 50, // Consistent item height
-                    items: [
-                      DropdownMenuItem(
-                        value: 'male',
-                        child: Text(localizations.male),
-                      ),
-                      DropdownMenuItem(
-                        value: 'female',
-                        child: Text(localizations.female),
-                      ),
-                      DropdownMenuItem(
-                        value: 'other',
-                        child: Text(localizations.gender),
-                      ),
-                    ],
-                    onChanged: (value) {
-                      _selectedGenderNotifier.value = value;
-                    },
-                  );
-                },
+      ),
+      const SizedBox(height: 6),
+      Container(
+        decoration: BoxDecoration(
+          color: Colors.grey.shade100,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.grey.withOpacity(0.3)),
+        ),
+        child: ValueListenableBuilder<String?>(
+          valueListenable: _selectedGenderNotifier,
+          builder: (context, selectedGender, _) {
+            return DropdownButtonFormField2<String>(
+              value: selectedGender,
+              hint: Row(
+                children: [
+                  Icon(
+                    Icons.person_outline,
+                    color: const Color(0xFFAA8A00),
+                    size: 20,
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    localizations.selectGender,
+                    style: GoogleFonts.poppins(
+                      color: Colors.grey.shade600,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
               ),
-            ),
-          ),
+              decoration: InputDecoration(
+                contentPadding: const EdgeInsets.symmetric(
+                  vertical: 14,
+                  horizontal: 16,
+                ),
+                border: InputBorder.none,
+                enabledBorder: InputBorder.none,
+                focusedBorder: InputBorder.none,
+              ),
+              isExpanded: true,
+              dropdownStyleData: DropdownStyleData(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  color: Colors.white,
+                ),
+                elevation: 8,
+                offset: const Offset(0, 8), // Position dropdown lower
+                maxHeight: 200,
+                width: null, // This makes it match the button width
+              ),
+              iconStyleData: IconStyleData(
+                icon: Icon(
+                  Icons.keyboard_arrow_down,
+                  color: const Color(0xFFAA8A00),
+                ),
+              ),
+              items: [
+                DropdownMenuItem(
+                  value: 'male',
+                  child: Row(
+                    children: [
+                      Icon(Icons.male, color: const Color(0xFFAA8A00), size: 18),
+                      const SizedBox(width: 12),
+                      Text(localizations.male, style: GoogleFonts.poppins(fontSize: 14)),
+                    ],
+                  ),
+                ),
+                DropdownMenuItem(
+                  value: 'female',
+                  child: Row(
+                    children: [
+                      Icon(Icons.female, color: const Color(0xFFAA8A00), size: 18),
+                      const SizedBox(width: 12),
+                      Text(localizations.female, style: GoogleFonts.poppins(fontSize: 14)),
+                    ],
+                  ),
+                ),
+                DropdownMenuItem(
+                  value: 'other',
+                  child: Row(
+                    children: [
+                      Icon(Icons.transgender, color: const Color(0xFFAA8A00), size: 18),
+                      const SizedBox(width: 12),
+                      Text("Other", style: GoogleFonts.poppins(fontSize: 14)),
+                    ],
+                  ),
+                ),
+              ],
+              onChanged: (value) {
+                _selectedGenderNotifier.value = value;
+              },
+            );
+          },
         ),
-        const SizedBox(height: 16),
-      ],
-    );
+      ),
+      const SizedBox(height: 50),
+    ],
+  );
   }
+ 
   Widget _buildSaveButton() {
     final localizations = AppLocalizations.of(context)!;
     return ValueListenableBuilder<bool>(

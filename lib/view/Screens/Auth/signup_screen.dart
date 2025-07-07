@@ -7,8 +7,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:dropdown_button2/dropdown_button2.dart'; // Add this import
+import 'package:flutter_gen/gen_l10n/app_localizations.dart'; // Add this import
 import 'dart:io';
-
 import '../../../main.dart';
 import '../../Utils/globle_variable/globle.dart';
 import '../../Widgets/Custom_buttons.dart';
@@ -17,20 +18,24 @@ import 'Otp/otp_screen.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
+
   @override
   State<SignUpScreen> createState() => _SignUpScreenState();
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
   final _formKey = GlobalKey<FormState>();
-  String? _selectedGender;
-
+  
+  // Replace String? _selectedGender with ValueNotifier
+  final ValueNotifier<String?> _selectedGenderNotifier = ValueNotifier<String?>(null);
+  
   final List<String> _genderOptions = ['Male', 'Female', 'Other'];
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
-  File? _profileImage;  double dropdownWidth = 0.0;
+  File? _profileImage;
+  double dropdownWidth = 0.0;
   bool _obscurePassword = true;
   bool _isLoading = false;
   String? _errorMessage;
@@ -41,8 +46,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
       return;
     }
 
-    // Validate gender is selected
-    if (_selectedGender == null) {
+    // Validate gender is selected using ValueNotifier
+    if (_selectedGenderNotifier.value == null) {
       setState(() {
         _errorMessage = 'Please select a gender';
       });
@@ -59,13 +64,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
       _authController.updateSignUpData(
         name: _nameController.text,
         phone: _phoneController.text,
-        gender: _selectedGender,
+        gender: _selectedGenderNotifier.value, // Use ValueNotifier value
         password: _passwordController.text,
         imageFile: _profileImage,
       );
 
       // Then initiate OTP verification process with email
-      final result = await _authController.initialSignUp(_emailController.text,context);
+      final result = await _authController.initialSignUp(_emailController.text, context);
 
       setState(() {
         _isLoading = false;
@@ -73,14 +78,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
       if (result['success']) {
         first_time = true;
-
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => OtpVerificationScreen(
               email: _emailController.text,
               name: _nameController.text,
-              gender: _selectedGender.toString(),
+              gender: _selectedGenderNotifier.value.toString(), // Use ValueNotifier value
               phone: _phoneController.text,
               password: _passwordController.text,
               file: _profileImage!,
@@ -107,12 +111,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
     _emailController.dispose();
     _phoneController.dispose();
     _passwordController.dispose();
+    _selectedGenderNotifier.dispose(); // Dispose ValueNotifier
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    // UI Code remains unchanged
     return Scaffold(
       backgroundColor: themeController.white,
       body: Stack(
@@ -153,7 +157,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
               color: Colors.black.withOpacity(0.3),
               child: Center(
                 child: LoadingAnimationWidget.fourRotatingDots(
-                    color:appcolor,size:20
+                  color: appcolor,
+                  size: 20,
                 ),
               ),
             ),
@@ -243,58 +248,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
           keyboardType: TextInputType.phone,
         ),
         SizedBox(height: 8.h),
-        LayoutBuilder(
-        builder: (context, constraints) {
-          dropdownWidth = constraints.maxWidth;
-          return DropdownButtonFormField<String>(
-            value: _selectedGender,
-            isExpanded: true,
-
-            // Set to true to expand to full width
-            dropdownColor: Colors.grey.shade100,
-            // Match your fillColor
-            onChanged: (value) => setState(() => _selectedGender = value),
-            decoration: InputDecoration(
-              hintText: 'Select Gender',
-              hintStyle: GoogleFonts.poppins(
-                color: hintextcolor.withOpacity(0.2),
-                fontSize: 12.sp,
-              ),
-              filled: true,
-              fillColor: Colors.grey.shade100,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
-                borderSide: BorderSide.none,
-              ),
-              contentPadding: EdgeInsets.symmetric(
-                  horizontal: 16, vertical: 12), // Adjust padding
-            ),
-            style: GoogleFonts.poppins(
-              color: themeController.black,
-              fontSize: 12.sp,
-            ),
-            items: _genderOptions.map((gender) {
-              return DropdownMenuItem<String>(
-                value: gender,
-                child: Container(
-                  margin: EdgeInsets.symmetric(horizontal: 20),
-                  width: double.infinity,
-                  // Make menu items full width
-                  padding: EdgeInsets.symmetric(horizontal: 20),
-                  // Add horizontal margin
-                  child: Text(
-                    gender,
-                    style: GoogleFonts.poppins(fontSize: 12.sp),
-                  ),
-                ),
-              );
-            }).toList(),
-            validator: (value) =>
-            value == null
-                ? 'Please select a gender'
-                : null,
-          );
-        }),
+        // Use your custom gender selector
+        _buildCustomGenderSelector(),
         SizedBox(height: 8.h),
         CustomTextField(
           hintText: 'Password',
@@ -318,8 +273,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               color: appcolor,
               size: 20.sp,
             ),
-            onPressed: () =>
-                setState(() => _obscurePassword = !_obscurePassword),
+            onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
           ),
         ),
         SizedBox(height: 8.h),
@@ -328,17 +282,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
           child: AbsorbPointer(
             child: TextFormField(
               readOnly: true,
-              
               decoration: InputDecoration(
-                hintText:
-                    _profileImage != null ? 'Image Selected' : 'Upload Photo',
-                hintStyle:
-                    GoogleFonts.poppins(color: hintextcolor, fontSize: 12.sp),
+                hintText: _profileImage != null ? 'Image Selected' : 'Upload Photo',
+                hintStyle: GoogleFonts.poppins(color: hintextcolor, fontSize: 12.sp),
                 filled: true,
                 fillColor: Colors.grey[100],
                 border: OutlineInputBorder(
                   borderSide: BorderSide.none,
-                  borderRadius: BorderRadius.circular(14)
+                  borderRadius: BorderRadius.circular(14),
                 ),
                 suffixIcon: _profileImage != null
                     ? Container(
@@ -348,8 +299,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           shape: BoxShape.circle,
                         ),
                         padding: EdgeInsets.all(4.sp),
-                        child:
-                            Icon(Icons.check, color: Colors.white, size: 16.sp),
+                        child: Icon(Icons.check, color: Colors.white, size: 16.sp),
                       )
                     : Image.asset(
                         'assets/Icons/camera_icon.png',
@@ -359,6 +309,122 @@ class _SignUpScreenState extends State<SignUpScreen> {
             ),
           ),
         )
+      ],
+    );
+  }
+
+  // Your custom gender selector widget
+  Widget _buildCustomGenderSelector() {
+    final localizations = AppLocalizations.of(context)!;
+    
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Text(
+        //   localizations.gender,
+        //   style: GoogleFonts.poppins(
+        //     color: Colors.grey.shade800,
+        //     fontWeight: FontWeight.w600,
+        //     fontSize: 14,
+        //   ),
+        // ),
+        const SizedBox(height: 6),
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.grey.shade100,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.grey.withOpacity(0.3)),
+          ),
+          child: ValueListenableBuilder<String?>(
+            valueListenable: _selectedGenderNotifier,
+            builder: (context, selectedGender, _) {
+              return DropdownButtonFormField2<String>(
+                value: selectedGender,
+                hint: Row(
+                  children: [
+                    Icon(
+                      Icons.person_outline,
+                      color: const Color(0xFFAA8A00),
+                      size: 20,
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      localizations.selectGender,
+                      style: GoogleFonts.poppins(
+                        color: Colors.grey.shade600,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+                decoration: InputDecoration(
+                  contentPadding: const EdgeInsets.symmetric(
+                    vertical: 14,
+                    horizontal: 16,
+                  ),
+                  border: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                ),
+                isExpanded: true,
+                dropdownStyleData: DropdownStyleData(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    color: Colors.white,
+                  ),
+                  elevation: 8,
+                  offset: const Offset(0, 8), // Position dropdown lower
+                  maxHeight: 200,
+                  width: null, // This makes it match the button width
+                ),
+                iconStyleData: IconStyleData(
+                  icon: Icon(
+                    Icons.keyboard_arrow_down,
+                    color: const Color(0xFFAA8A00),
+                  ),
+                ),
+                items: [
+                  DropdownMenuItem(
+                    value: 'male',
+                    child: Row(
+                      children: [
+                        Icon(Icons.male, color: const Color(0xFFAA8A00), size: 18),
+                        const SizedBox(width: 12),
+                        Text(localizations.male, style: GoogleFonts.poppins(fontSize: 14)),
+                      ],
+                    ),
+                  ),
+                  DropdownMenuItem(
+                    value: 'female',
+                    child: Row(
+                      children: [
+                        Icon(Icons.female, color: const Color(0xFFAA8A00), size: 18),
+                        const SizedBox(width: 12),
+                        Text(localizations.female, style: GoogleFonts.poppins(fontSize: 14)),
+                      ],
+                    ),
+                  ),
+                  DropdownMenuItem(
+                    value: 'other',
+                    child: Row(
+                      children: [
+                        Icon(Icons.transgender, color: const Color(0xFFAA8A00), size: 18),
+                        const SizedBox(width: 12),
+                        Text("Other", style: GoogleFonts.poppins(fontSize: 14)),
+                      ],
+                    ),
+                  ),
+                ],
+                onChanged: (value) {
+                  _selectedGenderNotifier.value = value;
+                },
+                // Add validation for the dropdown
+                validator: (value) => value == null ? 'Please select a gender' : null,
+              );
+            },
+          ),
+        ),
+        // const SizedBox(height: 50), 
       ],
     );
   }
@@ -374,8 +440,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
             TextSpan(
               text: 'Sign In',
               recognizer: TapGestureRecognizer()
-                ..onTap = () =>
-                    Navigator.pushReplacementNamed(context, AppRoutes.signin),
+                ..onTap = () => Navigator.pushReplacementNamed(context, AppRoutes.signin),
               style: GoogleFonts.poppins(
                 color: appcolor,
                 fontSize: 12.sp,
@@ -389,16 +454,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
   }
 
   Future<void> _pickImageFromGallery() async {
-    final pickedFile =
-        await ImagePicker().pickImage(source: ImageSource.gallery);
+    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       setState(() => _profileImage = File(pickedFile.path));
     }
   }
 
   Future<void> _pickImageFromCamera() async {
-    final pickedFile =
-        await ImagePicker().pickImage(source: ImageSource.camera);
+    final pickedFile = await ImagePicker().pickImage(source: ImageSource.camera);
     if (pickedFile != null) {
       setState(() => _profileImage = File(pickedFile.path));
     }

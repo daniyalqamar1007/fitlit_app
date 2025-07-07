@@ -178,7 +178,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
 
         Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (context) => HomeScreen()),
+          MaterialPageRoute(builder: (context) => SignInScreen()),
               (route) => false,
         );
       } else {

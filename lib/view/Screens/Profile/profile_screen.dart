@@ -617,7 +617,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                       },
                     ),
                     CustomListTile(
-                      image: "assets/Icons/neww.png",
+                      image: "assets/Icons/policy.png",
                       title: localizations.privacyPolicy,
                       onTap: () {
                         Navigator.pushNamed(context, AppRoutes.privacypolicy);

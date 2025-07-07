@@ -78,6 +78,38 @@ class AvatarService {
     }
   }
 
+  Future<AvatarGenerationResponse> getUserAvatarsListWithBakground(
+      String? userId,
+      String? token,
+      ) async {
+    try {
+      // Prepare authorization header and make request
+      final options = Options(
+        headers: {
+          if (token != null && token.isNotEmpty)
+            'Authorization': 'Bearer $token',
+        },
+      );
+
+      final response = await _dio.get(
+        '/avatar/user-avatars-with-bg?userId$userId',
+        options: options,
+      );
+
+      print("Avatar API Response Code: ${response.statusCode}");
+      print("Avatar API Response Body: ${response.data}");
+
+      return AvatarGenerationResponse.fromJson(response.data);
+
+    } on DioException catch (e) {
+      print("DioException: ${e.response?.statusCode} - ${e.message}");
+      throw Exception(_getDioErrorMessage(e));
+    } catch (e) {
+      print("Unexpected Exception: $e");
+      throw Exception('Unexpected error: $e');
+    }
+  }
+
   Future<AvatarGenerationResponse> _makeApiCall(
       AvatarGenerationRequest request,
       String? token,

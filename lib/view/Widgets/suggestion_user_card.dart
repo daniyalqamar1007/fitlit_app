@@ -23,6 +23,7 @@ class UserSuggestionCard extends StatelessWidget {
   }) : super(key: key);
 
   void _navigateToProfile(BuildContext context) {
+    // print(user);
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => UserProfilePage(
@@ -74,7 +75,7 @@ class UserSuggestionCard extends StatelessWidget {
                   child: user.profilePhoto?.isNotEmpty == true
                       ? CachedNetworkImage(
                     imageUrl: user.profilePhoto!,
-                    fit: BoxFit.cover,
+                    fit: BoxFit.contain,
                     placeholder: (context, url) => Container(
                       color: Colors.grey[200],
                       child: LoadingAnimationWidget.fourRotatingDots(

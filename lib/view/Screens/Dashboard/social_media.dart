@@ -526,7 +526,7 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
                                     )
                                   : Image.asset(
                                       'assets/Images/circle_image.png',
-                                      fit: BoxFit.cover,
+                                      fit: BoxFit.contain,
                                     ),
                             ),
                           ),
