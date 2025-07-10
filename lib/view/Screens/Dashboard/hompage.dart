@@ -55,8 +55,6 @@ class _WardrobeScreenState extends State<WardrobeScreen>
   bool _isGeneratingAvatar = false;
   final ImagePicker _picker = ImagePicker();
   String? _avatarUrl;
-
-
   final List<String> avatarUrls = [
     'https://fitlit-assets.s3.us-east-2.amazonaws.com/wardrobe/1747930630870-image.png',
     'https://fitlit-assets.s3.us-east-2.amazonaws.com/wardrobe/1747934549164-image.png',
@@ -65,10 +63,63 @@ class _WardrobeScreenState extends State<WardrobeScreen>
     'https://fitlit-assets.s3.us-east-2.amazonaws.com/wardrobe/1747938354346-image.png',
     'https://fitlit-assets.s3.us-east-2.amazonaws.com/wardrobe/1747938907353-image.png',
   ];
-
   int currentIndexx = 0;
   String? staticurl="https://fitlit-assets.s3.us-east-2.amazonaws.com/wardrobe/1747930630870-image.png";
   bool _isLoadingg = false;
+
+  // Responsive helper methods
+  bool get isTablet {
+    final data = MediaQuery.of(context);
+    return data.size.shortestSide >= 600;
+  }
+
+  bool get isLargeTablet {
+    final data = MediaQuery.of(context);
+    return data.size.shortestSide >= 900;
+  }
+
+  double get screenWidth => MediaQuery.of(context).size.width;
+  double get screenHeight => MediaQuery.of(context).size.height;
+
+  double getResponsiveWidth(double mobileWidth) {
+    if (isLargeTablet) {
+      return mobileWidth * 1.8;
+    } else if (isTablet) {
+      return mobileWidth * 1.4;
+    }
+    return mobileWidth;
+  }
+
+  double getResponsiveHeight(double mobileHeight) {
+    if (isLargeTablet) {
+      return mobileHeight * 1.6;
+    } else if (isTablet) {
+      return mobileHeight * 1.3;
+    }
+    return mobileHeight;
+  }
+
+  double getResponsiveFontSize(double mobileFontSize) {
+    if (isLargeTablet) {
+      return mobileFontSize * 1.5;
+    } else if (isTablet) {
+      return mobileFontSize * 1.2;
+    }
+    return mobileFontSize;
+  }
+
+  double getResponsivePadding(double mobilePadding) {
+    if (isLargeTablet) {
+      return mobilePadding * 1.8;
+    } else if (isTablet) {
+      return mobilePadding * 1.4;
+    }
+    return mobilePadding;
+  }
+
+  EdgeInsets getResponsiveAllPadding(double mobilePadding) {
+    return EdgeInsets.all(getResponsivePadding(mobilePadding));
+  }
 
   void _goToNext() {
     setState(() {
@@ -83,13 +134,12 @@ class _WardrobeScreenState extends State<WardrobeScreen>
       staticurl=avatarUrls[currentIndexx];
     });
   }
-  SharedPreferences? _prefs;
 
+  SharedPreferences? _prefs;
   int _currentShirtIndex = 0;
   int _currentPantIndex = 0;
   int _currentShoeIndex = 0;
   bool _isSwipeGenerating = false;
-
   String? userProfileImage;
   String? profileImage;
   int _currentAvatarIndex = 0;
@@ -98,12 +148,10 @@ class _WardrobeScreenState extends State<WardrobeScreen>
   final WardrobeController _wardrobeController = WardrobeController();
   final OutfitController _outfitController = OutfitController();
   AnimationController? _avatarAnimationController;
-
   bool _isLoading = false;
   bool _isAnimatingIn = false;
   String loadingType = "";
   List<String> _userAvatars = [];
-  // int _currentAvatarIndex = 0;
   bool _isLoadingAvatars = false;
   bool isLoadingItems = true;
   bool isSavingOutfit = false;
@@ -119,25 +167,8 @@ class _WardrobeScreenState extends State<WardrobeScreen>
   List<BackgroundImageModel> _apiBackgrounds = [];
   bool _isLoadingBackgrounds = false;
   String _currentBackgroundPath = 'assets/Images/back1.png';
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   _selectedDay = _focusedDay;
-  //   _loadBackgroundImages();
-  //   UploadIsolateService.initialize();
 
-  //   // Listen for upload completion
-  //   _listenForUploadCompletion();
-  //   _loadUserProfile();
-  //   _getUserInfoAndLoadItems();
-  //   _loadAllUserAvatars(); // Add this line
-  //   _wardrobeController.statusNotifier.addListener(_handleStatusChange);
-  //   _avatarController.statusNotifier.addListener(_handleAvatarStatusChange);
-  //   _loadAvatarDates();
-  //   // _checkExistingOutfit(_focusedDay);
-  // }
-
-   @override
+  @override
   void initState() {
     super.initState();
     _selectedDay = _focusedDay;
@@ -153,14 +184,12 @@ class _WardrobeScreenState extends State<WardrobeScreen>
   }
 
   Future<void> _startBackgroundUpload(
-      String category, String subcategory, File imageFile) async
-  {
+      String category, String subcategory, File imageFile) async {
     try {
       print("cojgdsuds");
       print(category);
       print(subcategory);
       print(imageFile);
-
       final uploadId = await _wardrobeController.uploadWardrobeItemInBackground(
         category: category,
         subCategory: subcategory,
@@ -168,15 +197,11 @@ class _WardrobeScreenState extends State<WardrobeScreen>
         avatarurl: _profileController.profileNotifier.value!.profileImage,
         token: token,
       );
-
-      // Show initial success message
       showAppSnackBar(
         context,
         'Upload started! Processing in background...',
         backgroundColor: appcolor,
       );
-
-      // Wait 5 seconds then show background processing message
       Timer(Duration(seconds: 5), () {
         if (mounted) {
           _showBackgroundProcessingNotification();
@@ -258,33 +283,23 @@ class _WardrobeScreenState extends State<WardrobeScreen>
   void _listenForUploadCompletion() {
     _wardrobeController.uploadProgressNotifier.addListener(() {
       if (!mounted) return;
-
       final uploads = _wardrobeController.uploadProgressNotifier.value;
-
       for (final progress in uploads.values) {
         if (progress.isCompleted && !progress.hasShownNotification) {
-          // Mark as notification shown to prevent duplicate notifications
           progress.hasShownNotification = true;
-
-          // Show success notification
           showAppSnackBar(
             context,
             '${progress.subCategory} added to wardrobe successfully!',
             backgroundColor: appcolor,
           );
-
-          // Refresh wardrobe items after small delay
           Future.delayed(Duration(milliseconds: 500), () {
             if (mounted) {
               _getUserInfoAndLoadItems();
-              setState(() {}); // Force rebuild to update UI
+              setState(() {});
             }
           });
         } else if (progress.isError && !progress.hasShownNotification) {
-          // Mark as notification shown
           progress.hasShownNotification = true;
-
-          // Show error notification
           showAppSnackBar(
             context,
             'Failed to upload ${progress.subCategory}: ${progress.error}',
@@ -295,41 +310,10 @@ class _WardrobeScreenState extends State<WardrobeScreen>
     });
   }
 
-  // Future<void> _loadBackgroundImages() async {
-  //   setState(() {
-  //     _isLoadingBackgrounds = true;
-  //   });
-
-  //   try {
-  //     // Implement this method to get your auth token
-  //     if (token != null) {
-  //       final success = await _backgroundImageController.getAllBackgroundImages(
-  //           token: token!);
-  //       if (success) {
-  //         setState(() {
-  //           _apiBackgrounds =
-  //               _backgroundImageController.backgroundImagesNotifier.value;
-  //         });
-  //         print("teh first ");
-  //         print(_apiBackgrounds.length);
-  //         print(_apiBackgrounds.first);
-  //       }
-  //     }
-  //   } catch (e) {
-  //     print("Error loading background images: $e");
-  //   } finally {
-  //     setState(() {
-  //       _isLoadingBackgrounds = false;
-  //     });
-  //   }
-  // }
-
-  // Modified load background images method
   Future<void> _loadBackgroundImages() async {
     setState(() {
       _isLoadingBackgrounds = true;
     });
-    
     try {
       if (token != null) {
         final success = await _backgroundImageController.getAllBackgroundImages(
@@ -339,19 +323,9 @@ class _WardrobeScreenState extends State<WardrobeScreen>
             _apiBackgrounds =
                 _backgroundImageController.backgroundImagesNotifier.value;
           });
-          
-          // Update selected background URL if we have a selected background
-          try {
-            final selectedBackground = _apiBackgrounds.firstWhere((bg) => bg.status == true);
-            if (_selectedBackgroundUrl == null || _selectedBackgroundUrl!.isEmpty) {
-              setState(() {
-                _selectedBackgroundUrl = selectedBackground.imageUrl;
-                currenturl = selectedBackground.imageUrl;
-              });
-            }
-          } catch (e) {
-            // No selected background found
-          }
+          print("teh first ");
+          print(_apiBackgrounds.length);
+          print(_apiBackgrounds.first);
         }
       }
     } catch (e) {
@@ -386,7 +360,6 @@ class _WardrobeScreenState extends State<WardrobeScreen>
       setState(() {
         _isLoadingAvatars = true;
       });
-
       final response = await http.get(
         Uri.parse('${baseUrl}/avatar/user-avatars'),
         headers: {
@@ -415,22 +388,15 @@ class _WardrobeScreenState extends State<WardrobeScreen>
   }
 
   String? _getCurrentAvatarImage(UserProfileModel? userProfile) {
-    // First check if we have avatars loaded and valid index
     if (_userAvatars.isNotEmpty && _currentAvatarIndex < _userAvatars.length) {
       return _userAvatars[_currentAvatarIndex];
     }
-
-    // If we have an avatar URL from API
     if (_avatarUrl != null && _avatarUrl!.isNotEmpty) {
       return _avatarUrl;
     }
-
-    // Otherwise show profile image as default
     if (userProfile?.profileImage.isNotEmpty == true) {
       return userProfile!.profileImage;
     }
-
-    // Fallback to null (will show loading or error)
     return null;
   }
 
@@ -439,24 +405,19 @@ class _WardrobeScreenState extends State<WardrobeScreen>
     if (shirts.isEmpty) {
       showAppSnackBar(context, 'No shirts available in your wardrobe',
           backgroundColor: appcolor);
-
       return;
     }
-
     int newIndex = _currentShirtIndex;
-
     if (direction == 'next') {
       newIndex = (_currentShirtIndex + 1) % shirts.length;
     } else if (direction == 'previous') {
       newIndex = (_currentShirtIndex - 1 + shirts.length) % shirts.length;
     }
-
     if (newIndex != _currentShirtIndex) {
       setState(() {
         _currentShirtIndex = newIndex;
         selectedShirtId = shirts[newIndex].id;
       });
-
       _generateAvatarFromSwipe('shirt', direction);
       _animateItemChange('shirt');
     }
@@ -467,24 +428,19 @@ class _WardrobeScreenState extends State<WardrobeScreen>
     if (pants.isEmpty) {
       showAppSnackBar(context, 'No pants available in your wardrobe',
           backgroundColor: appcolor);
-
       return;
     }
-
     int newIndex = _currentPantIndex;
-
     if (direction == 'next') {
       newIndex = (_currentPantIndex + 1) % pants.length;
     } else if (direction == 'previous') {
       newIndex = (_currentPantIndex - 1 + pants.length) % pants.length;
     }
-
     if (newIndex != _currentPantIndex) {
       setState(() {
         _currentPantIndex = newIndex;
         selectedPantId = pants[newIndex].id;
       });
-
       _generateAvatarFromSwipe('pant', direction);
       _animateItemChange('pant');
     }
@@ -495,59 +451,44 @@ class _WardrobeScreenState extends State<WardrobeScreen>
     if (shoes.isEmpty) {
       showAppSnackBar(context, 'No shoes available in your wardrobe',
           backgroundColor: appcolor);
-
       return;
     }
-
     int newIndex = _currentShoeIndex;
-
     if (direction == 'next') {
       newIndex = (_currentShoeIndex + 1) % shoes.length;
     } else if (direction == 'previous') {
       newIndex = (_currentShoeIndex - 1 + shoes.length) % shoes.length;
     }
-
     if (newIndex != _currentShoeIndex) {
       setState(() {
         _currentShoeIndex = newIndex;
         selectedShoeId = shoes[newIndex].id;
       });
-
       _generateAvatarFromSwipe('shoes', direction);
       _animateItemChange('shoes');
     }
   }
 
   Future<void> _generateAvatarFromSwipe(
-      String category, String direction) async
-  {
+      String category, String direction) async {
     final localizations = AppLocalizations.of(context)!;
-
-    // Check internet connection
     bool hasInternet = await checkInternetAndShowDialog(context);
     if (!hasInternet) {
       return;
     }
-
-    // Validate all required items are selected
     if (selectedShirtId == null ||
         selectedPantId == null ||
         selectedShoeId == null ||
         selectedAccessoryId == null) {
       showAppSnackBar(context, 'No shoes available in your wardrobe',
           backgroundColor: appcolor);
-
       return;
     }
-
     try {
       setState(() {
         _isSwipeGenerating = true;
       });
-
-      // Show swipe feedback
       _showSwipeDirection(category, direction);
-
       final response = await _avatarController.generateAvatar(
         shirtId: selectedShirtId,
         accessories_id: selectedAccessoryId,
@@ -556,10 +497,8 @@ class _WardrobeScreenState extends State<WardrobeScreen>
         token: token,
         profile: _profileController.profileNotifier.value!.profileImage,
       );
-
       if (response.avatar != null) {
         await _loadAllUserAvatars();
-
         setState(() {
           _avatarUrl = response.avatar!;
           profileImage = response.avatar!;
@@ -581,12 +520,9 @@ class _WardrobeScreenState extends State<WardrobeScreen>
     }
   }
 
-  // Updated image container without emojis
   Widget _buildImageWithLoadingEnhanced(
-      String category, List<WardrobeItem> items)
-  {
+      String category, List<WardrobeItem> items) {
     WardrobeItem? selectedItem = _getSelectedItemForCategory(category, items);
-
     if (selectedItem != null) {
       return GestureDetector(
         onLongPress: () {
@@ -598,9 +534,8 @@ class _WardrobeScreenState extends State<WardrobeScreen>
           child: ClipRRect(
             borderRadius: BorderRadius.circular(8),
             child: CachedNetworkImage(
-              imageUrl:selectedItem.imageUrl ?? '',
+              imageUrl: selectedItem.imageUrl ?? '',
               fit: BoxFit.cover,
-
               placeholder: (context, url) => Center(
                 child: Container(
                   child: LoadingAnimationWidget.fourRotatingDots(
@@ -614,8 +549,6 @@ class _WardrobeScreenState extends State<WardrobeScreen>
         ),
       );
     }
-
-    // Show first item if no selection
     if (items.isNotEmpty) {
       return GestureDetector(
         onLongPress: () {
@@ -652,7 +585,6 @@ class _WardrobeScreenState extends State<WardrobeScreen>
         ),
       );
     }
-
     return Center(
       child: Icon(
         _getIconForCategory(category),
@@ -664,7 +596,6 @@ class _WardrobeScreenState extends State<WardrobeScreen>
 
   void _showSwipeDirection(String category, String direction) {
     String message = '';
-
     switch (category) {
       case 'shirt':
         message = direction == 'next' ? 'Next Shirt' : 'Previous Shirt';
@@ -676,7 +607,6 @@ class _WardrobeScreenState extends State<WardrobeScreen>
         message = direction == 'next' ? 'Next Shoes' : 'Previous Shoes';
         break;
     }
-
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
@@ -686,24 +616,19 @@ class _WardrobeScreenState extends State<WardrobeScreen>
     );
   }
 
-  // Update your _updateSelectedItemsFromCurrentOutfit method
   void _updateSelectedItemsFromCurrentOutfit() {
-    // Update selected IDs and indices based on first items in each category
     if (_wardrobeController.shirtsNotifier.value.isNotEmpty) {
       selectedShirtId = _wardrobeController.shirtsNotifier.value.last.id;
       _currentShirtIndex = _wardrobeController.shirtsNotifier.value.length - 1;
     }
-
     if (_wardrobeController.pantsNotifier.value.isNotEmpty) {
       selectedPantId = _wardrobeController.pantsNotifier.value.last.id;
       _currentPantIndex = _wardrobeController.pantsNotifier.value.length - 1;
     }
-
     if (_wardrobeController.shoesNotifier.value.isNotEmpty) {
       selectedShoeId = _wardrobeController.shoesNotifier.value.last.id;
       _currentShoeIndex = _wardrobeController.shoesNotifier.value.length - 1;
     }
-
     if (_wardrobeController.accessoriesNotifier.value.isNotEmpty) {
       selectedAccessoryId =
           _wardrobeController.accessoriesNotifier.value.last.id;
@@ -711,26 +636,14 @@ class _WardrobeScreenState extends State<WardrobeScreen>
   }
 
   Future<void> _getUserInfoAndLoadItems() async {
-    // final localizations = AppLocalizations.of(context)!;
     try {
       setState(() {
         isLoadingItems = true;
       });
-
       await _wardrobeController.loadWardrobeItems();
-
-      // After loading items, set default selections
       _updateSelectedItemsFromCurrentOutfit();
     } catch (e) {
       print("Error getting user info: $e");
-      // if (mounted) {
-      //   ScaffoldMessenger.of(context).showSnackBar(
-      //     SnackBar(
-      //       content: Text(localizations.failedToLoadWardrobeItems),
-      //       backgroundColor: Colors.red,
-      //     ),
-      //   );
-      // }
     }
   }
 
@@ -747,38 +660,26 @@ class _WardrobeScreenState extends State<WardrobeScreen>
     });
   }
 
-  // Modified check existing outfit method
   Future<void> _checkExistingOutfit(DateTime date) async {
     try {
       setState(() {
         isLoadingItems = true;
       });
-
       final outfit = await _outfitController.getOutfitByDate(
           token: token!,
           date: date,
           id: _profileController.profileNotifier.value!.id);
-
+      print("coming ios ${outfit?.backgroundimage}");
       if (outfit?.success == true) {
         setState(() {
           _avatarUrl = outfit?.avatar_url;
-          // Update both currenturl and selectedBackgroundUrl for consistency
-          if (outfit?.backgroundimage != null && outfit!.backgroundimage!.isNotEmpty) {
-            currenturl = outfit.backgroundimage;
-            _selectedBackgroundUrl = outfit.backgroundimage;
-          }
+          currenturl = outfit?.backgroundimage;
         });
         _updateAvatarBasedOnOutfit(outfit?.avatar_url);
-      } else {
-        // Clear the outfit-specific background when no outfit is found
-        setState(() {
-          currenturl = null;
-          // Keep _selectedBackgroundUrl for user-selected backgrounds
-        });
-      }
-
+      } else {}
       setState(() {
         isLoadingItems = false;
+        currenturl = "";
       });
     } catch (e) {
       print("Error checking existing outfit: $e");
@@ -788,82 +689,30 @@ class _WardrobeScreenState extends State<WardrobeScreen>
     }
   }
 
-  // Add this method to clear cache if needed
-  void _clearBackgroundCache() {
-    // Clear the cached network image cache
-    CachedNetworkImage.evictFromCache(_selectedBackgroundUrl ?? '');
-    if (currenturl != null) {
-      CachedNetworkImage.evictFromCache(currenturl!);
-    }
-  }
-
-  // Check if there's an existing outfit for the selected date
-  // Future<void> _checkExistingOutfit(DateTime date) async {
-  //   // final localizations = AppLocalizations.of(context)!;
-  //   try {
-  //     setState(() {
-  //       isLoadingItems = true; // Show loading indicator
-  //     });
-  //     // bool hasInternet = await checkInternetAndShowDialog(context);
-  //     // if (!hasInternet) {
-  //     //   return;
-  //     // }
-  //     final outfit = await _outfitController.getOutfitByDate(
-  //         token: token!,
-  //         date: date,
-  //         id: _profileController.profileNotifier.value!.id);
-  //     print("coming ios ${outfit?.backgroundimage}");
-
-  //     if (outfit?.success == true) {
-  //       setState(() {
-  //         _avatarUrl = outfit?.avatar_url; // Update the avatar URL state
-  //         currenturl = outfit?.backgroundimage;
-  //         // Also update profileImage for saving
-  //       });
-  //       _updateAvatarBasedOnOutfit(outfit?.avatar_url);
-
-  //       // Show brief success message that an outfit was found
-  //     } else {}
-
-  //     setState(() {
-  //       isLoadingItems = false;
-  //       currenturl="";
-  //       // Hide loading indicator
-  //     });
-  //   } catch (e) {
-  //     print("Error checking existing outfit: $e");
-  //     setState(() {
-  //       isLoadingItems = false;
-  //     });
-  //   }
-  // }
-
   void _updateAvatarBasedOnOutfit(outfit) {
     _avatarUrl = outfit;
     _currentAvatarIndex = 1;
-    // Logic to update avatar based on outfit components
-    // This is a simplified implementation
     if (outfit.shirtId != null && outfit.pantId != null) {
       setState(() {
         _avatarUrl = outfit;
-
         profileImage = outfit;
-        _currentAvatarIndex = 0; // Default to first index for API avatars
+        _currentAvatarIndex = 0;
       });
     } else if (outfit.shirtId != null) {
       setState(() {
-        _currentAvatarIndex = 1; // Shirt only
+        _currentAvatarIndex = 1;
       });
     } else if (outfit.pantId != null) {
       setState(() {
-        _currentAvatarIndex = 2; // Pants only
+        _currentAvatarIndex = 2;
       });
     } else {
       setState(() {
-        _currentAvatarIndex = 5; // Default
+        _currentAvatarIndex = 5;
       });
     }
   }
+
   Future<Uint8List> _loadImageBytes(String pathOrUrl, {bool isNetwork = false}) async {
     if (isNetwork) {
       final response = await http.get(Uri.parse(pathOrUrl));
@@ -877,54 +726,34 @@ class _WardrobeScreenState extends State<WardrobeScreen>
     }
   }
 
-// Main logic to merge two images and share them
   Future<File> mergeAndSaveStackedImage({
     required String backgroundUrl,
     required String avatarUrl,
   }) async {
     try {
-      print('data $backgroundUrl $avatarUrl');
-      // Load image bytes
       final bgBytes = await _loadImageBytes(backgroundUrl, isNetwork: true);
       final avatarBytes = await _loadImageBytes(avatarUrl, isNetwork: true);
-
-      // Decode both images
       final background = img.decodeImage(bgBytes);
       final avatar = img.decodeImage(avatarBytes);
-
       if (background == null || avatar == null) {
         throw Exception("One of the images could not be decoded.");
       }
-      print('both');
-
-      // Resize avatar (optional)
       final avatarResized = img.copyResize(
         avatar,
         width: (background.width * 0.6).toInt(),
       );
-
-      // Copy background
       img.Image merged = img.copyResize(
         background,
         width: background.width,
         height: background.height,
       );
-
-      // Center position
       final dx = ((background.width - avatarResized.width) / 2).toInt();
       final dy = ((background.height - avatarResized.height) / 2).toInt();
-
-      // Composite avatar onto background
       img.compositeImage(merged, avatarResized, dstX: dx, dstY: dy);
-
-      // Encode PNG
       final combinedBytes = img.encodePng(merged);
-
-      // Save as stackimage.png
       final dir = await getApplicationDocumentsDirectory();
       final file = File('${dir.path}/stackimage.png');
       await file.writeAsBytes(combinedBytes);
-      print('return');
       return file;
     } catch (e) {
       print('❌ Error: $e');
@@ -933,62 +762,35 @@ class _WardrobeScreenState extends State<WardrobeScreen>
   }
 
   Future<void> _saveOutfit(BuildContext context) async {
-    // Show confirmation dialog
-    print('save outfit button clicked');
     bool hasInternet = await checkInternetAndShowDialog(context);
     if (!hasInternet) {
       return;
     }
     bool confirmed = await _showSaveOutfitConfirmationDialog();
     if (!confirmed) return;
-
-    print('confirmed');
-
     setState(() {
       isSavingOutfit = true;
     });
-
     try {
-      print('before merged');
-      File? mergedFile= await mergeAndSaveStackedImage(
+      File? mergedFile = await mergeAndSaveStackedImage(
         backgroundUrl: currenturl!,
         avatarUrl: staticurl!,
       );
-      
-      
-      print('''
-      --- Outfit Data ---
-      Token: $token
-      Shirt ID: 681e413544c5377f3cdb4575
-      Pant ID: 68247bacab8a78ba02e03623
-      Shoe ID: 682c271bf00363d7967c29fe
-      Accessory ID: 6828e27c408e9791407522c2
-      Background Image URL: $currenturl
-      Message: $outfitMessage
-      Avatar URL: $staticurl
-      File: $mergedFile
-      Date: ${_selectedDay ?? _focusedDay}
-      ---------------------
-      ''');
-
       final result = await _outfitController.saveOutfit(
         token: token!,
-        shirtId:  "681e413544c5377f3cdb4575",
-        pantId:  "68247bacab8a78ba02e03623",
-        shoeId:  "682c271bf00363d7967c29fe",
+        shirtId: "681e413544c5377f3cdb4575",
+        pantId: "68247bacab8a78ba02e03623",
+        shoeId: "682c271bf00363d7967c29fe",
         accessoryId: "6828e27c408e9791407522c2",
         backgroundimageurl: currenturl,
         message: outfitMessage,
-        // accessoryId: selectedAccessoryId ?? "",
         avatarurl: staticurl!,
-        file:mergedFile,
+        file: mergedFile,
         date: _selectedDay ?? _focusedDay,
       );
-
       setState(() {
         isSavingOutfit = false;
       });
-
       if (result) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -1053,46 +855,12 @@ class _WardrobeScreenState extends State<WardrobeScreen>
     }
   }
 
-  
-
   Future<void> _loadAvatarDates() async {
     if (token != null) {
       await _outfitController.loadAllAvatarDates(token: token!);
     }
   }
 
-   // Add these state variables for better background management
-  String? _selectedBackgroundUrl;
-  bool _isBackgroundLoading = false;
-
-  // void _showBackgroundSelectionSheet() async {
-
-  //   await showModalBottomSheet(
-  //     context: context,
-  //     isScrollControlled: true,
-  //     backgroundColor: Colors.transparent,
-  //     builder: (context) => BackgroundSelectionSheet(
-  //       currentBackgroundPath: _currentBackgroundPath,
-  //       appColor: appcolor,
-  //       onBackgroundSelected: (backgroundPath) async {
-  //         setState(() {
-  //           currenturl="";
-  //           _currentBackgroundPath = backgroundPath;
-  //         });
-  //         print("haseeb is coming");
-  //         print(_currentBackgroundPath);
-
-
-  //         // Reload background images to get the updated status
-  //         await _loadBackgroundImages();
-
-  //         _showSuccessSnackBar("Background updated successfully!");
-  //       },
-  //     ),
-  //   );
-  // }
-
-   // Modified background selection method
   void _showBackgroundSelectionSheet() async {
     await showModalBottomSheet(
       context: context,
@@ -1102,45 +870,19 @@ class _WardrobeScreenState extends State<WardrobeScreen>
         currentBackgroundPath: _currentBackgroundPath,
         appColor: appcolor,
         onBackgroundSelected: (backgroundPath) async {
-          // Set loading state
           setState(() {
-            _isBackgroundLoading = true;
+            currenturl = "";
+            _currentBackgroundPath = backgroundPath;
           });
-          
-          // Update the selected background URL immediately
-          if (_apiBackgrounds.isNotEmpty) {
-            // Find the selected background from API backgrounds
-            try {
-              final selectedBg = _apiBackgrounds.firstWhere(
-                (bg) => bg.imageUrl.contains(backgroundPath) || bg.status == true
-              );
-              setState(() {
-                _selectedBackgroundUrl = selectedBg.imageUrl;
-                currenturl = selectedBg.imageUrl;
-                _currentBackgroundPath = backgroundPath;
-                _isBackgroundLoading = false;
-              });
-            } catch (e) {
-              // If not found in API backgrounds, use the path directly
-              setState(() {
-                _selectedBackgroundUrl = backgroundPath;
-                currenturl = backgroundPath;
-                _currentBackgroundPath = backgroundPath;
-                _isBackgroundLoading = false;
-              });
-            }
-          }
-          
-          // Reload background images to get the updated status
+          print("haseeb is coming");
+          print(_currentBackgroundPath);
           await _loadBackgroundImages();
-          
           _showSuccessSnackBar("Background updated successfully!");
         },
       ),
     );
   }
 
-  // Add this helper function for success messages
   void _showSuccessSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -1170,7 +912,6 @@ class _WardrobeScreenState extends State<WardrobeScreen>
     final localizations = AppLocalizations.of(context)!;
     bool result = false;
     TextEditingController messageController = TextEditingController();
-
     await showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -1237,22 +978,8 @@ class _WardrobeScreenState extends State<WardrobeScreen>
   }
 
   @override
-  void dispose() {
-    _avatarAnimationController?.dispose();
-    _wardrobeController.statusNotifier.removeListener(_handleStatusChange);
-    _wardrobeController.dispose();
-    _outfitController.dispose();
-    _avatarController.statusNotifier.removeListener(_handleAvatarStatusChange);
-    _avatarController.dispose();
-    _backgroundImageController.dispose();
-
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
-
     return RefreshIndicator(
       color: appcolor,
       backgroundColor: white,
@@ -1260,7 +987,6 @@ class _WardrobeScreenState extends State<WardrobeScreen>
         await _getUserInfoAndLoadItems();
         await _loadUserProfile();
         await _loadAvatarDates();
-        // await _loadBackgroundImages(); // Added this line
       },
       child: Scaffold(
         backgroundColor: themeController.white,
@@ -1278,12 +1004,12 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                       ),
                     ),
                     Padding(
-                      padding: Responsive.allPadding(16.0),
+                      padding: getResponsiveAllPadding(16.0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           _buildTopRow(),
-                          SizedBox(height: Responsive.height(20)),
+                          SizedBox(height: getResponsiveHeight(20)),
                           _buildThreeColumnSection(),
                         ],
                       ),
@@ -1291,11 +1017,11 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                   ],
                 ),
                 Padding(
-                  padding: Responsive.allPadding(16.0),
+                  padding: getResponsiveAllPadding(16.0),
                   child: _buildCalendarSection(controller),
                 ),
                 SizedBox(
-                  height: Responsive.height(40),
+                  height: getResponsiveHeight(40),
                 )
               ],
             ),
@@ -1307,7 +1033,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
           shape: CircleBorder(),
           child: Image.asset(
             'assets/Icons/home_icon.png',
-            scale: 4,
+            scale: isTablet ? 3 : 4,
             color: Colors.white,
           ),
         ),
@@ -1316,164 +1042,16 @@ class _WardrobeScreenState extends State<WardrobeScreen>
     );
   }
 
-  // Widget _buildBackgroundImage() {
-  //   if (_isLoadingBackgrounds) {
-  //     return Container();
-  //   }
-
-  //   // Priority 1: Use currenturl if set
-  //   if (currenturl != null && currenturl!.isNotEmpty) {
-  //     return CachedNetworkImage(
-  //       imageUrl: currenturl!,
-  //       fit: BoxFit.cover,
-  //       width: double.infinity,
-  //       height: double.infinity,
-  //       placeholder: (context, url) => Container(
-  //         color: Colors.grey[200],
-  //       ),
-  //       errorWidget: (context, url, error) => Container(
-  //         color: Colors.grey[200],
-  //         child: Center(
-  //           child: Icon(
-  //             Icons.broken_image,
-  //             color: Colors.grey,
-  //             size: 50,
-  //           ),
-  //         ),
-  //       ),
-  //       memCacheWidth: (MediaQuery.of(context).size.width * 2).toInt(),
-  //       memCacheHeight: (MediaQuery.of(context).size.height * 2).toInt(),
-  //     );
-  //   }
-
-  //   // Priority 2: Check API backgrounds
-  //   if (_apiBackgrounds.isEmpty) {
-  //     return Image.asset("assets/Images/new.jpg",fit: BoxFit.cover,);
-  //   }
-
-  //   // Priority 3: Find selected background
-  //   try {
-  //     final selectedBackground = _apiBackgrounds.firstWhere((bg) => bg.status == true);
-  //     currenturl = selectedBackground.imageUrl;
-
-  //     return CachedNetworkImage(
-  //       imageUrl: selectedBackground.imageUrl,
-  //       fit: BoxFit.cover,
-  //       width: double.infinity,
-  //       height: double.infinity,
-  //       placeholder: (context, url) => Container(
-  //         color: Colors.grey[200],
-  //       ),
-  //       errorWidget: (context, url, error) => Container(
-  //         color: Colors.grey[200],
-  //         child: Center(
-  //           child: Icon(
-  //             Icons.broken_image,
-  //             color: Colors.grey,
-  //             size: 50,
-  //           ),
-  //         ),
-  //       ),
-  //     );
-  //   } catch (e) {
-  //     // Priority 4: Show first available background
-  //     if (_apiBackgrounds.isNotEmpty) {
-  //       return CachedNetworkImage(
-  //         imageUrl: _apiBackgrounds.first.imageUrl,
-  //         fit: BoxFit.cover,
-  //         width: double.infinity,
-  //         height: double.infinity,
-  //         placeholder: (context, url) => Container(
-  //           color: Colors.grey[200],
-  //           child: Center(
-  //             child: LoadingAnimationWidget.fourRotatingDots(
-  //               color: appcolor,
-  //               size: 20,
-  //             ),
-  //           ),
-  //         ),
-  //         errorWidget: (context, url, error) => Container(
-  //           color: Colors.grey[200],
-  //           child: Center(
-  //             child: Icon(
-  //               Icons.broken_image,
-  //               color: Colors.grey,
-  //               size: 50,
-  //             ),
-  //           ),
-  //         ),
-  //       );
-  //     }
-
-  //     // Fallback
-  //     return Container(
-  //       color: Colors.grey[200],
-  //       width: double.infinity,
-  //       height: double.infinity,
-  //       child: Center(
-  //         child: Text(
-  //           'No background selected',
-  //           style: TextStyle(color: Colors.grey),
-  //         ),
-  //       ),
-  //     );
-  //   }
-  // }
- 
-  // Fixed background image builder
   Widget _buildBackgroundImage() {
-    if (_isLoadingBackgrounds || _isBackgroundLoading) {
-      return Container(
-        color: Colors.grey[200],
-        child: Center(
-          child: LoadingAnimationWidget.fourRotatingDots(
-            color: appcolor,
-            size: 20,
-          ),
-        ),
-      );
+    if (_isLoadingBackgrounds) {
+      return Container();
     }
-
-    // Priority 1: Use selectedBackgroundUrl if set (immediate update)
-    if (_selectedBackgroundUrl != null && _selectedBackgroundUrl!.isNotEmpty) {
-      return CachedNetworkImage(
-        imageUrl: _selectedBackgroundUrl!,
-        fit: BoxFit.cover,
-        width: double.infinity,
-        height: double.infinity,
-        key: ValueKey(_selectedBackgroundUrl), // Force rebuild with new key
-        placeholder: (context, url) => Container(
-          color: Colors.grey[200],
-          child: Center(
-            child: LoadingAnimationWidget.fourRotatingDots(
-              color: appcolor,
-              size: 20,
-            ),
-          ),
-        ),
-        errorWidget: (context, url, error) => Container(
-          color: Colors.grey[200],
-          child: Center(
-            child: Icon(
-              Icons.broken_image,
-              color: Colors.grey,
-              size: 50,
-            ),
-          ),
-        ),
-        memCacheWidth: (MediaQuery.of(context).size.width * 2).toInt(),
-        memCacheHeight: (MediaQuery.of(context).size.height * 2).toInt(),
-      );
-    }
-
-    // Priority 2: Use currenturl if set (from existing outfit)
     if (currenturl != null && currenturl!.isNotEmpty) {
       return CachedNetworkImage(
         imageUrl: currenturl!,
         fit: BoxFit.cover,
         width: double.infinity,
         height: double.infinity,
-        key: ValueKey(currenturl), // Force rebuild with new key
         placeholder: (context, url) => Container(
           color: Colors.grey[200],
         ),
@@ -1491,35 +1069,17 @@ class _WardrobeScreenState extends State<WardrobeScreen>
         memCacheHeight: (MediaQuery.of(context).size.height * 2).toInt(),
       );
     }
-
-    // Priority 3: Check API backgrounds for selected one
     if (_apiBackgrounds.isEmpty) {
-      return Image.asset(
-        "assets/Images/new.jpg",
-        fit: BoxFit.cover,
-        key: ValueKey("default_background"),
-      );
+      return Image.asset("assets/Images/new.jpg", fit: BoxFit.cover);
     }
-
-    // Priority 4: Find selected background from API
     try {
       final selectedBackground = _apiBackgrounds.firstWhere((bg) => bg.status == true);
-      // Update the selected URL for consistency
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          setState(() {
-            _selectedBackgroundUrl = selectedBackground.imageUrl;
-            currenturl = selectedBackground.imageUrl;
-          });
-        }
-      });
-      
+      currenturl = selectedBackground.imageUrl;
       return CachedNetworkImage(
         imageUrl: selectedBackground.imageUrl,
         fit: BoxFit.cover,
         width: double.infinity,
         height: double.infinity,
-        key: ValueKey(selectedBackground.imageUrl),
         placeholder: (context, url) => Container(
           color: Colors.grey[200],
         ),
@@ -1535,14 +1095,12 @@ class _WardrobeScreenState extends State<WardrobeScreen>
         ),
       );
     } catch (e) {
-      // Priority 5: Show first available background
       if (_apiBackgrounds.isNotEmpty) {
         return CachedNetworkImage(
           imageUrl: _apiBackgrounds.first.imageUrl,
           fit: BoxFit.cover,
           width: double.infinity,
           height: double.infinity,
-          key: ValueKey(_apiBackgrounds.first.imageUrl),
           placeholder: (context, url) => Container(
             color: Colors.grey[200],
             child: Center(
@@ -1564,8 +1122,6 @@ class _WardrobeScreenState extends State<WardrobeScreen>
           ),
         );
       }
-
-      // Fallback
       return Container(
         color: Colors.grey[200],
         width: double.infinity,
@@ -1582,7 +1138,6 @@ class _WardrobeScreenState extends State<WardrobeScreen>
 
   Widget _buildTopRow() {
     final localizations = AppLocalizations.of(context)!;
-
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -1598,14 +1153,13 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                 if (userProfile == null) {
                   return LoadingAnimationWidget.fourRotatingDots(
                       color: appcolor,
-                      size: 20
+                      size: getResponsiveWidth(20)
                   );
                 }
-
                 return ClipOval(
                   child: Container(
-                    width: 50,
-                    height: 50,
+                    width: getResponsiveWidth(50),
+                    height: getResponsiveHeight(50),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       shape: BoxShape.circle,
@@ -1618,14 +1172,13 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                       placeholder: (context, url) => Center(
                         child: LoadingAnimationWidget.fourRotatingDots(
                           color: appcolor,
-                          size: 20,
+                          size: getResponsiveWidth(20),
                         ),
                       ),
                       errorWidget: (context, url, error) => Image.asset(
                         'assets/Images/circle_image.png',
                         fit: BoxFit.cover,
                       ),
-
                     )
                         : Image.asset(
                       'assets/Images/circle_image.png',
@@ -1637,19 +1190,19 @@ class _WardrobeScreenState extends State<WardrobeScreen>
             ),
           ),
         ),
-        SizedBox(width: Responsive.width(10)),
+        SizedBox(width: getResponsiveWidth(10)),
         Expanded(
           flex: 3,
           child: Text(
             localizations.fitlit,
             style: GoogleFonts.playfairDisplay(
               color: appcolor,
-              fontSize: Responsive.fontSize(22),
+              fontSize: getResponsiveFontSize(22),
               fontWeight: FontWeight.w600,
             ),
           ),
         ),
-        SizedBox(width: Responsive.width(40)),
+        SizedBox(width: getResponsiveWidth(40)),
         GestureDetector(
           onTap: isSavingOutfit
               ? null
@@ -1657,19 +1210,22 @@ class _WardrobeScreenState extends State<WardrobeScreen>
             await _saveOutfit(context);
           },
           child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-            height: 30,
+            padding: EdgeInsets.symmetric(
+              horizontal: getResponsivePadding(14), 
+              vertical: getResponsivePadding(8)
+            ),
+            height: getResponsiveHeight(30),
             decoration: BoxDecoration(
               color: isSavingOutfit ? Colors.grey : appcolor.withOpacity(0.7),
-              borderRadius: BorderRadius.circular(30),
+              borderRadius: BorderRadius.circular(getResponsivePadding(30)),
             ),
             child: isSavingOutfit
                 ? SizedBox(
-              width: 16,
-              height: 16,
+              width: getResponsiveWidth(16),
+              height: getResponsiveHeight(16),
               child: LoadingAnimationWidget.fourRotatingDots(
                 color: appcolor,
-                size: 20,
+                size: getResponsiveWidth(20),
               ),
             )
                 : Text(
@@ -1677,7 +1233,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
               style: GoogleFonts.poppins(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
-                fontSize: 10,
+                fontSize: getResponsiveFontSize(10),
               ),
             ),
           ),
@@ -1691,21 +1247,16 @@ class _WardrobeScreenState extends State<WardrobeScreen>
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // First Column - Date, Shirts, Accessories, Pants, Shoes
           Expanded(
-            flex: 4,
+            flex: isTablet ? 5 : 4,
             child: _buildFirstColumn(),
           ),
-
-          // Second Column - Avatar
           Expanded(
-            flex: 8,
+            flex: isTablet ? 6 : 8,
             child: _buildAvatarColumn2(),
           ),
-
-          // Third Column - Similar to first column
           Expanded(
-            flex: 4,
+            flex: isTablet ? 5 : 4,
             child: _buildThirdColumn(),
           ),
         ],
@@ -1719,14 +1270,13 @@ class _WardrobeScreenState extends State<WardrobeScreen>
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        // Date section
         Container(
           padding: EdgeInsets.symmetric(
-              horizontal: Responsive.width(10),
-              vertical: Responsive.height(10)),
+              horizontal: getResponsivePadding(10),
+              vertical: getResponsivePadding(10)),
           decoration: BoxDecoration(
             color: appcolor.withOpacity(0.7),
-            borderRadius: BorderRadius.circular(Responsive.radius(30)),
+            borderRadius: BorderRadius.circular(getResponsivePadding(30)),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -1734,115 +1284,100 @@ class _WardrobeScreenState extends State<WardrobeScreen>
               Icon(
                 Icons.calendar_month_sharp,
                 color: Colors.white,
-                size: Responsive.fontSize(14),
+                size: getResponsiveFontSize(14),
               ),
               Text(" ${_focusedDay.day} ${_getMonthName(_focusedDay.month)}",
                   style: GoogleFonts.poppins(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
-                    fontSize: Responsive.fontSize(10),
+                    fontSize: getResponsiveFontSize(10),
                   )),
             ],
           ),
         ),
-
-        SizedBox(
-          height: Responsive.height(10),
-        ),
-
-        // Shirts
+        SizedBox(height: getResponsiveHeight(10)),
         Container(
           padding: EdgeInsets.symmetric(
-              horizontal: Responsive.width(14), vertical: Responsive.height(8)),
-          height: Responsive.height(30),
+              horizontal: getResponsivePadding(14), 
+              vertical: getResponsivePadding(8)),
+          height: getResponsiveHeight(30),
           decoration: BoxDecoration(
             color: appcolor.withOpacity(0.7),
-            borderRadius: BorderRadius.circular(Responsive.radius(30)),
+            borderRadius: BorderRadius.circular(getResponsivePadding(30)),
           ),
           child: Text(
             localizations.shirts,
             style: GoogleFonts.poppins(
-              fontSize: Responsive.fontSize(10),
+              fontSize: getResponsiveFontSize(10),
               color: Colors.white,
               fontWeight: FontWeight.w600,
             ),
           ),
         ),
-        SizedBox(
-          height: Responsive.height(10),
-        ),
+        SizedBox(height: getResponsiveHeight(10)),
         _buildWardrobeItemContainer('shirt'),
-        SizedBox(height: Responsive.height(7)),
-
+        SizedBox(height: getResponsiveHeight(7)),
         Container(
           padding: EdgeInsets.symmetric(
-              horizontal: Responsive.width(12), vertical: Responsive.height(8)),
-          height: Responsive.height(30),
+              horizontal: getResponsivePadding(12), 
+              vertical: getResponsivePadding(8)),
+          height: getResponsiveHeight(30),
           decoration: BoxDecoration(
             color: appcolor.withOpacity(0.7),
-            borderRadius: BorderRadius.circular(Responsive.radius(30)),
+            borderRadius: BorderRadius.circular(getResponsivePadding(30)),
           ),
           child: Text(
             'Accessories',
             style: GoogleFonts.poppins(
-              fontSize: Responsive.fontSize(9),
+              fontSize: getResponsiveFontSize(9),
               color: Colors.white,
               fontWeight: FontWeight.w600,
             ),
           ),
         ),
-        SizedBox(
-          height: Responsive.height(7),
-        ),
+        SizedBox(height: getResponsiveHeight(7)),
         _buildWardrobeItemContainer('accessories'),
-        SizedBox(
-          height: Responsive.height(7),
-        ),
+        SizedBox(height: getResponsiveHeight(7)),
         Container(
           padding: EdgeInsets.symmetric(
-              horizontal: Responsive.width(14), vertical: Responsive.height(8)),
-          height: Responsive.height(30),
+              horizontal: getResponsivePadding(14), 
+              vertical: getResponsivePadding(8)),
+          height: getResponsiveHeight(30),
           decoration: BoxDecoration(
             color: appcolor.withOpacity(0.7),
-            borderRadius: BorderRadius.circular(Responsive.radius(30)),
+            borderRadius: BorderRadius.circular(getResponsivePadding(30)),
           ),
           child: Text(
             localizations.pants,
             style: GoogleFonts.poppins(
-              fontSize: Responsive.fontSize(10),
+              fontSize: getResponsiveFontSize(10),
               color: Colors.white,
               fontWeight: FontWeight.w600,
             ),
           ),
         ),
-        SizedBox(
-          height: Responsive.height(7),
-        ),
-
+        SizedBox(height: getResponsiveHeight(7)),
         _buildWardrobeItemContainer('pant'),
-        SizedBox(
-          height: Responsive.height(7),
-        ),
+        SizedBox(height: getResponsiveHeight(7)),
         Container(
           padding: EdgeInsets.symmetric(
-              horizontal: Responsive.width(14), vertical: Responsive.height(8)),
-          height: Responsive.height(30),
+              horizontal: getResponsivePadding(14), 
+              vertical: getResponsivePadding(8)),
+          height: getResponsiveHeight(30),
           decoration: BoxDecoration(
             color: appcolor.withOpacity(0.7),
-            borderRadius: BorderRadius.circular(Responsive.radius(30)),
+            borderRadius: BorderRadius.circular(getResponsivePadding(30)),
           ),
           child: Text(
             localizations.shoes,
             style: GoogleFonts.poppins(
-              fontSize: Responsive.fontSize(10),
+              fontSize: getResponsiveFontSize(10),
               color: Colors.white,
               fontWeight: FontWeight.w600,
             ),
           ),
         ),
-        SizedBox(
-          height: Responsive.height(7),
-        ),
+        SizedBox(height: getResponsiveHeight(7)),
         _buildWardrobeItemContainer('shoes'),
       ],
     );
@@ -1911,18 +1446,6 @@ class _WardrobeScreenState extends State<WardrobeScreen>
       localizations.oct,
       localizations.nov,
       localizations.dec,
-      //
-      // 'Feb',
-      // 'Mar',
-      // 'Apr',
-      // 'May',
-      // 'Jun',
-      // 'Jul',
-      // 'Aug',
-      // 'Sep',
-      // 'Oct',
-      // 'Nov',
-      // 'Dec'
     ];
     return months[month - 1];
   }
@@ -1956,18 +1479,17 @@ class _WardrobeScreenState extends State<WardrobeScreen>
           return ValueListenableBuilder<Map<String, UploadProgress>>(
             valueListenable: _wardrobeController.uploadProgressNotifier,
             builder: (context, uploadProgress, child) {
-              // Check if there's an active upload for this category
               List<UploadProgress> categoryUploads =
                   _getCategoryUploads(category, uploadProgress);
               bool hasActiveUpload = categoryUploads.isNotEmpty;
 
               return Container(
-                width: Responsive.width(60),
-                height: Responsive.height(56),
-                margin: const EdgeInsets.only(bottom: 5),
+                width: getResponsiveWidth(60),
+                height: getResponsiveHeight(56),
+                margin: EdgeInsets.only(bottom: getResponsivePadding(5)),
                 decoration: BoxDecoration(
                   color: themeController.white,
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(getResponsivePadding(10)),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.grey.withOpacity(0.4),
@@ -1975,7 +1497,6 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                       offset: const Offset(0, 2),
                     ),
                   ],
-                  // Enhanced border for selected items or active uploads
                   border: _isItemSelected(category)
                       ? Border.all(color: appcolor, width: 3)
                       : hasActiveUpload
@@ -1986,25 +1507,22 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                 ),
                 child: Stack(
                   children: [
-                    // Main content
                     if (items.isEmpty)
                       Center(
                         child: Icon(
                           _getIconForCategory(category),
                           color: Colors.grey,
-                          size: MediaQuery.of(context).size.width * 0.07,
+                          size: getResponsiveWidth(30),
                         ),
                       )
                     else
                       _buildImageWithLoadingEnhanced(category, items),
-
-                    // Upload indicator badge
                     if (hasActiveUpload)
                       Positioned(
-                        top: 4,
-                        right: 4,
+                        top: getResponsivePadding(4),
+                        right: getResponsivePadding(4),
                         child: Container(
-                          padding: EdgeInsets.all(2),
+                          padding: EdgeInsets.all(getResponsivePadding(2)),
                           decoration: BoxDecoration(
                             color: appcolor,
                             shape: BoxShape.circle,
@@ -2012,7 +1530,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                           child: Icon(
                             Icons.cloud_upload,
                             color: Colors.white,
-                            size: 12,
+                            size: getResponsiveFontSize(12),
                           ),
                         ),
                       ),
@@ -2027,10 +1545,8 @@ class _WardrobeScreenState extends State<WardrobeScreen>
   }
 
   List<UploadProgress> _getCategoryUploads(
-      String category, Map<String, UploadProgress> uploadProgress)
-  {
+      String category, Map<String, UploadProgress> uploadProgress) {
     List<UploadProgress> categoryUploads = [];
-
     for (var progress in uploadProgress.values) {
       if (!progress.isCompleted &&
           !progress.isError &&
@@ -2038,7 +1554,6 @@ class _WardrobeScreenState extends State<WardrobeScreen>
         categoryUploads.add(progress);
       }
     }
-
     return categoryUploads;
   }
 
@@ -2067,17 +1582,10 @@ class _WardrobeScreenState extends State<WardrobeScreen>
   }
 
   void _animateItemChange(String category) {
-    setState(() {
-      // Trigger rebuild with animation
-    });
-
-    // Add haptic feedback
+    setState(() {});
     HapticFeedback.selectionClick();
-
     Future.delayed(Duration(milliseconds: 100), () {
-      setState(() {
-        // Additional UI updates if needed
-      });
+      setState(() {});
     });
   }
 
@@ -2097,10 +1605,8 @@ class _WardrobeScreenState extends State<WardrobeScreen>
   }
 
   WardrobeItem? _getSelectedItemForCategory(
-      String category, List<WardrobeItem> items)
-  {
+      String category, List<WardrobeItem> items) {
     String? selectedId;
-
     switch (category) {
       case 'shirt':
         selectedId = selectedShirtId;
@@ -2111,27 +1617,22 @@ class _WardrobeScreenState extends State<WardrobeScreen>
       case 'shoes':
         selectedId = selectedShoeId;
         break;
-      case 'accessories': // Changed from 'accessory' to 'accessories'
+      case 'accessories':
         selectedId = selectedAccessoryId;
         break;
     }
-
     if (selectedId == null) return null;
-
     for (var item in items) {
       if (item.id == selectedId) {
         return item;
       }
     }
-
     return null;
   }
 
   void _showItemSelectionDialog(
-      String category, ValueNotifier<List<WardrobeItem>> notifier)
-  {
+      String category, ValueNotifier<List<WardrobeItem>> notifier) {
     final localizations = AppLocalizations.of(context)!;
-
     showDialog(
       context: context,
       builder: (context) => Dialog(
@@ -2161,14 +1662,10 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                 child: ValueListenableBuilder<Map<String, UploadProgress>>(
                   valueListenable: _wardrobeController.uploadProgressNotifier,
                   builder: (context, uploadProgress, child) {
-                    // Get active uploads for this category
                     List<UploadProgress> categoryUploads =
                         _getCategoryUploads(category, uploadProgress);
-
-                    // Calculate total grid items (existing items + uploading items)
                     int totalItems =
                         notifier.value.length + categoryUploads.length;
-
                     if (totalItems == 0) {
                       return Container(
                         height: 100,
@@ -2183,7 +1680,6 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                         ),
                       );
                     }
-
                     return GridView.builder(
                       shrinkWrap: true,
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -2193,17 +1689,13 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                       ),
                       itemCount: totalItems,
                       itemBuilder: (context, index) {
-                        // First show uploading items
                         if (index < categoryUploads.length) {
                           return _buildUploadingGridItem(
                               categoryUploads[index]);
                         }
-
-                        // Then show existing items
                         final itemIndex = index - categoryUploads.length;
                         final item = notifier.value[itemIndex];
                         bool isSelected = false;
-
                         switch (category) {
                           case 'shirt':
                             isSelected = selectedShirtId == item.id;
@@ -2218,7 +1710,6 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                             isSelected = selectedAccessoryId == item.id;
                             break;
                         }
-
                         return GestureDetector(
                           onTap: () {
                             switch (category) {
@@ -2264,10 +1755,8 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                                     child: ClipRRect(
                                       borderRadius: BorderRadius.circular(6),
                                       child: CachedNetworkImage(
-                                     imageUrl:    item.imageUrl ?? '',
-                                        fit: BoxFit.contain
-
-
+                                          imageUrl: item.imageUrl ?? '',
+                                          fit: BoxFit.contain
                                       ),
                                     ),
                                   ),
@@ -2329,7 +1818,6 @@ class _WardrobeScreenState extends State<WardrobeScreen>
       ),
       child: Stack(
         children: [
-          // Main uploading content
           Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -2350,8 +1838,6 @@ class _WardrobeScreenState extends State<WardrobeScreen>
               ],
             ),
           ),
-
-          // Progress bar at bottom
           Positioned(
             bottom: 0,
             left: 0,
@@ -2371,8 +1857,6 @@ class _WardrobeScreenState extends State<WardrobeScreen>
               ),
             ),
           ),
-
-          // Upload icon in top right corner
           Positioned(
             top: 4,
             right: 4,
@@ -2397,40 +1881,29 @@ class _WardrobeScreenState extends State<WardrobeScreen>
   IconData _getIconForCategory(String category) {
     switch (category.toLowerCase()) {
       case 'shirt':
-        return FontAwesomeIcons.shirt; // T-shirt icon
+        return FontAwesomeIcons.shirt;
       case 'pant':
-        return FontAwesomeIcons.personHalfDress; // Clothes/vest icon
+        return FontAwesomeIcons.personHalfDress;
       case 'shoes':
-        return FontAwesomeIcons.shoePrints; // Shoe icon
+        return FontAwesomeIcons.shoePrints;
       case 'accessories':
-        return FontAwesomeIcons.glasses; // Glasses icon
+        return FontAwesomeIcons.glasses;
       default:
-        return FontAwesomeIcons.tag; // Generic category icon
+        return FontAwesomeIcons.tag;
     }
   }
 
   void _handleRegionSwipe(String region, DragEndDetails details) {
-    // Prevent swipe if currently generating
     if (_isSwipeGenerating || _isGeneratingAvatar) {
       showAppSnackBar(context, 'Please wait, avatar is being generated...',
           backgroundColor: appcolor);
-
       return;
     }
-
-    // Check horizontal velocity for left/right swipe
     double horizontalVelocity = details.velocity.pixelsPerSecond.dx;
-    const double minVelocity = 300.0; // Reduced for more sensitive detection
-
+    const double minVelocity = 300.0;
     if (horizontalVelocity.abs() < minVelocity) return;
-
-    // Determine swipe direction
     String direction = horizontalVelocity > 0 ? 'previous' : 'next';
-
-    // Add haptic feedback
     HapticFeedback.selectionClick();
-
-    // Handle swipe based on region
     switch (region) {
       case 'shirt':
         _handleShirtSwipe(direction);
@@ -2443,24 +1916,20 @@ class _WardrobeScreenState extends State<WardrobeScreen>
         break;
     }
   }
+
   void _handleSwipe(DragEndDetails details) {
     final velocity = details.primaryVelocity;
     if (velocity == null) return;
-
-    // Swipe left - go to next avatar
     if (velocity < -100) {
       _goToNext();
-
-    }
-    // Swipe right - go to previous avatar
-    else if (velocity > 100) {
+    } else if (velocity > 100) {
       _goToPrevious();
       showAppSnackBar(context, 'The Feature is in Progress',
           backgroundColor: appcolor);
     }
   }
-  double _startX = 0.0;
 
+  double _startX = 0.0;
   void _handlePanStart(DragStartDetails details) {
     _startX = details.localPosition.dx;
   }
@@ -2468,27 +1937,19 @@ class _WardrobeScreenState extends State<WardrobeScreen>
   void _handlePanEnd(DragEndDetails details) {
     final endX = details.localPosition.dx;
     final deltaX = endX - _startX;
-
-    // Minimum swipe distance to trigger action
     const minSwipeDistance = 50.0;
-
     if (deltaX.abs() > minSwipeDistance) {
       if (deltaX > 0) {
         _goToPrevious();
-
         showAppSnackBar(context, 'The Feature is in Progress',
             backgroundColor: appcolor);
-
       } else {
         _goToNext();
-        // Swiped left - go to next
         showAppSnackBar(context, 'The Feature is in Progress',
             backgroundColor: appcolor);
-
       }
     }
   }
-
 
   Widget _buildAvatarColumn2() {
     return Container(
@@ -2496,10 +1957,9 @@ class _WardrobeScreenState extends State<WardrobeScreen>
       child: Stack(
         alignment: Alignment.center,
         children: [
-          // Avatar image container
           Container(
-            width: 350,
-            height: 350,
+            width: getResponsiveWidth(350),
+            height: getResponsiveHeight(350),
             child: GestureDetector(
               onPanStart: _handlePanStart,
               onPanEnd: _handlePanEnd,
@@ -2519,7 +1979,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                 },
                 child: ClipRRect(
                   key: ValueKey(currentIndexx),
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(getResponsivePadding(10)),
                   child: CachedNetworkImage(
                     imageUrl: avatarUrls[currentIndexx],
                     fit: BoxFit.cover,
@@ -2528,258 +1988,17 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                     placeholder: (context, url) => Center(
                       child: LoadingAnimationWidget.fourRotatingDots(
                         color: appcolor,
-                        size: 15,
+                        size: getResponsiveWidth(15),
                       )),
-                    // loadingBuilder: (context, child, loadingProgress) {
-                    //   if (loadingProgress == null) return child;
-                    //   return Center(
-                    //     child: LoadingAnimationWidget.fourRotatingDots(color: appcolor, size: 15)
-                    //   );
-                    // },
-                    // errorBuilder: (context, error, stackTrace) {
-                    //   return Center(
-                    //     child: Column(
-                    //       mainAxisAlignment: MainAxisAlignment.center,
-                    //       children: [
-                    //         Icon(
-                    //           Icons.error,
-                    //           color: Colors.grey,
-                    //           size: 50,
-                    //         ),
-                    //         SizedBox(height: 8),
-                    //         Text(
-                    //           'Failed to load image',
-                    //           style: TextStyle(color: Colors.grey),
-                    //         ),
-                    //       ],
-                    //     ),
-                    //   );
-                    // },
                   ),
                 ),
               ),
             ),
           ),
-          //
-          //
-          //
-          // // Current index indicator
-          // Positioned(
-          //   bottom: 20,
-          //   child: Container(
-          //     padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          //     decoration: BoxDecoration(
-          //       color: Colors.black54,
-          //       borderRadius: BorderRadius.circular(20),
-          //     ),
-          //     child: Text(
-          //       '${currentIndexx + 1} / ${avatarUrls.length}',
-          //       style: TextStyle(
-          //         color: Colors.white,
-          //         fontSize: 12,
-          //         fontWeight: FontWeight.w500,
-          //       ),
-          //     ),
-          //   ),
-          // ),
         ],
       ),
     );
   }
-
-  // Widget _buildAvatarColumn() {
-  //   return ValueListenableBuilder<UserProfileModel?>(
-  //     valueListenable: _profileController.profileNotifier,
-  //     builder: (context, userProfile, child) {
-  //       final currentAvatarImage = _avatarUrl?.isNotEmpty == true
-  //           ? _avatarUrl
-  //           : _getCurrentAvatarImage(userProfile);
-  //
-  //       if (currentAvatarImage != null && currentAvatarImage.isNotEmpty) {
-  //         profileImage = currentAvatarImage;
-  //       }
-  //
-  //       final isImageValid =
-  //           currentAvatarImage != null && currentAvatarImage.isNotEmpty;
-  //
-  //       return Container(
-  //         alignment: Alignment.center,
-  //         child: Stack(
-  //           alignment: Alignment.center,
-  //           children: [
-  //             // Avatar image with region-specific gesture detection
-  //             Container(
-  //               width: Responsive.width(350),
-  //               height: Responsive.height(350),
-  //               child: Stack(
-  //                 children: [
-  //                   // Main avatar image
-  //                   AnimatedSwitcher(
-  //                     duration: const Duration(milliseconds: 500),
-  //                     transitionBuilder: (child, animation) {
-  //                       return ScaleTransition(
-  //                         scale: animation,
-  //                         child: FadeTransition(
-  //                           opacity: animation,
-  //                           child: child,
-  //                         ),
-  //                       );
-  //                     },
-  //                     child: (_isLoading || !isImageValid || _isSwipeGenerating)
-  //                         ? Center(
-  //                             key: const ValueKey('loading'),
-  //                             child: Column(
-  //                               mainAxisSize: MainAxisSize.min,
-  //                               children: [],
-  //                             ),
-  //                           )
-  //                         : ClipRRect(
-  //                             borderRadius: BorderRadius.circular(10),
-  //                             child: Image.network(
-  //                               currentAvatarImage,
-  //                               key: ValueKey(currentAvatarImage),
-  //                               fit: BoxFit.cover,
-  //                               width: double.infinity,
-  //                               height: double.infinity,
-  //                               loadingBuilder:
-  //                                   (context, child, loadingProgress) {
-  //                                 if (loadingProgress == null) return child;
-  //                                 return Center(
-  //                                   child:
-  //                                       LoadingAnimationWidget.fourRotatingDots(
-  //                                           color: appcolor, size: 30),
-  //                                 );
-  //                               },
-  //                               errorBuilder: (context, error, stackTrace) {
-  //                                 return Center(
-  //                                   child: Icon(
-  //                                     Icons.error,
-  //                                     color: Colors.grey,
-  //                                     size: 50,
-  //                                   ),
-  //                                 );
-  //                               },
-  //                             ),
-  //                           ),
-  //                   ),
-  //
-  //                   // Invisible overlay regions for swipe detection
-  //                   if (isImageValid &&
-  //                       !_isSwipeGenerating &&
-  //                       !_isGeneratingAvatar) ...[
-  //                     // Shirt region (top 40% of image)
-  //                     Positioned(
-  //                       top: 0,
-  //                       left: 0,
-  //                       right: 0,
-  //                       height: Responsive.height(350) * 0.6, // 40% for shirt
-  //                       child: GestureDetector(
-  //                         onPanEnd: (details) =>
-  //                             _handleRegionSwipe('shirt', details),
-  //                         child: Container(
-  //                           decoration: BoxDecoration(
-  //                               // Uncomment for debugging - shows region boundaries
-  //                               // color: Colors.red.withOpacity(0.2),
-  //                               // border: Border.all(color: Colors.red, width: 2),
-  //                               ),
-  //                           child: Center(
-  //                             child: _isSwipeGenerating
-  //                                 ? Container()
-  //                                 : Container(),
-  //                           ),
-  //                         ),
-  //                       ),
-  //                     ),
-  //
-  //                     // Pants region (middle 35% of image)
-  //                     Positioned(
-  //                       top: Responsive.height(350) * 0.6, // Start after shirt
-  //                       left: 0,
-  //                       right: 0,
-  //                       height: Responsive.height(350) * 0.3, // 35% for pants
-  //                       child: GestureDetector(
-  //                         onPanEnd: (details) =>
-  //                             _handleRegionSwipe('pant', details),
-  //                         child: Container(
-  //                           decoration: BoxDecoration(
-  //                               // Uncomment for debugging
-  //                               // color: Colors.blue.withOpacity(0.2),
-  //                               // border: Border.all(color: Colors.blue, width: 2),
-  //                               ),
-  //                           child: Center(
-  //                             child: _isSwipeGenerating
-  //                                 ? Container()
-  //                                 : Container(),
-  //                           ),
-  //                         ),
-  //                       ),
-  //                     ),
-  //
-  //                     // Shoes region (bottom 25% of image)
-  //                     Positioned(
-  //                       top: Responsive.height(350) * 0.9, // Start after pants
-  //                       left: 0,
-  //                       right: 0,
-  //                       bottom: 0,
-  //                       child: GestureDetector(
-  //                         onPanEnd: (details) =>
-  //                             _handleRegionSwipe('shoes', details),
-  //                         child: Container(
-  //                           decoration: BoxDecoration(
-  //                               // Uncomment for debugging
-  //                               // color: Colors.green.withOpacity(0.2),
-  //                               // border: Border.all(color: Colors.green, width: 2),
-  //                               ),
-  //                           child: Center(
-  //                             child: _isSwipeGenerating
-  //                                 ? Container()
-  //                                 : Container(
-  //
-  //                                     // ),
-  //                                     ),
-  //                           ),
-  //                         ),
-  //                       ),
-  //                     ),
-  //                   ],
-  //                 ],
-  //               ),
-  //             ),
-  //
-  //             // Loading overlay when generating
-  //             if (_isSwipeGenerating || _isGeneratingAvatar)
-  //               Container(
-  //                 width: Responsive.width(350),
-  //                 height: Responsive.height(350),
-  //                 decoration: BoxDecoration(
-  //                   color: Colors.transparent,
-  //                   borderRadius: BorderRadius.circular(10),
-  //                 ),
-  //                 child: Center(
-  //                   child: Column(
-  //                     mainAxisSize: MainAxisSize.min,
-  //                     children: [
-  //                       LoadingAnimationWidget.fourRotatingDots(
-  //                           color: appcolor, size: 20),
-  //                       SizedBox(height: 15),
-  //                       Text(
-  //                         'Generating Avatar...',
-  //                         style: GoogleFonts.poppins(
-  //                           color: appcolor,
-  //                           fontSize: 14,
-  //                           fontWeight: FontWeight.w500,
-  //                         ),
-  //                       ),
-  //                     ],
-  //                   ),
-  //                 ),
-  //               ),
-  //           ],
-  //         ),
-  //       );
-  //     },
-  //   );
-  // }
 
   Widget _buildThirdColumn() {
     final localizations = AppLocalizations.of(context)!;
@@ -2798,30 +2017,30 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                     },
               child: Container(
                 padding: EdgeInsets.symmetric(
-                    horizontal: Responsive.width(4),
-                    vertical: Responsive.height(5)),
-                height: Responsive.height(30),
+                    horizontal: getResponsivePadding(4),
+                    vertical: getResponsivePadding(5)),
+                height: getResponsiveHeight(30),
                 decoration: BoxDecoration(
                   color: appcolor.withOpacity(0.7),
-                  borderRadius: BorderRadius.circular(Responsive.radius(30)),
+                  borderRadius: BorderRadius.circular(getResponsivePadding(30)),
                 ),
                 child: Row(
                   children: [
                     if (_isGeneratingAvatar)
                       SizedBox(
-                        width: 14,
-                        height: 14,
+                        width: getResponsiveWidth(14),
+                        height: getResponsiveHeight(14),
                         child: LoadingAnimationWidget.fourRotatingDots(
-                            color: Colors.white, size: 20),
+                            color: Colors.white, size: getResponsiveWidth(20)),
                       )
                     else
                       Icon(
                         Icons.file_upload_outlined,
                         color: Colors.white,
-                        size: Responsive.fontSize(14),
+                        size: getResponsiveFontSize(14),
                         weight: 10,
                       ),
-                    SizedBox(width: 2),
+                    SizedBox(width: getResponsiveWidth(2)),
                     Text(
                       _isGeneratingAvatar
                           ? localizations.generating
@@ -2829,7 +2048,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                       style: GoogleFonts.poppins(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
-                          fontSize: Responsive.fontSize(8)),
+                          fontSize: getResponsiveFontSize(8)),
                     ),
                   ],
                 ),
@@ -2837,392 +2056,193 @@ class _WardrobeScreenState extends State<WardrobeScreen>
             ),
           ],
         ),
-        SizedBox(height: 10),
-        // Remove or comment out the upload progress button
-        // _buildUploadProgressButton(),
+        SizedBox(height: getResponsiveHeight(10)),
       ],
     );
   }
-  // Widget _buildThirdColumn() {
-  //   final localizations = AppLocalizations.of(context)!;
-  //   return Column(
-  //     crossAxisAlignment: CrossAxisAlignment.start,
-  //     mainAxisAlignment: MainAxisAlignment.start,
-  //     children: [
-  //       Row(
-  //         mainAxisAlignment: MainAxisAlignment.end,
-  //         children: [
-  //           GestureDetector(
-  //             onTap: _isGeneratingAvatar
-  //                 ? null
-  //                 : () async {
-  //               _showAnimatedCategoryDialog(context);
-  //             //  _generateAvatar(context);
-  //             }, // Call the generate avatar method
-  //             child: Container(
-  //               padding: EdgeInsets.symmetric(
-  //                   horizontal: Responsive.width(4),
-  //                   vertical: Responsive.height(5)),
-  //               height: Responsive.height(30),
-  //               decoration: BoxDecoration(
-  //                 color: appcolor.withOpacity(0.7),
-  //                 borderRadius: BorderRadius.circular(Responsive.radius(30)),
-  //               ),
-  //               child: Row(
-  //                 children: [
-  //                   if (_isGeneratingAvatar)
-  //                     SizedBox(
-  //                       width: 14,
-  //                       height: 14,
-  //                       child: LoadingAnimationWidget.fourRotatingDots(
-  //                           color:Colors.white,size:20
-  //                       ),
-  //                     )
-  //                   else
-  //                     Icon(
-  //                       Icons.file_upload_outlined,
-  //                       color: Colors.white,
-  //                       size: Responsive.fontSize(14),
-  //                       weight: 10,
-  //                     ),
-  //                   SizedBox(width: 2),
-  //                   Text(
-  //                     _isGeneratingAvatar
-  //                         ? localizations.uploadingItem
-  //                         : localizations.upload,
-  //                     style: GoogleFonts.poppins(
-  //                         color: Colors.white,
-  //                         fontWeight: FontWeight.bold,
-  //                         fontSize: Responsive.fontSize(8)),
-  //                   ),
-  //                 ],
-  //               ),
-  //             ),
-  //           ),
-  //         ],
-  //       ),
-  //       SizedBox(height: 10),
-  //       _buildUploadProgressButton(),
-  //     ],
-  //   );
-  // }
 
-  // void _showAnimatedCategoryDialog(BuildContext context) {
-  //   final localizations = AppLocalizations.of(context)!;
-  //   String? selectedCategory;
-  //   String? selectedSubcategory;
-  //   bool showSubcategories = false;
-  //   List<String> subcategories = [];
-
-  //   showDialog(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       return StatefulBuilder(
-  //         builder: (context, setState) {
-  //           return AlertDialog(
-  //             backgroundColor: themeController.white,
-  //             title: Text(
-  //               showSubcategories
-  //                   ? 'Select ${selectedCategory} Type'
-  //                   : localizations.selectCategory,
-  //               style: GoogleFonts.poppins(
-  //                 fontSize: Responsive.fontSize(18),
-  //                 fontWeight: FontWeight.w600,
-  //                 color: appcolor,
-  //               ),
-  //               textAlign: TextAlign.center,
-  //             ),
-  //             content: AnimatedContainer(
-  //               duration: Duration(milliseconds: 400),
-  //               curve: Curves.easeInOut,
-  //               width: double.maxFinite,
-  //               child: Column(
-  //                 mainAxisSize: MainAxisSize.min,
-  //                 children: [
-  //                   if (!showSubcategories) ...[
-  //                     // Main categories
-  //                     AnimatedOpacity(
-  //                       duration: Duration(milliseconds: 400),
-  //                       opacity: showSubcategories ? 0.0 : 1.0,
-  //                       child: Column(
-  //                         children: [
-  //                           _buildAnimatedCategoryButton(
-  //                               'Shirts', selectedCategory, (category) {
-  //                             setState(() {
-  //                               selectedCategory = category;
-  //                               subcategories = getSubcategoriesForCategory(
-  //                                   context, category);
-  //                               selectedSubcategory = null;
-  //                               Future.delayed(Duration(milliseconds: 100), () {
-  //                                 setState(() {
-  //                                   showSubcategories = true;
-  //                                 });
-  //                               });
-  //                             });
-  //                           }),
-  //                           _buildAnimatedCategoryButton(
-  //                               localizations.accessories, selectedCategory,
-  //                               (category) {
-  //                             setState(() {
-  //                               selectedCategory = category;
-  //                               subcategories = getSubcategoriesForCategory(
-  //                                   context, category);
-  //                               selectedSubcategory = null;
-  //                               Future.delayed(Duration(milliseconds: 100), () {
-  //                                 setState(() {
-  //                                   showSubcategories = true;
-  //                                 });
-  //                               });
-  //                             });
-  //                           }),
-  //                           _buildAnimatedCategoryButton(
-  //                               'Pants', selectedCategory, (category) {
-  //                             setState(() {
-  //                               selectedCategory = category;
-  //                               subcategories = getSubcategoriesForCategory(
-  //                                   context, category);
-  //                               selectedSubcategory = null;
-  //                               Future.delayed(Duration(milliseconds: 100), () {
-  //                                 setState(() {
-  //                                   showSubcategories = true;
-  //                                 });
-  //                               });
-  //                             });
-  //                           }),
-  //                           _buildAnimatedCategoryButton(
-  //                               'Shoes', selectedCategory, (category) {
-  //                             setState(() {
-  //                               selectedCategory = category;
-  //                               subcategories = getSubcategoriesForCategory(
-  //                                   context, category);
-  //                               selectedSubcategory = null;
-  //                               Future.delayed(Duration(milliseconds: 100), () {
-  //                                 setState(() {
-  //                                   showSubcategories = true;
-  //                                 });
-  //                               });
-  //                             });
-  //                           }),
-  //                         ],
-  //                       ),
-  //                     ),
-  //                   ] else ...[
-  //                     // Subcategories with animation
-  //                     AnimatedOpacity(
-  //                       duration: Duration(milliseconds: 400),
-  //                       opacity: showSubcategories ? 1.0 : 0.0,
-  //                       child: Column(
-  //                         children: subcategories.map((subcategory) {
-  //                           return _buildAnimatedCategoryButton(
-  //                             subcategory,
-  //                             selectedSubcategory,
-  //                             (value) {
-  //                               setState(() {
-  //                                 selectedSubcategory = value;
-  //                               });
-  //                             },
-  //                           );
-  //                         }).toList(),
-  //                       ),
-  //                     ),
-  //                   ],
-  //                 ],
-  //               ),
-  //             ),
-  //             actions: [
-  //               if (showSubcategories)
-  //                 TextButton(
-  //                   onPressed: () {
-  //                     setState(() {
-  //                       showSubcategories = false;
-  //                       selectedCategory = null;
-  //                     });
-  //                   },
-  //                   child: Text(
-  //                     localizations.back,
-  //                     style: GoogleFonts.poppins(color: themeController.black),
-  //                   ),
-  //                 )
-  //               else
-  //                 TextButton(
-  //                   onPressed: () {
-  //                     Navigator.of(context).pop();
-  //                   },
-  //                   child: Text(
-  //                     localizations.cancel,
-  //                     style: GoogleFonts.poppins(color: Colors.grey),
-  //                   ),
-  //                 ),
-  //               TextButton(
-  //                 onPressed: (showSubcategories && selectedSubcategory != null)
-  //                     ? () {
-  //                         Navigator.of(context).pop();
-  //                         _openCameraWithGoogleVision(
-  //                             selectedCategory!, selectedSubcategory!);
-  //                       }
-  //                     : null,
-  //                 child: Text(
-  //                   localizations.openCamera,
-  //                   style: GoogleFonts.poppins(
-  //                     color: (showSubcategories && selectedSubcategory != null)
-  //                         ? appcolor
-  //                         : Colors.grey,
-  //                     fontWeight: FontWeight.bold,
-  //                   ),
-  //                 ),
-  //               ),
-  //             ],
-  //           );
-  //         },
-  //       );
-  //     },
-  //   );
-  // }
-
-   void _showAnimatedCategoryDialog(BuildContext context) {
-  final localizations = AppLocalizations.of(context)!;
-  String? selectedCategory;
-  
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return StatefulBuilder(
-        builder: (context, setState) {
-          return AlertDialog(
-            backgroundColor: themeController.white,
-            title: Text(
-              localizations.selectCategory,
-              style: GoogleFonts.poppins(
-                fontSize: Responsive.fontSize(18),
-                fontWeight: FontWeight.w600,
-                color: appcolor,
+  void _showAnimatedCategoryDialog(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
+    String? selectedCategory;
+    String? selectedSubcategory;
+    bool showSubcategories = false;
+    List<String> subcategories = [];
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              backgroundColor: themeController.white,
+              title: Text(
+                showSubcategories
+                    ? 'Select ${selectedCategory} Type'
+                    : localizations.selectCategory,
+                style: GoogleFonts.poppins(
+                  fontSize: getResponsiveFontSize(18),
+                  fontWeight: FontWeight.w600,
+                  color: appcolor,
+                ),
+                textAlign: TextAlign.center,
               ),
-              textAlign: TextAlign.center,
-            ),
-            content: AnimatedContainer(
-              duration: Duration(milliseconds: 400),
-              curve: Curves.easeInOut,
-              width: double.maxFinite,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Only show main categories - subcategories are hidden
-                  _buildAnimatedCategoryButton(
-                    'Shirts', 
-                    selectedCategory, 
-                    (category) {
-                      setState(() {
-                        selectedCategory = category;
-                      });
-                    }
-                  ),
-                  _buildAnimatedCategoryButton(
-                    localizations.accessories, 
-                    selectedCategory,
-                    (category) {
-                      setState(() {
-                        selectedCategory = category;
-                      });
-                    }
-                  ),
-                  _buildAnimatedCategoryButton(
-                    'Pants', 
-                    selectedCategory, 
-                    (category) {
-                      setState(() {
-                        selectedCategory = category;
-                      });
-                    }
-                  ),
-                  _buildAnimatedCategoryButton(
-                    'Shoes', 
-                    selectedCategory, 
-                    (category) {
-                      setState(() {
-                        selectedCategory = category;
-                      });
-                    }
-                  ),
-                ],
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: Text(
-                  localizations.cancel,
-                  style: GoogleFonts.poppins(color: Colors.grey),
+              content: AnimatedContainer(
+                duration: Duration(milliseconds: 400),
+                curve: Curves.easeInOut,
+                width: double.maxFinite,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (!showSubcategories) ...[
+                      AnimatedOpacity(
+                        duration: Duration(milliseconds: 400),
+                        opacity: showSubcategories ? 0.0 : 1.0,
+                        child: Column(
+                          children: [
+                            _buildAnimatedCategoryButton(
+                                'Shirts', selectedCategory, (category) {
+                              setState(() {
+                                selectedCategory = category;
+                                subcategories = getSubcategoriesForCategory(
+                                    context, category);
+                                selectedSubcategory = null;
+                                Future.delayed(Duration(milliseconds: 100), () {
+                                  setState(() {
+                                    showSubcategories = true;
+                                  });
+                                });
+                              });
+                            }),
+                            _buildAnimatedCategoryButton(
+                                localizations.accessories, selectedCategory,
+                                (category) {
+                              setState(() {
+                                selectedCategory = category;
+                                subcategories = getSubcategoriesForCategory(
+                                    context, category);
+                                selectedSubcategory = null;
+                                Future.delayed(Duration(milliseconds: 100), () {
+                                  setState(() {
+                                    showSubcategories = true;
+                                  });
+                                });
+                              });
+                            }),
+                            _buildAnimatedCategoryButton(
+                                'Pants', selectedCategory, (category) {
+                              setState(() {
+                                selectedCategory = category;
+                                subcategories = getSubcategoriesForCategory(
+                                    context, category);
+                                selectedSubcategory = null;
+                                Future.delayed(Duration(milliseconds: 100), () {
+                                  setState(() {
+                                    showSubcategories = true;
+                                  });
+                                });
+                              });
+                            }),
+                            _buildAnimatedCategoryButton(
+                                'Shoes', selectedCategory, (category) {
+                              setState(() {
+                                selectedCategory = category;
+                                subcategories = getSubcategoriesForCategory(
+                                    context, category);
+                                selectedSubcategory = null;
+                                Future.delayed(Duration(milliseconds: 100), () {
+                                  setState(() {
+                                    showSubcategories = true;
+                                  });
+                                });
+                              });
+                            }),
+                          ],
+                        ),
+                      ),
+                    ] else ...[
+                      AnimatedOpacity(
+                        duration: Duration(milliseconds: 400),
+                        opacity: showSubcategories ? 1.0 : 0.0,
+                        child: Column(
+                          children: subcategories.map((subcategory) {
+                            return _buildAnimatedCategoryButton(
+                              subcategory,
+                              selectedSubcategory,
+                              (value) {
+                                setState(() {
+                                  selectedSubcategory = value;
+                                });
+                              },
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
               ),
-              TextButton(
-                onPressed: selectedCategory != null
-                    ? () {
-                        Navigator.of(context).pop();
-                        // Automatically select the first subcategory for the selected category
-                        String defaultSubcategory = _getDefaultSubcategory(context, selectedCategory!);
-                        _openCameraWithGoogleVision(selectedCategory!, defaultSubcategory);
-                      }
-                    : null,
-                child: Text(
-                  localizations.openCamera,
-                  style: GoogleFonts.poppins(
-                    color: selectedCategory != null ? appcolor : Colors.grey,
-                    fontWeight: FontWeight.bold,
+              actions: [
+                if (showSubcategories)
+                  TextButton(
+                    onPressed: () {
+                      setState(() {
+                        showSubcategories = false;
+                        selectedCategory = null;
+                      });
+                    },
+                    child: Text(
+                      localizations.back,
+                      style: GoogleFonts.poppins(color: themeController.black),
+                    ),
+                  )
+                else
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: Text(
+                      localizations.cancel,
+                      style: GoogleFonts.poppins(color: Colors.grey),
+                    ),
+                  ),
+                TextButton(
+                  onPressed: (showSubcategories && selectedSubcategory != null)
+                      ? () {
+                          Navigator.of(context).pop();
+                          _openCameraWithGoogleVision(
+                              selectedCategory!, selectedSubcategory!);
+                        }
+                      : null,
+                  child: Text(
+                    localizations.openCamera,
+                    style: GoogleFonts.poppins(
+                      color: (showSubcategories && selectedSubcategory != null)
+                          ? appcolor
+                          : Colors.grey,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
-              ),
-            ],
-          );
-        },
-      );
-    },
-  );
-}
-
-// Helper method to get the default (first) subcategory for each category
-String _getDefaultSubcategory(BuildContext context, String category) {
-  final loc = AppLocalizations.of(context)!;
-  
-  switch (category) {
-    case 'Shirts':
-      return loc.tShirt; // Default to T-Shirt
-    case 'Accessories':
-      return loc.necklace; // Default to Necklace
-    case 'Pants':
-      return loc.jeans; // Default to Jeans
-    case 'Shoes':
-      return loc.sneakers; // Default to Sneakers
-    default:
-      return 'Default'; // Fallback
+              ],
+            );
+          },
+        );
+      },
+    );
   }
-}
 
-// Optional: If you want to allow users to change the default subcategory,
-// you can create a method to cycle through subcategories or set preferences
-String _getPreferredSubcategory(BuildContext context, String category) {
-  // You could store user preferences in SharedPreferences
-  // and return the preferred subcategory, falling back to default
-  return _getDefaultSubcategory(context, category);
-}
-
-
-  // Helper method to build animated category buttons
   Widget _buildAnimatedCategoryButton(
       String category, String? selectedCategory, Function(String) onSelect) {
     bool isSelected = selectedCategory == category;
-
     return AnimatedContainer(
       duration: Duration(milliseconds: 300),
-      margin: EdgeInsets.symmetric(vertical: Responsive.height(4.0)),
+      margin: EdgeInsets.symmetric(vertical: getResponsivePadding(4.0)),
       child: InkWell(
         onTap: () => onSelect(category),
         child: Container(
-          padding: EdgeInsets.symmetric(vertical: Responsive.height(12)),
+          padding: EdgeInsets.symmetric(vertical: getResponsivePadding(12)),
           decoration: BoxDecoration(
             color: isSelected ? appcolor : Colors.white,
-            borderRadius: BorderRadius.circular(Responsive.radius(8)),
+            borderRadius: BorderRadius.circular(getResponsivePadding(8)),
             border: Border.all(
               color: isSelected ? appcolor : Colors.grey.shade300,
             ),
@@ -3249,11 +2269,9 @@ String _getPreferredSubcategory(BuildContext context, String category) {
     );
   }
 
-  // Helper method to get subcategories based on selected category
   List<String> getSubcategoriesForCategory(
       BuildContext context, String category) {
     final loc = AppLocalizations.of(context)!;
-
     switch (category) {
       case 'Shirts':
         return [
@@ -3296,7 +2314,6 @@ String _getPreferredSubcategory(BuildContext context, String category) {
     }
   }
 
-  // Method to open camera with Google Vision integration
   void _openCameraWithGoogleVision(String category, String subcategory) async {
     final loc = AppLocalizations.of(context)!;
     showDialog(
@@ -3308,17 +2325,17 @@ String _getPreferredSubcategory(BuildContext context, String category) {
           elevation: 0,
           child: Center(
             child: Container(
-              padding: Responsive.allPadding(16),
+              padding: getResponsiveAllPadding(16),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(Responsive.radius(10)),
+                borderRadius: BorderRadius.circular(getResponsivePadding(10)),
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   LoadingAnimationWidget.fourRotatingDots(
-                      color: appcolor, size: 20),
-                  SizedBox(height: Responsive.height(16)),
+                      color: appcolor, size: getResponsiveWidth(20)),
+                  SizedBox(height: getResponsiveHeight(16)),
                   Text(
                     loc.openingCamera,
                     style: GoogleFonts.poppins(
@@ -3333,26 +2350,15 @@ String _getPreferredSubcategory(BuildContext context, String category) {
         );
       },
     );
-
     try {
-      // Pick an image from camera
       final XFile? image = await _picker.pickImage(source: ImageSource.camera);
-
-      // Close loading dialog
       Navigator.pop(context);
-
       if (image != null) {
         File imageFile = File(image.path);
-
-        // Here you would normally implement Google Vision AI integration
-        // For now, we'll just show a confirmation dialog
         _showImageCapturedDialog(category, subcategory, imageFile);
       }
     } catch (e) {
-      // Close loading dialog in case of error
       Navigator.pop(context);
-
-      // Show error dialog
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -3375,13 +2381,10 @@ String _getPreferredSubcategory(BuildContext context, String category) {
     return ValueListenableBuilder<Map<String, UploadProgress>>(
       valueListenable: _wardrobeController.uploadProgressNotifier,
       builder: (context, uploads, child) {
-        // Show button only if there are active uploads
         if (uploads.isEmpty) return SizedBox.shrink();
-
         int activeUploads = uploads.values.where((p) => p.isInProgress).length;
         int completedUploads =
             uploads.values.where((p) => p.isCompleted).length;
-
         return Container(
           margin: EdgeInsets.all(8),
           child: ElevatedButton.icon(
@@ -3471,8 +2474,6 @@ String _getPreferredSubcategory(BuildContext context, String category) {
                         ),
                       );
                     }
-
-                    // Sort uploads: active first, then completed, then failed
                     final sortedUploads = uploads.entries.toList()
                       ..sort((a, b) {
                         if (a.value.isInProgress && !b.value.isInProgress)
@@ -3485,7 +2486,6 @@ String _getPreferredSubcategory(BuildContext context, String category) {
                           return 1;
                         return 0;
                       });
-
                     return ListView.builder(
                       shrinkWrap: true,
                       itemCount: sortedUploads.length,
@@ -3503,7 +2503,6 @@ String _getPreferredSubcategory(BuildContext context, String category) {
                   builder: (context, uploads, child) {
                     int completedCount =
                         uploads.values.where((p) => p.isCompleted).length;
-
                     return Row(
                       children: [
                         if (completedCount > 0)
@@ -3540,9 +2539,7 @@ String _getPreferredSubcategory(BuildContext context, String category) {
   void _clearCompletedUploads() {
     final currentUploads = Map<String, UploadProgress>.from(
         _wardrobeController.uploadProgressNotifier.value);
-
     currentUploads.removeWhere((key, value) => value.isCompleted);
-
     _wardrobeController.uploadProgressNotifier.value = currentUploads;
   }
 
@@ -3550,7 +2547,6 @@ String _getPreferredSubcategory(BuildContext context, String category) {
     Color statusColor;
     IconData statusIcon;
     String statusText;
-
     switch (progress.status) {
       case UploadStatus.completed:
         statusColor = Colors.green;
@@ -3600,7 +2596,6 @@ String _getPreferredSubcategory(BuildContext context, String category) {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header row
           Row(
             children: [
               Container(
@@ -3654,10 +2649,7 @@ String _getPreferredSubcategory(BuildContext context, String category) {
                 ),
             ],
           ),
-
           SizedBox(height: 12),
-
-          // Message
           Text(
             progress.message,
             style: GoogleFonts.poppins(
@@ -3666,8 +2658,6 @@ String _getPreferredSubcategory(BuildContext context, String category) {
               height: 1.3,
             ),
           ),
-
-          // Progress bar
           if (progress.progress != null && progress.isInProgress) ...[
             SizedBox(height: 12),
             ClipRRect(
@@ -3680,8 +2670,6 @@ String _getPreferredSubcategory(BuildContext context, String category) {
               ),
             ),
           ],
-
-          // Error details
           if (progress.isError && progress.error != null) ...[
             SizedBox(height: 12),
             Container(
@@ -3710,8 +2698,6 @@ String _getPreferredSubcategory(BuildContext context, String category) {
               ),
             ),
           ],
-
-          // Timestamp
           SizedBox(height: 8),
           Text(
             'Started: ${_formatTimestamp(progress.startTime)}',
@@ -3728,7 +2714,6 @@ String _getPreferredSubcategory(BuildContext context, String category) {
   String _formatTimestamp(DateTime dateTime) {
     final now = DateTime.now();
     final difference = now.difference(dateTime);
-
     if (difference.inMinutes < 1) {
       return 'Just now';
     } else if (difference.inMinutes < 60) {
@@ -3743,7 +2728,6 @@ String _getPreferredSubcategory(BuildContext context, String category) {
   void _showImageCapturedDialog(
       String category, String subcategory, File imageFile) {
     final loc = AppLocalizations.of(context)!;
-
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -3789,7 +2773,7 @@ String _getPreferredSubcategory(BuildContext context, String category) {
             ),
             TextButton(
               onPressed: () async {
-                Navigator.pop(context); // Close dialog immediately
+                Navigator.pop(context);
                 await _startBackgroundUpload(category, subcategory, imageFile);
               },
               child: Text(
@@ -3808,7 +2792,6 @@ String _getPreferredSubcategory(BuildContext context, String category) {
 
   Widget _buildCalendarSection(WardrobeController controller) {
     final loc = AppLocalizations.of(context)!;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.center,
@@ -3817,11 +2800,11 @@ String _getPreferredSubcategory(BuildContext context, String category) {
           loc.calendarTitle,
           style: GoogleFonts.poppins(
             color: appcolor,
-            fontSize: Responsive.fontSize(18),
+            fontSize: getResponsiveFontSize(18),
             fontWeight: FontWeight.w600,
           ),
         ),
-        SizedBox(height: Responsive.height(8)),
+        SizedBox(height: getResponsiveHeight(8)),
         ValueListenableBuilder<DateTime>(
           valueListenable: controller.selectedDayNotifier,
           builder: (context, DateTime selectedDay, _) {
@@ -3834,12 +2817,10 @@ String _getPreferredSubcategory(BuildContext context, String category) {
                     return ValueListenableBuilder<List<AvatarData>>(
                       valueListenable: _outfitController.avatarDatesNotifier,
                       builder: (context, List<AvatarData> avatarDates, _) {
-                        print(_outfitController.avatarDatesNotifier.value);
                         return Container(
                           decoration: BoxDecoration(
                             color: Colors.white,
-                            borderRadius:
-                                BorderRadius.circular(Responsive.radius(16)),
+                            borderRadius: BorderRadius.circular(getResponsivePadding(16)),
                             boxShadow: [
                               BoxShadow(
                                 color: Colors.grey.withOpacity(0.2),
@@ -3848,15 +2829,12 @@ String _getPreferredSubcategory(BuildContext context, String category) {
                               ),
                             ],
                           ),
-                          child:
-                          TableCalendar(
-                            availableGestures: AvailableGestures.all, // Allow long-press
-                            // Or at least enable long-press:
+                          child: TableCalendar(
+                            availableGestures: AvailableGestures.all,
                             onDayLongPressed: (selectedDay, _) {
                               print('Long-pressed: $selectedDay');
                               _showAvatarMessage(selectedDay);
                             },
-
                             firstDay: DateTime.utc(2020, 1, 1),
                             lastDay: DateTime.utc(2030, 12, 31),
                             focusedDay: focusedDay,
@@ -3890,7 +2868,7 @@ String _getPreferredSubcategory(BuildContext context, String category) {
                               formatButtonVisible: false,
                               titleCentered: true,
                               titleTextStyle: GoogleFonts.poppins(
-                                fontSize: Responsive.fontSize(16),
+                                fontSize: getResponsiveFontSize(16),
                                 fontWeight: FontWeight.w600,
                                 color: appcolor,
                               ),
@@ -3903,11 +2881,11 @@ String _getPreferredSubcategory(BuildContext context, String category) {
                                   return const SizedBox();
                                 }
                                 return Positioned(
-                                  right: 20,
-                                  top: 10,
+                                  right: getResponsivePadding(20),
+                                  top: getResponsivePadding(10),
                                   child: Container(
-                                    width: 6,
-                                    height: 6,
+                                    width: getResponsiveWidth(6),
+                                    height: getResponsiveHeight(6),
                                     decoration: BoxDecoration(
                                       color: appcolor,
                                       shape: BoxShape.circle,
@@ -3930,10 +2908,8 @@ String _getPreferredSubcategory(BuildContext context, String category) {
     );
   }
 
-// Method to show avatar message popup on long press
   void _showAvatarMessage(DateTime date) {
     final message = _outfitController.getMessageForDate(date);
-
     if (message != null && message.isNotEmpty) {
       showDialog(
         context: context,
@@ -4001,7 +2977,6 @@ String _getPreferredSubcategory(BuildContext context, String category) {
         },
       );
     } else {
-      // Show message that no avatar message exists for this date
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('No avatar message for this date'),
@@ -4009,6 +2984,18 @@ String _getPreferredSubcategory(BuildContext context, String category) {
         ),
       );
     }
+  }
+
+  @override
+  void dispose() {
+    _avatarAnimationController?.dispose();
+    _wardrobeController.statusNotifier.removeListener(_handleStatusChange);
+    _wardrobeController.dispose();
+    _outfitController.dispose();
+    _avatarController.statusNotifier.removeListener(_handleAvatarStatusChange);
+    _avatarController.dispose();
+    _backgroundImageController.dispose();
+    super.dispose();
   }
 }
 

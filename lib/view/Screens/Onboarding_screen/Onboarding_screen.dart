@@ -21,8 +21,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final List<OnboardingPage> onboardingData = [
     OnboardingPage(
       title: "Fashion that speaks for itself",
-      description:
-          "Indulge in a wardrobe that effortlessly blends sophistication with comfort, ensuring every outfit resonates with your unique flair.",
+      description: "Indulge in a wardrobe that effortlessly blends sophistication with comfort, ensuring every outfit resonates with your unique flair.",
       highlightedText: "itself",
       titleColor: const Color(0xff272727),
       highlightColor: appcolor,
@@ -30,8 +29,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     ),
     OnboardingPage(
       title: "Organize. Create. Slay Every Day.",
-      description:
-          "Snap your outfits, build your dream closet, and plan every look with ease. Own your style journey — one outfit at a time.",
+      description: "Snap your outfits, build your dream closet, and plan every look with ease. Own your style journey — one outfit at a time.",
       highlightedText: "Every Day",
       titleColor: const Color(0xff272727),
       highlightColor: appcolor,
@@ -39,8 +37,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     ),
     OnboardingPage(
       title: "Your Style, Your Closet.",
-      description:
-          "Capture your wardrobe, create stunning outfits, and plan your style effortlessly. Stay organized, inspired your closet, your way.",
+      description: "Capture your wardrobe, create stunning outfits, and plan your style effortlessly. Stay organized, inspired your closet, your way.",
       highlightedText: "Closet",
       titleColor: const Color(0xff272727),
       highlightColor: appcolor,
@@ -73,9 +70,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         (index) {
           return Container(
             margin: EdgeInsets.symmetric(horizontal: Responsive.width(4)),
-            width: _currentPage == index
-                ? Responsive.width(25)
-                : Responsive.width(8),
+            width: _currentPage == index ? Responsive.width(25) : Responsive.width(8),
             height: Responsive.height(7),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(Responsive.radius(4)),
@@ -90,33 +85,98 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        children: [
-          Expanded(
-            flex: 4,
-            child: PageView.builder(
-              controller: _pageController,
-              itemCount: onboardingData.length,
-              onPageChanged: (index) => setState(() => _currentPage = index),
-              itemBuilder: (context, index) {
-                return _buildOnboardingPage(onboardingData[index]);
-              },
+      body: SafeArea(
+        child: Column(
+          children: [
+            // Image Section - Fixed height
+            Expanded(
+              flex: 6, // Reduced from previous calculation to give more space to content
+              child: PageView.builder(
+                controller: _pageController,
+                itemCount: onboardingData.length,
+                onPageChanged: (index) => setState(() => _currentPage = index),
+                itemBuilder: (context, index) {
+                  return _buildImageSection(onboardingData[index]);
+                },
+              ),
             ),
-          ),
-          Container(
-            color: themeController.white,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Padding(
-                  padding: EdgeInsets.only(left: Responsive.width(20)),
-                  child: _buildPageIndicator(),
+            
+            // Content Section - Flexible height
+            Expanded(
+              flex: 3, // Increased flex to give more space for text
+              child: Container(
+                color: themeController.white,
+                width: double.infinity,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: Responsive.width(20),
+                    vertical: Responsive.height(10),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      // Title with flexible space
+                      Expanded(
+                        flex: 2,
+                        child: _buildHighlightedTitle(onboardingData[_currentPage]),
+                      ),
+                      
+                      SizedBox(height: Responsive.height(8)),
+                      
+                      // Description with flexible space
+                      Expanded(
+                        flex: 1,
+                        child: SingleChildScrollView(
+                          child: Text(
+                            onboardingData[_currentPage].description,
+                            style: GoogleFonts.poppins(
+                              fontSize: Responsive.fontSize(13),
+                              fontWeight: FontWeight.w400,
+                              color: Colors.grey.shade600,
+                              height: 1.4,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                _buildNextButton(),
-              ],
+              ),
             ),
+            
+            // Bottom Section - Fixed height
+            Container(
+              color: themeController.white,
+              padding: EdgeInsets.symmetric(
+                horizontal: Responsive.width(20),
+                vertical: Responsive.height(15),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  _buildPageIndicator(),
+                  _buildNextButton(),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildImageSection(OnboardingPage page) {
+    return Container(
+      color: themeController.white,
+      child: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage(page.image),
+            fit: BoxFit.contain,
           ),
-        ],
+        ),
       ),
     );
   }
@@ -126,8 +186,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       onTap: _nextPage,
       child: Container(
         padding: EdgeInsets.symmetric(
-          vertical: AppConstants.buttonPadding.vertical.h,
-          horizontal: AppConstants.buttonPadding.horizontal.w,
+          vertical: Responsive.height(12),
+          horizontal: Responsive.width(24),
         ),
         decoration: BoxDecoration(
           color: appcolor,
@@ -142,8 +202,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               "Next",
               style: TextStyle(
                 color: themeController.white,
-                fontSize: Responsive.fontSize(20),
-                fontWeight: FontWeight.w400,
+                fontSize: Responsive.fontSize(16),
+                fontWeight: FontWeight.w500,
               ),
             ),
           ),
@@ -152,73 +212,30 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
 
-  Widget _buildOnboardingPage(OnboardingPage page) {
-    return Container(
-      color: themeController.white,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Expanded(
-            flex: 11,
-            child: Container(
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage(page.image),
-                  fit: BoxFit.fitWidth,
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            flex: 4,
-            child: Padding(
-              padding: Responsive.horizontalPadding(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _buildHighlightedTitle(page),
-                  SizedBox(height: Responsive.height(4)),
-                  Text(
-                    page.description,
-                    style: GoogleFonts.poppins(
-                      fontSize: Responsive.fontSize(13),
-                      fontWeight: FontWeight.w400,
-                      color: Colors.grey.shade600,
-                      height: 1.5,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildHighlightedTitle(OnboardingPage page) {
     final titleParts = page.title.split(page.highlightedText);
-
-    return RichText(
-      text: TextSpan(
-        style: GoogleFonts.playfairDisplay(
-            fontSize: Responsive.fontSize(38),
+    return SingleChildScrollView(
+      child: RichText(
+        text: TextSpan(
+          style: GoogleFonts.playfairDisplay(
+            fontSize: Responsive.fontSize(28), // Further reduced for better fit
             fontWeight: FontWeight.w700,
             color: page.titleColor,
-            height: 0.99),
-        children: [
-          TextSpan(text: titleParts[0]),
-          TextSpan(
-            text: page.highlightedText,
-            style: GoogleFonts.playfair(
-              fontSize: Responsive.fontSize(40),
-              fontWeight: FontWeight.w700,
-              color: page.highlightColor,
-            ),
+            height: 1.2,
           ),
-          if (titleParts.length > 1) TextSpan(text: titleParts[1]),
-        ],
+          children: [
+            TextSpan(text: titleParts[0]),
+            TextSpan(
+              text: page.highlightedText,
+              style: GoogleFonts.playfair(
+                fontSize: Responsive.fontSize(30), // Further reduced
+                fontWeight: FontWeight.w700,
+                color: page.highlightColor,
+              ),
+            ),
+            if (titleParts.length > 1) TextSpan(text: titleParts[1]),
+          ],
+        ),
       ),
     );
   }

@@ -113,7 +113,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       final profile = _profileController.profileNotifier.value!;
       _nameController.text = profile.name;
       _emailController.text = profile.email;
-      _selectedGenderNotifier.value = profile.gender.toLowerCase();
+      _selectedGenderNotifier.value = "Other";
 
       if (profile.profileImage != null && profile.profileImage.isNotEmpty) {
         _imageLinkNotifier.value = profile.profileImage;
@@ -352,8 +352,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               icon: Icons.email_outlined,
                               enabled: false,
                             ),
-                            const SizedBox(height: 16),
-                            _buildCustomGenderSelector(),
+                            // const SizedBox(height: 16),
+                            // _buildCustomGenderSelector(),
                             const SizedBox(height: 40),
                             _buildSaveButton(),
                           ],

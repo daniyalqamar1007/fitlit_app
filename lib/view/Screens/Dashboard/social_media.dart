@@ -1,5 +1,1104 @@
-import 'dart:developer';
+// import 'dart:developer';
 
+// import 'package:cached_network_image/cached_network_image.dart';
+// import 'package:fitlip_app/controllers/profile_controller.dart';
+// import 'package:fitlip_app/routes/App_routes.dart';
+// import 'package:fitlip_app/view/Utils/Constants.dart';
+// import 'package:fitlip_app/view/Widgets/custom_message.dart';
+// import 'package:flutter/material.dart';
+// import 'package:flutter_screenutil/flutter_screenutil.dart';
+// import 'package:google_fonts/google_fonts.dart';
+// import 'package:intl/intl.dart';
+// import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+// import 'package:loading_animation_widget/loading_animation_widget.dart';
+// import 'package:table_calendar/table_calendar.dart';
+// import '../../../controllers/outfit_controller.dart';
+// import '../../../controllers/user_suggestion_controller.dart';
+// import '../../../model/outfit_model.dart';
+// import '../../../model/profile_model.dart';
+// import '../../../model/user_suggestion_model.dart';
+// import '../../Utils/Colors.dart';
+// import '../../Utils/globle_variable/globle.dart';
+// import '../../Utils/responsivness.dart';
+// import '../../Utils/shimmer.dart';
+// import '../../Widgets/Custom_buttons.dart';
+// import '../../Widgets/suggestion_user_card.dart';
+
+// class SocialMediaProfile extends StatefulWidget {
+//   const SocialMediaProfile({Key? key}) : super(key: key);
+
+//   @override
+//   _SocialMediaProfileState createState() => _SocialMediaProfileState();
+// }
+
+// class _SocialMediaProfileState extends State<SocialMediaProfile> {
+//   bool isLiked = false;
+//   final UserSuggestionController _suggestionController = UserSuggestionController();
+
+//   bool status = true;
+//   int likeCount = 42;
+//   final OutfitController _outfitController = OutfitController();
+//   final ProfileController _profileController = ProfileController();
+//   DateTime selectedDate = DateTime.now();
+//   String? backgroundurl;
+//   String? stackimage;
+//   bool isLoading = false;
+//   String? outfitImageUrl; // To store the fetched outfit image URL
+//   final List<Comment> dummyComments = [
+//     Comment(
+//       id: 1,
+//       author: "Sarah Johnson",
+//       avatar: "assets/Images/circle_image.png",
+//       content: "Love this outfit! Where did you get that jacket?",
+//       likes: 12,
+//       time: "2h ago",
+//     ),
+//     Comment(
+//       id: 2,
+//       author: "Mike Chen",
+//       avatar: "assets/Images/circle_image.png",
+//       content: "Perfect color combination! 👌",
+//       likes: 8,
+//       time: "4h ago",
+//     ),
+//   ];
+
+//   @override
+//   void initState() {
+//     super.initState();
+//     _suggestionController.loadUsers(token: token!);
+//     _loadAvatarDates();
+//     _outfitController.statusNotifier.addListener(_updateLoadingStatus);
+//     _fetchOutfitForSelectedDate(); // Initial fetch
+
+//   }
+
+//   @override
+//   void dispose() {
+//     _outfitController.statusNotifier.removeListener(_updateLoadingStatus);
+//     _outfitController.dispose();
+//     _suggestionController.dispose();
+//     super.dispose();
+//   }
+//   Future<void> _loadAvatarDates() async {
+
+//       await _outfitController.loadAllAvatarDates(token: token!);
+
+//   }
+//   void _updateLoadingStatus() {
+//     setState(() {
+//       isLoading =
+//           _outfitController.statusNotifier.value == OutfitStatus.loading;
+//     });
+//   }
+
+//   Future<void> _fetchOutfitForSelectedDate() async {
+//     try {
+//       setState(() {
+//         isLoading = true;
+//         outfitImageUrl = null;
+//         backgroundurl=null;
+//         stackimage=null;
+//         // Clear previous image while loading
+//       });
+//       print(token);
+//       print(selectedDate);
+
+
+//       final response = await _outfitController.getOutfitByDate(
+//         token: token!,
+//         date: selectedDate,
+//         id:_profileController.profileNotifier.value!.id
+//       );
+
+//       setState(() {
+
+//         outfitImageUrl = response?.avatar_url??"";
+//         backgroundurl=response?.backgroundimage??"";
+//         stackimage=response?.stackimage??"";
+//         isLoading = false;
+//       });
+
+//       if (response != null) {
+//         setState(() {
+//           status = true;
+//         });
+//       }
+
+//       if (response == null ) {
+//         setState(() {
+//           status = false;
+//         });
+//        // showAppSnackBar(
+//        //   context,
+//        //
+//        //       AppLocalizations.of(context)!.noOutfitAvailable,
+//        //
+//        //    );
+//       }
+//     } catch (e) {
+//       setState(() {
+//         isLoading = false;
+//       });
+//       ScaffoldMessenger.of(context).showSnackBar(
+//         SnackBar(
+//           content: Text(
+//               '${AppLocalizations.of(context)!.errorFetchingOutfit}: ${e.toString()}'),
+//           backgroundColor: Colors.red,
+//         ),
+//       );
+//     }
+//   }
+
+//   void _handleLike() {
+//     setState(() {
+//       if (isLiked) {
+//         likeCount--;
+//       } else {
+//         likeCount++;
+//       }
+//       isLiked = !isLiked;
+//     });
+//   }
+
+//   Future<void> _selectDate(BuildContext context) async {
+//     DateTime? selectedTempDate = selectedDate;
+
+//     await showDialog<DateTime>(
+//       context: context,
+//       builder: (BuildContext context) {
+//         return Dialog(
+//           backgroundColor: Colors.white,
+//           shape: RoundedRectangleBorder(
+//             borderRadius: BorderRadius.circular(16),
+//           ),
+//           child: StatefulBuilder(
+//             builder: (BuildContext context, StateSetter setModalState) {
+//               return Container(
+//                 padding: EdgeInsets.all(8),
+//                 child: Column(
+//                   mainAxisSize: MainAxisSize.min,
+//                   children: [
+//                     /// Cross Icon to Close
+//                     Row(
+//                       mainAxisAlignment: MainAxisAlignment.end,
+//                       children: [
+//                         IconButton(
+//                           icon: Icon(Icons.close, color: Colors.grey),
+//                           onPressed: () => Navigator.pop(context),
+//                         ),
+//                       ],
+//                     ),
+
+//                     /// Title
+//                     Text(
+//                       'Select Date',
+//                       style: GoogleFonts.poppins(
+//                         fontSize: 18,
+//                         fontWeight: FontWeight.w600,
+//                         color: appcolor,
+//                       ),
+//                     ),
+//                     SizedBox(height: 8),
+
+//                     /// Calendar
+//                     ValueListenableBuilder<List<AvatarData>>(
+//                       valueListenable: _outfitController.avatarDatesNotifier,
+//                       builder: (context, List<AvatarData> avatarDates, _) {
+//                         return Container(
+//                           decoration: BoxDecoration(
+//                             color: Colors.white,
+//                             borderRadius: BorderRadius.circular(12),
+//                             boxShadow: [
+//                               BoxShadow(
+//                                 color: Colors.grey.withOpacity(0.1),
+//                                 blurRadius: 4,
+//                                 offset: const Offset(0, 2),
+//                               ),
+//                             ],
+//                           ),
+//                           child: TableCalendar(
+//                             firstDay: DateTime(2020),
+//                             lastDay: DateTime(2030),
+//                             focusedDay: selectedTempDate ?? DateTime.now(),
+//                             selectedDayPredicate: (day) => isSameDay(selectedTempDate, day),
+//                             onDaySelected: (selectedDay, focusedDay) {
+//                               setModalState(() {
+//                                 selectedTempDate = selectedDay;
+//                               });
+//                               setState(() {
+//                                 selectedDate = selectedDay;
+//                               });
+
+//                               _fetchOutfitForSelectedDate();
+//                               Navigator.pop(context);
+//                             },
+//                             onDayLongPressed: (selectedDay, focusedDay) {
+//                               _showAvatarMessage(selectedDay);
+//                             },
+//                             eventLoader: (day) {
+//                               if (isSameDay(day, DateTime.now())) return [];
+//                               if (_outfitController.hasAvatarForDate(day)) {
+//                                 return ['avatar'];
+//                               }
+//                               return [];
+//                             },
+//                             calendarStyle: CalendarStyle(
+//                               outsideDaysVisible: false,
+//                               selectedDecoration: BoxDecoration(
+//                                 color: appcolor,
+//                                 shape: BoxShape.circle,
+//                               ),
+//                               todayDecoration: BoxDecoration(
+//                                 color: appcolor.withOpacity(0.4),
+//                                 shape: BoxShape.circle,
+//                               ),
+//                             ),
+//                             headerStyle: HeaderStyle(
+//                               formatButtonVisible: false,
+//                               titleCentered: true,
+//                               titleTextStyle: GoogleFonts.poppins(
+//                                 fontSize: 16,
+//                                 fontWeight: FontWeight.w600,
+//                                 color: appcolor,
+//                               ),
+//                               leftChevronIcon: Icon(Icons.chevron_left, color: appcolor),
+//                               rightChevronIcon: Icon(Icons.chevron_right, color: appcolor),
+//                             ),
+//                             calendarBuilders: CalendarBuilders(
+//                               markerBuilder: (context, day, events) {
+//                                 if (events.isEmpty || isSameDay(day, DateTime.now())) {
+//                                   return const SizedBox(); // ❌ No dot on today
+//                                 }
+//                                 return Positioned(
+//                                   right: 17,
+//                                   top: 10,
+//                                   child: Container(
+//                                     width: 6,
+//                                     height: 6,
+//                                     decoration: BoxDecoration(
+//                                       color: appcolor,
+//                                       shape: BoxShape.circle,
+//                                     ),
+//                                   ),
+//                                 );
+//                               },
+//                             ),
+//                           ),
+//                         );
+//                       },
+//                     ),
+//                     SizedBox(height: 16),
+
+//                   ],
+//                 ),
+//               );
+//             },
+//           ),
+//         );
+//       },
+//     );
+//   }
+
+
+//   void _showAvatarMessage(DateTime date) {
+//     final message = _outfitController.getMessageForDate(date);
+
+//     if (message != null && message.isNotEmpty) {
+//       showDialog(
+//         context: context,
+//         builder: (BuildContext context) {
+//           return Dialog(
+//             shape: RoundedRectangleBorder(
+//               borderRadius: BorderRadius.circular(16),
+//             ),
+//             child: Container(
+//               padding: EdgeInsets.all(20),
+//               decoration: BoxDecoration(
+//                 borderRadius: BorderRadius.circular(16),
+//                 color: Colors.white,
+//               ),
+//               child: Column(
+//                 mainAxisSize: MainAxisSize.min,
+//                 children: [
+//                   Text(
+//                     'Avatar Message',
+//                     style: GoogleFonts.poppins(
+//                       fontSize: 18,
+//                       fontWeight: FontWeight.w600,
+//                       color: appcolor,
+//                     ),
+//                   ),
+//                   SizedBox(height: 12),
+//                   Text(
+//                     DateFormat('dd/MM/yyyy').format(date),
+//                     style: GoogleFonts.poppins(
+//                       fontSize: 14,
+//                       color: Colors.grey[600],
+//                     ),
+//                   ),
+//                   SizedBox(height: 16),
+//                   Container(
+//                     padding: EdgeInsets.all(12),
+//                     decoration: BoxDecoration(
+//                       color: appcolor.withOpacity(0.1),
+//                       borderRadius: BorderRadius.circular(8),
+//                     ),
+//                     child: Text(
+//                       message,
+//                       style: GoogleFonts.poppins(
+//                         fontSize: 16,
+//                         color: Colors.black87,
+//                       ),
+//                       textAlign: TextAlign.center,
+//                     ),
+//                   ),
+//                   SizedBox(height: 20),
+//                   TextButton(
+//                     onPressed: () => Navigator.of(context).pop(),
+//                     child: Text(
+//                       'Close',
+//                       style: GoogleFonts.poppins(
+//                         color: appcolor,
+//                         fontWeight: FontWeight.w500,
+//                       ),
+//                     ),
+//                   ),
+//                 ],
+//               ),
+//             ),
+//           );
+//         },
+//       );
+//     } else {
+//       // Show message that no avatar message exists for this date
+//       ScaffoldMessenger.of(context).showSnackBar(
+//         SnackBar(
+//           content: Text('No avatar message for this date'),
+//           duration: Duration(seconds: 2),
+//         ),
+//       );
+//     }
+//   }
+//   void _showCommentsBottomSheet() {
+//     showModalBottomSheet(
+//       context: context,
+//       isScrollControlled: true,
+//       shape: RoundedRectangleBorder(
+//         borderRadius:
+//             BorderRadius.vertical(top: Radius.circular(Responsive.radius(20))),
+//       ),
+//       builder: (context) => DraggableScrollableSheet(
+//         initialChildSize: 0.7,
+//         minChildSize: 0.5,
+//         maxChildSize: 0.95,
+//         expand: false,
+//         builder: (context, scrollController) {
+//           return CommentsBottomSheet(
+//             comments: dummyComments,
+//             scrollController: scrollController,
+//           );
+//         },
+//       ),
+//     );
+//   }
+
+//   Widget _buildNoOutfitAvailable() {
+//     return Padding(
+//       padding: const EdgeInsets.symmetric(vertical: 10),
+//       child: Column(
+//         mainAxisAlignment: MainAxisAlignment.center,
+//         children: [
+//           ElevatedButton(
+//             style: ElevatedButton.styleFrom(
+//               backgroundColor: appcolor.withOpacity(0.5),
+//               shape: RoundedRectangleBorder(
+//                 borderRadius: BorderRadius.circular(20),
+//               ),
+//             ),
+//             onPressed: () => _selectDate(context),
+//             child: Text(
+//               AppLocalizations.of(context)!.noOutfitAvailable,
+//               style: GoogleFonts.poppins(
+//                 color: Colors.white,
+//               ),
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+//   Future<void> show()async{
+//     log("there is no something to day");
+//     return;
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       body: SingleChildScrollView(
+//         child: SafeArea(
+//           child: Column(
+//             children: [
+//               // Header
+//               Padding(
+//                 padding: Responsive.allPadding(12),
+//                 child: Row(
+//                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                   children: [
+//                     Text(
+//                       AppLocalizations.of(context)!.socialMediaPage,
+//                       style: GoogleFonts.poppins(
+//                         fontSize: Responsive.fontSize(20),
+//                         fontWeight: FontWeight.w600,
+//                         color: appcolor,
+//                       ),
+//                     ),
+
+//           GestureDetector(
+//             onTap: (){
+//               Navigator.pushNamed(context, '/addfriend');
+//             },
+//             child: Container(
+//               padding: EdgeInsets.symmetric(
+//                   horizontal: Responsive.width(14), vertical: Responsive.height(8)),
+//               height: Responsive.height(30),
+//               decoration: BoxDecoration(
+//                 color: appcolor.withOpacity(0.7),
+//                 borderRadius: BorderRadius.circular(Responsive.radius(30)),
+//               ),
+//               child: Text(
+//                 "Add Friend",
+//                 style: GoogleFonts.poppins(
+//                   fontSize: Responsive.fontSize(12),
+//                   color: Colors.white,
+//                   fontWeight: FontWeight.w600,
+//                 ),
+//               ),
+//             ),
+//           ),
+
+
+//                   ],
+//                 ),
+//               ),
+        
+//               // Profile Info
+//               ValueListenableBuilder<UserProfileModel?>(
+//                 valueListenable: _profileController.profileNotifier,
+//                 builder: (context, userProfile, _) {
+//                   return Padding(
+//                     padding: Responsive.allPadding(16),
+//                     child: Row(
+//                       children: [GestureDetector(
+//                         onTap: (){
+//                           Navigator.pushNamed(context,AppRoutes.profile);
+//                         },
+//                           child: Container(
+//                             width: Responsive.width(50),
+//                             height: Responsive.height(50),
+//                             decoration: BoxDecoration(
+//                               shape: BoxShape.circle,
+//                               border: Border.all(
+//                                 color: const Color(0xFFB8860B),
+//                                 width: 1,
+//                               ),
+//                             ),
+//                             child: ClipOval(
+//                               child: userProfile?.profileImage.isNotEmpty == true
+//                                   ? Padding(
+//                                       padding: EdgeInsets.all(7),
+//                                       child: CachedNetworkImage(
+//                                         imageUrl: userProfile!.profileImage,
+//                                         fit: BoxFit.contain,
+//                                         scale: 2,
+//                                         alignment: Alignment.topCenter,
+//                                         placeholderFadeInDuration:
+//                                             Duration(milliseconds: 300),
+//                                         placeholder: (context, url) =>
+//                                             LoadingAnimationWidget.fourRotatingDots(        color:appcolor,size:20),
+//                                         errorWidget: (context, url, error) =>
+//                                             Image.asset(
+//                                           'assets/Images/circle_image.png',
+//                                           fit: BoxFit.contain,
+//                                         ),
+//                                       ),
+//                                     )
+//                                   : Image.asset(
+//                                       'assets/Images/circle_image.png',
+//                                       fit: BoxFit.contain,
+//                                     ),
+//                             ),
+//                           ),
+//                         ),
+//                         SizedBox(width: Responsive.width(8)),
+//                         Column(
+//                           mainAxisAlignment: MainAxisAlignment.start,
+//                           crossAxisAlignment: CrossAxisAlignment.start,
+//                           children: [
+//                             Text(
+//                               '${userProfile?.name ?? AppLocalizations.of(context)!.loading}',
+//                               style: GoogleFonts.poppins(
+//                                 fontSize: Responsive.fontSize(18),
+//                                 fontWeight: FontWeight.bold,
+//                               ),
+//                             ),
+//                             Text(
+//                               userProfile?.email ?? '',
+//                               style: GoogleFonts.poppins(
+//                                 color: Colors.grey,
+//                                 fontSize: Responsive.fontSize(14),
+//                               ),
+//                             ),
+//                           ],
+//                         ),
+//                         SizedBox(height: Responsive.height(8)),
+//                       ],
+//                     ),
+//                   );
+//                 },
+//               ),
+        
+//               // Post Content
+//               SingleChildScrollView(
+//                 child: Padding(
+//                   padding: Responsive.horizontalPadding(12),
+//                   child: Column(
+//                     children: [
+//                       Card(
+//                         color: Colors.white,
+//                         elevation: 2,
+//                         shape: RoundedRectangleBorder(
+//                           borderRadius:
+//                               BorderRadius.circular(Responsive.radius(12)),
+//                         ),
+//                         child: Column(
+//                           crossAxisAlignment: CrossAxisAlignment.start,
+//                           children: [
+//                             Stack(
+//                               children: [
+//                                 Container(
+//                                   child: ClipRRect(
+//                                     borderRadius: status
+//                                         ? BorderRadius.only(
+//                                       topLeft: Radius.circular(Responsive.radius(12)),
+//                                       topRight: Radius.circular(Responsive.radius(12)),
+//                                     )
+//                                         : BorderRadius.circular(12),
+//                                     child: Opacity(
+//                                       opacity: 0.7,
+//                                       child: stackimage != null && stackimage!.isNotEmpty
+//                                           ?
+//                                       CachedNetworkImage(
+//                                         imageUrl: stackimage!,
+//                                         fit: BoxFit.cover,
+//                                         placeholder: (context, url) => Image.asset(
+//                                           'assets/Images/new.jpg',
+//                                           fit: BoxFit.cover,
+//                                         ),
+//                                         errorWidget: (context, error, stackTrace) => Image.asset(
+//                                           'assets/Images/new.jpg',
+//                                           fit: BoxFit.cover,
+//                                         ),
+//                                       )
+//                                           : Image.asset(
+//                                         'assets/Images/new.jpg',
+//                                         fit: BoxFit.cover,
+//                                       ),
+//                                     ),
+//                                   ),
+//                                 ),
+//                                 // Positioned.fill(
+//                                 //   child: ClipRRect(
+//                                 //     borderRadius: status
+//                                 //         ? BorderRadius.only(
+//                                 //       topLeft: Radius.circular(Responsive.radius(12)),
+//                                 //       topRight: Radius.circular(Responsive.radius(12)),
+//                                 //     )
+//                                 //         : BorderRadius.circular(12),
+//                                 //     child: Opacity(
+//                                 //       opacity: 0.7,
+//                                 //       child: backgroundurl != null && backgroundurl!.isNotEmpty
+//                                 //           ? CachedNetworkImage(
+//                                 //         imageUrl: backgroundurl!,
+//                                 //         fit: BoxFit.cover,
+//                                 //         placeholder: (context, url) => Image.asset(
+//                                 //           'assets/Images/new.jpg',
+//                                 //           fit: BoxFit.cover,
+//                                 //         ),
+//                                 //         errorWidget: (context, error, stackTrace) => Image.asset(
+//                                 //           'assets/Images/new.jpg',
+//                                 //           fit: BoxFit.cover,
+//                                 //         ),
+//                                 //       )
+//                                 //           : Image.asset(
+//                                 //         'assets/Images/new.jpg',
+//                                 //         fit: BoxFit.cover,
+//                                 //       ),
+//                                 //     ),
+//                                 //   ),
+//                                 // ),
+//                                 // Container(
+//                                 //   margin: EdgeInsets.only(top: Responsive.height(15)),
+//                                 //   height: Responsive.height(300),
+//                                 //   width: double.infinity,
+//                                 //   child: isLoading
+//                                 //       ? Center(
+//                                 //     child: LoadingAnimationWidget.fourRotatingDots(
+//                                 //         color: appcolor, size: 20),
+//                                 //   )
+//                                 //       : outfitImageUrl != null && outfitImageUrl!.isNotEmpty
+//                                 //       ? ClipRRect(
+//                                 //     borderRadius: BorderRadius.vertical(
+//                                 //       top: Radius.circular(Responsive.radius(12)),
+//                                 //     ),
+//                                 //     child: Padding(
+//                                 //       padding: const EdgeInsets.all(8.0),
+//                                 //       child: CachedNetworkImage(
+//                                 //         imageUrl: outfitImageUrl!,
+//                                 //         scale: 4,
+//                                 //         width: double.infinity,
+//                                 //         fit: BoxFit.contain,
+//                                 //         placeholder: (context, url) => Center(
+//                                 //           child: LoadingAnimationWidget.fourRotatingDots(
+//                                 //               color: appcolor, size: 20),
+//                                 //         ),
+//                                 //         errorWidget: (context, error, stackTrace) {
+//                                 //           return _buildNoOutfitAvailable();
+//                                 //         },
+//                                 //       ),
+//                                 //     ),
+//                                 //   )
+//                                 //       : _buildNoOutfitAvailable(),
+//                                 // ),
+//                                 Positioned(
+//                                   top: Responsive.height(16),
+//                                   left: Responsive.width(16),
+//                                   child: GestureDetector(
+//                                     onTap: () => _selectDate(context),
+//                                     child: Container(
+//                                       padding: EdgeInsets.symmetric(
+//                                         vertical: Responsive.height(4),
+//                                         horizontal: Responsive.width(12),
+//                                       ),
+//                                       decoration: BoxDecoration(
+//                                         color: const Color(0xFFB8860B),
+//                                         borderRadius: BorderRadius.circular(Responsive.radius(8)),
+//                                       ),
+//                                       child: Column(
+//                                         children: [
+//                                           Text(
+//                                             DateFormat('dd').format(selectedDate),
+//                                             style: GoogleFonts.poppins(
+//                                               color: Colors.white,
+//                                               fontWeight: FontWeight.bold,
+//                                               fontSize: Responsive.fontSize(14),
+//                                             ),
+//                                           ),
+//                                           Text(
+//                                             DateFormat('MMM').format(selectedDate),
+//                                             style: GoogleFonts.poppins(
+//                                               color: Colors.white,
+//                                               fontSize: Responsive.fontSize(12),
+//                                             ),
+//                                           ),
+//                                         ],
+//                                       ),
+//                                     ),
+//                                   ),
+//                                 ),
+//                               ],
+//                             ),
+//                             status
+//                                 ? Row(
+//                                     children: [
+//                                       Expanded(
+//                                         child: ActionButton(
+//                                           icon: isLiked
+//                                               ? Icons.favorite
+//                                               : Icons.favorite_border,
+//                                           text: AppLocalizations.of(context)!
+//                                               .like,
+//                                           color: isLiked
+//                                               ? Colors.red
+//                                               : Colors.grey,
+//                                           onPressed: _handleLike,
+//                                         ),
+//                                       ),
+//                                       Expanded(
+//                                         child: ActionButton(
+//                                           icon: Icons.comment_outlined,
+//                                           text: AppLocalizations.of(context)!
+//                                               .comment,
+//                                           onPressed: _showCommentsBottomSheet,
+//                                         ),
+//                                       ),
+//                                       Expanded(
+//                                         child: ActionButton(
+//                                           icon: Icons.share_outlined,
+//                                           text: AppLocalizations.of(context)!
+//                                               .share,
+//                                           onPressed: () {
+//                                             showDialog(
+//                                               context: context,
+//                                               builder: (context) => AlertDialog(
+//                                                 title: Text(
+//                                                   'Feature Unavailable',
+//                                                   style: GoogleFonts
+//                                                       .playfairDisplay(
+//                                                           color: appcolor,
+//                                                           fontSize: 12),
+//                                                 ),
+//                                                 content: Text(
+//                                                   'This feature is not available right now.',
+//                                                   style: TextStyle(
+//                                                       color: appcolor,
+//                                                       fontSize: 12),
+//                                                 ),
+//                                                 actions: [
+//                                                   TextButton(
+//                                                     onPressed: () =>
+//                                                         Navigator.pop(context),
+//                                                     child: Text('OK'),
+//                                                   ),
+//                                                 ],
+//                                               ),
+//                                             );
+//                                           },
+//                                         ),
+//                                       ),
+//                                     ],
+//                                   )
+//                                 : SizedBox(),
+//                           ],
+//                         ),
+//                       ),
+
+//                     ],
+//                   ),
+//                 ),
+//               ),
+
+//               buildSuggestionsSection(),
+        
+//             ],
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+//   Widget buildSuggestionsSection() {
+//     return Column(
+//       crossAxisAlignment: CrossAxisAlignment.start,
+//       children: [
+//         Padding(
+//           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+//           child: Row(
+//             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//             children: [
+//               Text(
+//                 'Suggested for you',
+//                 style: GoogleFonts.poppins(
+//                   fontSize: 14,
+//                   fontWeight: FontWeight.w600,
+//                   color: appcolor,
+//                 ),
+//               ),
+//               GestureDetector(
+//                 onTap: () {
+//                   Navigator.pushNamed(context, AppRoutes.addfriend);
+//                 },
+//                 child: Text(
+//                   "See all",
+//                   style: GoogleFonts.poppins(
+//                     color: appcolor,
+//                     fontWeight: FontWeight.w400,
+//                     fontSize: 12,
+//                   ),
+//                 ),
+//               )
+//             ],
+//           ),
+//         ),
+//         SizedBox(
+//           height: Responsive.height(200),
+//           child: ValueListenableBuilder<UserSuggestionStatus>(
+//             valueListenable: _suggestionController.statusNotifier,
+//             builder: (context, status, _) {
+//               if (status == UserSuggestionStatus.loading) {
+//                 return ListView.builder(
+//                   scrollDirection: Axis.horizontal,
+//                   padding: const EdgeInsets.symmetric(horizontal: 16),
+//                   itemCount: 3, // Show 3 shimmer cards
+//                   itemBuilder: (context, index) {
+//                     return Padding(
+//                       padding: const EdgeInsets.only(right: 12),
+//                       child: UserSuggestionCardShimmer(), // Use your custom shimmer here
+//                     );
+//                   },
+//                 );
+//               }
+
+//               return ValueListenableBuilder<List<UserSuggestionModel>>(
+//                 valueListenable: _suggestionController.usersNotifier,
+//                 builder: (context, users, _) {
+//                   final currentEmail = _profileController.profileNotifier.value?.email;
+//                   final filteredUsers = users.where((user) {
+//                     return user.email != null && user.email != currentEmail;
+//                   }).toList();
+
+//                   return ListView.builder(
+//                     scrollDirection: Axis.horizontal,
+//                     padding: const EdgeInsets.symmetric(horizontal: 16),
+//                     itemCount: filteredUsers.length,
+//                     itemBuilder: (context, index) {
+//                       final user = filteredUsers[index];
+//                       return Padding(
+//                         padding: const EdgeInsets.only(right: 12),
+//                         child: ValueListenableBuilder<Set<int>>(
+//                           valueListenable: _suggestionController.followLoadingNotifier,
+//                           builder: (context, loadingSet, _) {
+//                             return UserSuggestionCard(
+//                               user: user,
+//                               onFollowTap: () => onFollowUser(user),
+//                               isFollowLoading: loadingSet.contains(user.userId),
+//                             );
+//                           },
+//                         ),
+//                       );
+//                     },
+//                   );
+//                 },
+//               );
+//             },
+//           ),
+//         ),
+//       ],
+//     );
+//   }
+
+//   void onFollowUser(UserSuggestionModel user) {
+//     _suggestionController.toggleFollowUser(
+//       token: token!,
+//       userId: user.userId!,
+//     );
+//   }
+// }
+
+// class ActionButton extends StatelessWidget {
+//   final IconData icon;
+//   final String text;
+//   final VoidCallback onPressed;
+//   final Color color;
+
+//   const ActionButton({
+//     Key? key,
+//     required this.icon,
+//     required this.text,
+//     required this.onPressed,
+//     this.color = Colors.grey,
+//   }) : super(key: key);
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return InkWell(
+//       onTap: onPressed,
+//       child: Padding(
+//         padding: EdgeInsets.symmetric(vertical: Responsive.height(12)),
+//         child: Row(
+//           mainAxisAlignment: MainAxisAlignment.center,
+//           children: [
+//             Icon(icon, color: color, size: Responsive.fontSize(20)),
+//             SizedBox(width: Responsive.width(8)),
+//             Text(
+//               text,
+//               style: GoogleFonts.poppins(
+//                 color: color,
+//                 fontSize: Responsive.fontSize(10),
+//               ),
+//             ),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }
+
+// class CommentsBottomSheet extends StatelessWidget {
+//   final List<Comment> comments;
+//   final ScrollController scrollController;
+
+//   const CommentsBottomSheet({
+//     Key? key,
+//     required this.comments,
+//     required this.scrollController,
+//   }) : super(key: key);
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//       decoration: BoxDecoration(
+//         color: Colors.white,
+//         borderRadius:
+//             BorderRadius.vertical(top: Radius.circular(Responsive.radius(20))),
+//       ),
+//       child: Column(
+//         children: [
+//           // Header
+//           Padding(
+//             padding: Responsive.allPadding(16),
+//             child: Row(
+//               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//               children: [
+//                 Text(
+//                   AppLocalizations.of(context)!.comments,
+//                   style: GoogleFonts.poppins(
+//                     fontSize: Responsive.fontSize(18),
+//                     fontWeight: FontWeight.bold,
+//                   ),
+//                 ),
+//                 IconButton(
+//                   icon: Icon(Icons.close, size: Responsive.fontSize(24)),
+//                   onPressed: () => Navigator.pop(context),
+//                 ),
+//               ],
+//             ),
+//           ),
+//           const Divider(height: 1),
+
+//           // Comments List
+//           Expanded(
+//             child: ListView.builder(
+//               controller: scrollController,
+//               padding: Responsive.allPadding(16),
+//               itemCount: comments.length,
+//               itemBuilder: (context, index) {
+//                 final comment = comments[index];
+//                 return CommentTile(comment: comment);
+//               },
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }
+
+// class CommentTile extends StatelessWidget {
+//   final Comment comment;
+
+//   const CommentTile({
+//     Key? key,
+//     required this.comment,
+//   }) : super(key: key);
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Padding(
+//       padding: EdgeInsets.only(bottom: Responsive.height(16)),
+//       child: Row(
+//         crossAxisAlignment: CrossAxisAlignment.start,
+//         children: [
+//           ClipOval(
+//             child: Image.asset(
+//               comment.avatar,
+//               width: Responsive.width(32),
+//               height: Responsive.height(32),
+//             ),
+//           ),
+//           SizedBox(width: Responsive.width(8)),
+//           Expanded(
+//             child: Container(
+//               padding: Responsive.allPadding(12),
+//               decoration: BoxDecoration(
+//                 color: Colors.grey[100],
+//                 borderRadius: BorderRadius.circular(Responsive.radius(12)),
+//               ),
+//               child: Column(
+//                 crossAxisAlignment: CrossAxisAlignment.start,
+//                 children: [
+//                   Row(
+//                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                     children: [
+//                       Text(
+//                         comment.author,
+//                         style: GoogleFonts.poppins(
+//                           fontWeight: FontWeight.bold,
+//                           fontSize: Responsive.fontSize(14),
+//                         ),
+//                       ),
+//                       Text(
+//                         comment.time,
+//                         style: GoogleFonts.poppins(
+//                           fontSize: Responsive.fontSize(12),
+//                           color: Colors.grey,
+//                         ),
+//                       ),
+//                     ],
+//                   ),
+//                   SizedBox(height: Responsive.height(4)),
+//                   Text(
+//                     comment.content,
+//                     style:
+//                         GoogleFonts.poppins(fontSize: Responsive.fontSize(14)),
+//                   ),
+//                   SizedBox(height: Responsive.height(8)),
+//                   Row(
+//                     children: [
+//                       Icon(
+//                         Icons.thumb_up_outlined,
+//                         size: Responsive.fontSize(12),
+//                         color: Colors.grey,
+//                       ),
+//                       SizedBox(width: Responsive.width(4)),
+//                       Text(
+//                         '${comment.likes}',
+//                         style: GoogleFonts.poppins(
+//                           fontSize: Responsive.fontSize(12),
+//                           color: Colors.grey,
+//                         ),
+//                       ),
+//                       SizedBox(width: Responsive.width(16)),
+//                       Text(
+//                         AppLocalizations.of(context)!.reply,
+//                         style: GoogleFonts.poppins(
+//                           fontSize: Responsive.fontSize(12),
+//                           color: Colors.grey,
+//                         ),
+//                       ),
+//                     ],
+//                   ),
+//                 ],
+//               ),
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }
+
+// class Comment {
+//   final int id;
+//   final String author;
+//   final String avatar;
+//   final String content;
+//   final int likes;
+//   final String time;
+
+//   const Comment({
+//     required this.id,
+//     required this.author,
+//     required this.avatar,
+//     required this.content,
+//     required this.likes,
+//     required this.time,
+//   });
+// }
+
+
+
+import 'dart:developer';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fitlip_app/controllers/profile_controller.dart';
 import 'package:fitlip_app/routes/App_routes.dart';
@@ -34,7 +1133,6 @@ class SocialMediaProfile extends StatefulWidget {
 class _SocialMediaProfileState extends State<SocialMediaProfile> {
   bool isLiked = false;
   final UserSuggestionController _suggestionController = UserSuggestionController();
-
   bool status = true;
   int likeCount = 42;
   final OutfitController _outfitController = OutfitController();
@@ -43,7 +1141,78 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
   String? backgroundurl;
   String? stackimage;
   bool isLoading = false;
-  String? outfitImageUrl; // To store the fetched outfit image URL
+  String? outfitImageUrl;
+
+  // Responsive helper methods
+  bool get isTablet {
+    final data = MediaQuery.of(context);
+    return data.size.shortestSide >= 600;
+  }
+
+  bool get isLargeTablet {
+    final data = MediaQuery.of(context);
+    return data.size.shortestSide >= 900;
+  }
+
+  double get screenWidth => MediaQuery.of(context).size.width;
+  double get screenHeight => MediaQuery.of(context).size.height;
+
+  // Responsive sizing methods
+  double getResponsiveWidth(double mobileWidth) {
+    if (isLargeTablet) {
+      return mobileWidth * 1.8;
+    } else if (isTablet) {
+      return mobileWidth * 1.4;
+    }
+    return mobileWidth;
+  }
+
+  double getResponsiveHeight(double mobileHeight) {
+    if (isLargeTablet) {
+      return mobileHeight * 1.6;
+    } else if (isTablet) {
+      return mobileHeight * 1.3;
+    }
+    return mobileHeight;
+  }
+
+  double getResponsiveFontSize(double mobileFontSize) {
+    if (isLargeTablet) {
+      return mobileFontSize * 1.5;
+    } else if (isTablet) {
+      return mobileFontSize * 1.2;
+    }
+    return mobileFontSize;
+  }
+
+  double getResponsivePadding(double mobilePadding) {
+    if (isLargeTablet) {
+      return mobilePadding * 1.8;
+    } else if (isTablet) {
+      return mobilePadding * 1.4;
+    }
+    return mobilePadding;
+  }
+
+  EdgeInsets getResponsiveAllPadding(double mobilePadding) {
+    return EdgeInsets.all(getResponsivePadding(mobilePadding));
+  }
+
+  EdgeInsets getResponsiveHorizontalPadding(double mobilePadding) {
+    return EdgeInsets.symmetric(horizontal: getResponsivePadding(mobilePadding));
+  }
+
+  EdgeInsets getResponsiveVerticalPadding(double mobilePadding) {
+    return EdgeInsets.symmetric(vertical: getResponsivePadding(mobilePadding));
+  }
+
+  EdgeInsets getResponsiveSymmetricPadding(double horizontal, double vertical) {
+    return EdgeInsets.symmetric(
+      horizontal: getResponsivePadding(horizontal),
+      vertical: getResponsivePadding(vertical),
+    );
+  }
+
   final List<Comment> dummyComments = [
     Comment(
       id: 1,
@@ -69,8 +1238,7 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
     _suggestionController.loadUsers(token: token!);
     _loadAvatarDates();
     _outfitController.statusNotifier.addListener(_updateLoadingStatus);
-    _fetchOutfitForSelectedDate(); // Initial fetch
-
+    _fetchOutfitForSelectedDate();
   }
 
   @override
@@ -80,15 +1248,14 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
     _suggestionController.dispose();
     super.dispose();
   }
+
   Future<void> _loadAvatarDates() async {
-
-      await _outfitController.loadAllAvatarDates(token: token!);
-
+    await _outfitController.loadAllAvatarDates(token: token!);
   }
+
   void _updateLoadingStatus() {
     setState(() {
-      isLoading =
-          _outfitController.statusNotifier.value == OutfitStatus.loading;
+      isLoading = _outfitController.statusNotifier.value == OutfitStatus.loading;
     });
   }
 
@@ -97,44 +1264,36 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
       setState(() {
         isLoading = true;
         outfitImageUrl = null;
-        backgroundurl=null;
-        stackimage=null;
-        // Clear previous image while loading
+        backgroundurl = null;
+        stackimage = null;
       });
+      
       print(token);
       print(selectedDate);
-
-
+      
       final response = await _outfitController.getOutfitByDate(
         token: token!,
         date: selectedDate,
-        id:_profileController.profileNotifier.value!.id
+        id: _profileController.profileNotifier.value!.id
       );
-
+      
       setState(() {
-
-        outfitImageUrl = response?.avatar_url??"";
-        backgroundurl=response?.backgroundimage??"";
-        stackimage=response?.stackimage??"";
+        outfitImageUrl = response?.avatar_url ?? "";
+        backgroundurl = response?.backgroundimage ?? "";
+        stackimage = response?.stackimage ?? "";
         isLoading = false;
       });
-
+      
       if (response != null) {
         setState(() {
           status = true;
         });
       }
-
-      if (response == null ) {
+      
+      if (response == null) {
         setState(() {
           status = false;
         });
-       // showAppSnackBar(
-       //   context,
-       //
-       //       AppLocalizations.of(context)!.noOutfitAvailable,
-       //
-       //    );
       }
     } catch (e) {
       setState(() {
@@ -142,8 +1301,7 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
       });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-              '${AppLocalizations.of(context)!.errorFetchingOutfit}: ${e.toString()}'),
+          content: Text('${AppLocalizations.of(context)!.errorFetchingOutfit}: ${e.toString()}'),
           backgroundColor: Colors.red,
         ),
       );
@@ -163,52 +1321,49 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
 
   Future<void> _selectDate(BuildContext context) async {
     DateTime? selectedTempDate = selectedDate;
-
     await showDialog<DateTime>(
       context: context,
       builder: (BuildContext context) {
         return Dialog(
           backgroundColor: Colors.white,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(getResponsivePadding(16)),
           ),
           child: StatefulBuilder(
             builder: (BuildContext context, StateSetter setModalState) {
               return Container(
-                padding: EdgeInsets.all(8),
+                padding: getResponsiveAllPadding(8),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    /// Cross Icon to Close
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         IconButton(
-                          icon: Icon(Icons.close, color: Colors.grey),
+                          icon: Icon(Icons.close, 
+                            color: Colors.grey,
+                            size: getResponsiveFontSize(24),
+                          ),
                           onPressed: () => Navigator.pop(context),
                         ),
                       ],
                     ),
-
-                    /// Title
                     Text(
                       'Select Date',
                       style: GoogleFonts.poppins(
-                        fontSize: 18,
+                        fontSize: getResponsiveFontSize(18),
                         fontWeight: FontWeight.w600,
                         color: appcolor,
                       ),
                     ),
-                    SizedBox(height: 8),
-
-                    /// Calendar
+                    SizedBox(height: getResponsiveHeight(8)),
                     ValueListenableBuilder<List<AvatarData>>(
                       valueListenable: _outfitController.avatarDatesNotifier,
                       builder: (context, List<AvatarData> avatarDates, _) {
                         return Container(
                           decoration: BoxDecoration(
                             color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(getResponsivePadding(12)),
                             boxShadow: [
                               BoxShadow(
                                 color: Colors.grey.withOpacity(0.1),
@@ -229,7 +1384,6 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
                               setState(() {
                                 selectedDate = selectedDay;
                               });
-
                               _fetchOutfitForSelectedDate();
                               Navigator.pop(context);
                             },
@@ -258,24 +1412,30 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
                               formatButtonVisible: false,
                               titleCentered: true,
                               titleTextStyle: GoogleFonts.poppins(
-                                fontSize: 16,
+                                fontSize: getResponsiveFontSize(16),
                                 fontWeight: FontWeight.w600,
                                 color: appcolor,
                               ),
-                              leftChevronIcon: Icon(Icons.chevron_left, color: appcolor),
-                              rightChevronIcon: Icon(Icons.chevron_right, color: appcolor),
+                              leftChevronIcon: Icon(Icons.chevron_left, 
+                                color: appcolor,
+                                size: getResponsiveFontSize(24),
+                              ),
+                              rightChevronIcon: Icon(Icons.chevron_right, 
+                                color: appcolor,
+                                size: getResponsiveFontSize(24),
+                              ),
                             ),
                             calendarBuilders: CalendarBuilders(
                               markerBuilder: (context, day, events) {
                                 if (events.isEmpty || isSameDay(day, DateTime.now())) {
-                                  return const SizedBox(); // ❌ No dot on today
+                                  return const SizedBox();
                                 }
                                 return Positioned(
-                                  right: 17,
-                                  top: 10,
+                                  right: getResponsivePadding(17),
+                                  top: getResponsivePadding(10),
                                   child: Container(
-                                    width: 6,
-                                    height: 6,
+                                    width: getResponsiveWidth(6),
+                                    height: getResponsiveHeight(6),
                                     decoration: BoxDecoration(
                                       color: appcolor,
                                       shape: BoxShape.circle,
@@ -288,8 +1448,7 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
                         );
                       },
                     ),
-                    SizedBox(height: 16),
-
+                    SizedBox(height: getResponsiveHeight(16)),
                   ],
                 ),
               );
@@ -300,22 +1459,20 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
     );
   }
 
-
   void _showAvatarMessage(DateTime date) {
     final message = _outfitController.getMessageForDate(date);
-
     if (message != null && message.isNotEmpty) {
       showDialog(
         context: context,
         builder: (BuildContext context) {
           return Dialog(
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(getResponsivePadding(16)),
             ),
             child: Container(
-              padding: EdgeInsets.all(20),
+              padding: getResponsiveAllPadding(20),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(getResponsivePadding(16)),
                 color: Colors.white,
               ),
               child: Column(
@@ -324,36 +1481,36 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
                   Text(
                     'Avatar Message',
                     style: GoogleFonts.poppins(
-                      fontSize: 18,
+                      fontSize: getResponsiveFontSize(18),
                       fontWeight: FontWeight.w600,
                       color: appcolor,
                     ),
                   ),
-                  SizedBox(height: 12),
+                  SizedBox(height: getResponsiveHeight(12)),
                   Text(
                     DateFormat('dd/MM/yyyy').format(date),
                     style: GoogleFonts.poppins(
-                      fontSize: 14,
+                      fontSize: getResponsiveFontSize(14),
                       color: Colors.grey[600],
                     ),
                   ),
-                  SizedBox(height: 16),
+                  SizedBox(height: getResponsiveHeight(16)),
                   Container(
-                    padding: EdgeInsets.all(12),
+                    padding: getResponsiveAllPadding(12),
                     decoration: BoxDecoration(
                       color: appcolor.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(getResponsivePadding(8)),
                     ),
                     child: Text(
                       message,
                       style: GoogleFonts.poppins(
-                        fontSize: 16,
+                        fontSize: getResponsiveFontSize(16),
                         color: Colors.black87,
                       ),
                       textAlign: TextAlign.center,
                     ),
                   ),
-                  SizedBox(height: 20),
+                  SizedBox(height: getResponsiveHeight(20)),
                   TextButton(
                     onPressed: () => Navigator.of(context).pop(),
                     child: Text(
@@ -361,6 +1518,7 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
                       style: GoogleFonts.poppins(
                         color: appcolor,
                         fontWeight: FontWeight.w500,
+                        fontSize: getResponsiveFontSize(14),
                       ),
                     ),
                   ),
@@ -371,7 +1529,6 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
         },
       );
     } else {
-      // Show message that no avatar message exists for this date
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('No avatar message for this date'),
@@ -380,13 +1537,15 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
       );
     }
   }
+
   void _showCommentsBottomSheet() {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       shape: RoundedRectangleBorder(
-        borderRadius:
-            BorderRadius.vertical(top: Radius.circular(Responsive.radius(20))),
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(getResponsivePadding(20)),
+        ),
       ),
       builder: (context) => DraggableScrollableSheet(
         initialChildSize: 0.7,
@@ -405,7 +1564,7 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
 
   Widget _buildNoOutfitAvailable() {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10),
+      padding: getResponsiveVerticalPadding(10),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -413,7 +1572,7 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
             style: ElevatedButton.styleFrom(
               backgroundColor: appcolor.withOpacity(0.5),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(getResponsivePadding(20)),
               ),
             ),
             onPressed: () => _selectDate(context),
@@ -421,6 +1580,7 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
               AppLocalizations.of(context)!.noOutfitAvailable,
               style: GoogleFonts.poppins(
                 color: Colors.white,
+                fontSize: getResponsiveFontSize(14),
               ),
             ),
           ),
@@ -428,7 +1588,8 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
       ),
     );
   }
-  Future<void> show()async{
+
+  Future<void> show() async {
     log("there is no something to day");
     return;
   }
@@ -442,61 +1603,58 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
             children: [
               // Header
               Padding(
-                padding: Responsive.allPadding(12),
+                padding: getResponsiveAllPadding(12),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
                       AppLocalizations.of(context)!.socialMediaPage,
                       style: GoogleFonts.poppins(
-                        fontSize: Responsive.fontSize(20),
+                        fontSize: getResponsiveFontSize(20),
                         fontWeight: FontWeight.w600,
                         color: appcolor,
                       ),
                     ),
-
-          GestureDetector(
-            onTap: (){
-              Navigator.pushNamed(context, '/addfriend');
-            },
-            child: Container(
-              padding: EdgeInsets.symmetric(
-                  horizontal: Responsive.width(14), vertical: Responsive.height(8)),
-              height: Responsive.height(30),
-              decoration: BoxDecoration(
-                color: appcolor.withOpacity(0.7),
-                borderRadius: BorderRadius.circular(Responsive.radius(30)),
-              ),
-              child: Text(
-                "Add Friend",
-                style: GoogleFonts.poppins(
-                  fontSize: Responsive.fontSize(12),
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ),
-
-
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.pushNamed(context, '/addfriend');
+                      },
+                      child: Container(
+                        padding: getResponsiveSymmetricPadding(14, 8),
+                        height: getResponsiveHeight(30),
+                        decoration: BoxDecoration(
+                          color: appcolor.withOpacity(0.7),
+                          borderRadius: BorderRadius.circular(getResponsivePadding(30)),
+                        ),
+                        child: Text(
+                          "Add Friend",
+                          style: GoogleFonts.poppins(
+                            fontSize: getResponsiveFontSize(12),
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
-        
+              
               // Profile Info
               ValueListenableBuilder<UserProfileModel?>(
                 valueListenable: _profileController.profileNotifier,
                 builder: (context, userProfile, _) {
                   return Padding(
-                    padding: Responsive.allPadding(16),
+                    padding: getResponsiveAllPadding(16),
                     child: Row(
-                      children: [GestureDetector(
-                        onTap: (){
-                          Navigator.pushNamed(context,AppRoutes.profile);
-                        },
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.pushNamed(context, AppRoutes.profile);
+                          },
                           child: Container(
-                            width: Responsive.width(50),
-                            height: Responsive.height(50),
+                            width: getResponsiveWidth(50),
+                            height: getResponsiveHeight(50),
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               border: Border.all(
@@ -507,18 +1665,18 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
                             child: ClipOval(
                               child: userProfile?.profileImage.isNotEmpty == true
                                   ? Padding(
-                                      padding: EdgeInsets.all(7),
+                                      padding: getResponsiveAllPadding(7),
                                       child: CachedNetworkImage(
                                         imageUrl: userProfile!.profileImage,
                                         fit: BoxFit.contain,
                                         scale: 2,
                                         alignment: Alignment.topCenter,
-                                        placeholderFadeInDuration:
-                                            Duration(milliseconds: 300),
-                                        placeholder: (context, url) =>
-                                            LoadingAnimationWidget.fourRotatingDots(        color:appcolor,size:20),
-                                        errorWidget: (context, url, error) =>
-                                            Image.asset(
+                                        placeholderFadeInDuration: Duration(milliseconds: 300),
+                                        placeholder: (context, url) => LoadingAnimationWidget.fourRotatingDots(
+                                          color: appcolor,
+                                          size: getResponsiveWidth(20),
+                                        ),
+                                        errorWidget: (context, url, error) => Image.asset(
                                           'assets/Images/circle_image.png',
                                           fit: BoxFit.contain,
                                         ),
@@ -531,7 +1689,7 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
                             ),
                           ),
                         ),
-                        SizedBox(width: Responsive.width(8)),
+                        SizedBox(width: getResponsiveWidth(8)),
                         Column(
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -539,7 +1697,7 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
                             Text(
                               '${userProfile?.name ?? AppLocalizations.of(context)!.loading}',
                               style: GoogleFonts.poppins(
-                                fontSize: Responsive.fontSize(18),
+                                fontSize: getResponsiveFontSize(18),
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -547,30 +1705,29 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
                               userProfile?.email ?? '',
                               style: GoogleFonts.poppins(
                                 color: Colors.grey,
-                                fontSize: Responsive.fontSize(14),
+                                fontSize: getResponsiveFontSize(14),
                               ),
                             ),
                           ],
                         ),
-                        SizedBox(height: Responsive.height(8)),
+                        SizedBox(height: getResponsiveHeight(8)),
                       ],
                     ),
                   );
                 },
               ),
-        
+              
               // Post Content
               SingleChildScrollView(
                 child: Padding(
-                  padding: Responsive.horizontalPadding(12),
+                  padding: getResponsiveHorizontalPadding(12),
                   child: Column(
                     children: [
                       Card(
                         color: Colors.white,
                         elevation: 2,
                         shape: RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius.circular(Responsive.radius(12)),
+                          borderRadius: BorderRadius.circular(getResponsivePadding(12)),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -578,112 +1735,47 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
                             Stack(
                               children: [
                                 Container(
+                                  height: getResponsiveHeight(300),
+                                  width: double.infinity,
                                   child: ClipRRect(
                                     borderRadius: status
                                         ? BorderRadius.only(
-                                      topLeft: Radius.circular(Responsive.radius(12)),
-                                      topRight: Radius.circular(Responsive.radius(12)),
-                                    )
-                                        : BorderRadius.circular(12),
+                                            topLeft: Radius.circular(getResponsivePadding(12)),
+                                            topRight: Radius.circular(getResponsivePadding(12)),
+                                          )
+                                        : BorderRadius.circular(getResponsivePadding(12)),
                                     child: Opacity(
                                       opacity: 0.7,
                                       child: stackimage != null && stackimage!.isNotEmpty
-                                          ?
-                                      CachedNetworkImage(
-                                        imageUrl: stackimage!,
-                                        fit: BoxFit.cover,
-                                        placeholder: (context, url) => Image.asset(
-                                          'assets/Images/new.jpg',
-                                          fit: BoxFit.cover,
-                                        ),
-                                        errorWidget: (context, error, stackTrace) => Image.asset(
-                                          'assets/Images/new.jpg',
-                                          fit: BoxFit.cover,
-                                        ),
-                                      )
+                                          ? CachedNetworkImage(
+                                              imageUrl: stackimage!,
+                                              fit: BoxFit.contain,
+                                              placeholder: (context, url) => Image.asset(
+                                                'assets/Images/new.jpg',
+                                                fit: BoxFit.cover,
+                                              ),
+                                              errorWidget: (context, error, stackTrace) => Image.asset(
+                                                'assets/Images/new.jpg',
+                                                fit: BoxFit.cover,
+                                              ),
+                                            )
                                           : Image.asset(
-                                        'assets/Images/new.jpg',
-                                        fit: BoxFit.cover,
-                                      ),
+                                              'assets/Images/new.jpg',
+                                              fit: BoxFit.cover,
+                                            ),
                                     ),
                                   ),
                                 ),
-                                // Positioned.fill(
-                                //   child: ClipRRect(
-                                //     borderRadius: status
-                                //         ? BorderRadius.only(
-                                //       topLeft: Radius.circular(Responsive.radius(12)),
-                                //       topRight: Radius.circular(Responsive.radius(12)),
-                                //     )
-                                //         : BorderRadius.circular(12),
-                                //     child: Opacity(
-                                //       opacity: 0.7,
-                                //       child: backgroundurl != null && backgroundurl!.isNotEmpty
-                                //           ? CachedNetworkImage(
-                                //         imageUrl: backgroundurl!,
-                                //         fit: BoxFit.cover,
-                                //         placeholder: (context, url) => Image.asset(
-                                //           'assets/Images/new.jpg',
-                                //           fit: BoxFit.cover,
-                                //         ),
-                                //         errorWidget: (context, error, stackTrace) => Image.asset(
-                                //           'assets/Images/new.jpg',
-                                //           fit: BoxFit.cover,
-                                //         ),
-                                //       )
-                                //           : Image.asset(
-                                //         'assets/Images/new.jpg',
-                                //         fit: BoxFit.cover,
-                                //       ),
-                                //     ),
-                                //   ),
-                                // ),
-                                // Container(
-                                //   margin: EdgeInsets.only(top: Responsive.height(15)),
-                                //   height: Responsive.height(300),
-                                //   width: double.infinity,
-                                //   child: isLoading
-                                //       ? Center(
-                                //     child: LoadingAnimationWidget.fourRotatingDots(
-                                //         color: appcolor, size: 20),
-                                //   )
-                                //       : outfitImageUrl != null && outfitImageUrl!.isNotEmpty
-                                //       ? ClipRRect(
-                                //     borderRadius: BorderRadius.vertical(
-                                //       top: Radius.circular(Responsive.radius(12)),
-                                //     ),
-                                //     child: Padding(
-                                //       padding: const EdgeInsets.all(8.0),
-                                //       child: CachedNetworkImage(
-                                //         imageUrl: outfitImageUrl!,
-                                //         scale: 4,
-                                //         width: double.infinity,
-                                //         fit: BoxFit.contain,
-                                //         placeholder: (context, url) => Center(
-                                //           child: LoadingAnimationWidget.fourRotatingDots(
-                                //               color: appcolor, size: 20),
-                                //         ),
-                                //         errorWidget: (context, error, stackTrace) {
-                                //           return _buildNoOutfitAvailable();
-                                //         },
-                                //       ),
-                                //     ),
-                                //   )
-                                //       : _buildNoOutfitAvailable(),
-                                // ),
                                 Positioned(
-                                  top: Responsive.height(16),
-                                  left: Responsive.width(16),
+                                  top: getResponsiveHeight(16),
+                                  left: getResponsiveWidth(16),
                                   child: GestureDetector(
                                     onTap: () => _selectDate(context),
                                     child: Container(
-                                      padding: EdgeInsets.symmetric(
-                                        vertical: Responsive.height(4),
-                                        horizontal: Responsive.width(12),
-                                      ),
+                                      padding: getResponsiveSymmetricPadding(12, 4),
                                       decoration: BoxDecoration(
                                         color: const Color(0xFFB8860B),
-                                        borderRadius: BorderRadius.circular(Responsive.radius(8)),
+                                        borderRadius: BorderRadius.circular(getResponsivePadding(8)),
                                       ),
                                       child: Column(
                                         children: [
@@ -692,14 +1784,14 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
                                             style: GoogleFonts.poppins(
                                               color: Colors.white,
                                               fontWeight: FontWeight.bold,
-                                              fontSize: Responsive.fontSize(14),
+                                              fontSize: getResponsiveFontSize(14),
                                             ),
                                           ),
                                           Text(
                                             DateFormat('MMM').format(selectedDate),
                                             style: GoogleFonts.poppins(
                                               color: Colors.white,
-                                              fontSize: Responsive.fontSize(12),
+                                              fontSize: getResponsiveFontSize(12),
                                             ),
                                           ),
                                         ],
@@ -714,51 +1806,44 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
                                     children: [
                                       Expanded(
                                         child: ActionButton(
-                                          icon: isLiked
-                                              ? Icons.favorite
-                                              : Icons.favorite_border,
-                                          text: AppLocalizations.of(context)!
-                                              .like,
-                                          color: isLiked
-                                              ? Colors.red
-                                              : Colors.grey,
+                                          icon: isLiked ? Icons.favorite : Icons.favorite_border,
+                                          text: AppLocalizations.of(context)!.like,
+                                          color: isLiked ? Colors.red : Colors.grey,
                                           onPressed: _handleLike,
                                         ),
                                       ),
                                       Expanded(
                                         child: ActionButton(
                                           icon: Icons.comment_outlined,
-                                          text: AppLocalizations.of(context)!
-                                              .comment,
+                                          text: AppLocalizations.of(context)!.comment,
                                           onPressed: _showCommentsBottomSheet,
                                         ),
                                       ),
                                       Expanded(
                                         child: ActionButton(
                                           icon: Icons.share_outlined,
-                                          text: AppLocalizations.of(context)!
-                                              .share,
+                                          text: AppLocalizations.of(context)!.share,
                                           onPressed: () {
                                             showDialog(
                                               context: context,
                                               builder: (context) => AlertDialog(
                                                 title: Text(
                                                   'Feature Unavailable',
-                                                  style: GoogleFonts
-                                                      .playfairDisplay(
-                                                          color: appcolor,
-                                                          fontSize: 12),
+                                                  style: GoogleFonts.playfairDisplay(
+                                                    color: appcolor,
+                                                    fontSize: getResponsiveFontSize(12),
+                                                  ),
                                                 ),
                                                 content: Text(
                                                   'This feature is not available right now.',
                                                   style: TextStyle(
-                                                      color: appcolor,
-                                                      fontSize: 12),
+                                                    color: appcolor,
+                                                    fontSize: getResponsiveFontSize(12),
+                                                  ),
                                                 ),
                                                 actions: [
                                                   TextButton(
-                                                    onPressed: () =>
-                                                        Navigator.pop(context),
+                                                    onPressed: () => Navigator.pop(context),
                                                     child: Text('OK'),
                                                   ),
                                                 ],
@@ -773,33 +1858,31 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
                           ],
                         ),
                       ),
-
                     ],
                   ),
                 ),
               ),
-
               buildSuggestionsSection(),
-        
             ],
           ),
         ),
       ),
     );
   }
+
   Widget buildSuggestionsSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: getResponsiveSymmetricPadding(16, 8),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 'Suggested for you',
                 style: GoogleFonts.poppins(
-                  fontSize: 14,
+                  fontSize: getResponsiveFontSize(14),
                   fontWeight: FontWeight.w600,
                   color: appcolor,
                 ),
@@ -813,7 +1896,7 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
                   style: GoogleFonts.poppins(
                     color: appcolor,
                     fontWeight: FontWeight.w400,
-                    fontSize: 12,
+                    fontSize: getResponsiveFontSize(12),
                   ),
                 ),
               )
@@ -821,24 +1904,23 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
           ),
         ),
         SizedBox(
-          height: Responsive.height(200),
+          height: getResponsiveHeight(200),
           child: ValueListenableBuilder<UserSuggestionStatus>(
             valueListenable: _suggestionController.statusNotifier,
             builder: (context, status, _) {
               if (status == UserSuggestionStatus.loading) {
                 return ListView.builder(
                   scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  itemCount: 3, // Show 3 shimmer cards
+                  padding: getResponsiveHorizontalPadding(16),
+                  itemCount: 3,
                   itemBuilder: (context, index) {
                     return Padding(
-                      padding: const EdgeInsets.only(right: 12),
-                      child: UserSuggestionCardShimmer(), // Use your custom shimmer here
+                      padding: EdgeInsets.only(right: getResponsiveWidth(12)),
+                      child: UserSuggestionCardShimmer(),
                     );
                   },
                 );
               }
-
               return ValueListenableBuilder<List<UserSuggestionModel>>(
                 valueListenable: _suggestionController.usersNotifier,
                 builder: (context, users, _) {
@@ -846,15 +1928,15 @@ class _SocialMediaProfileState extends State<SocialMediaProfile> {
                   final filteredUsers = users.where((user) {
                     return user.email != null && user.email != currentEmail;
                   }).toList();
-
+                  
                   return ListView.builder(
                     scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    padding: getResponsiveHorizontalPadding(16),
                     itemCount: filteredUsers.length,
                     itemBuilder: (context, index) {
                       final user = filteredUsers[index];
                       return Padding(
-                        padding: const EdgeInsets.only(right: 12),
+                        padding: EdgeInsets.only(right: getResponsiveWidth(12)),
                         child: ValueListenableBuilder<Set<int>>(
                           valueListenable: _suggestionController.followLoadingNotifier,
                           builder: (context, loadingSet, _) {
@@ -899,22 +1981,62 @@ class ActionButton extends StatelessWidget {
     this.color = Colors.grey,
   }) : super(key: key);
 
+  // Static responsive helper methods for ActionButton
+  static bool isTablet(BuildContext context) {
+    return MediaQuery.of(context).size.shortestSide >= 600;
+  }
+
+  static bool isLargeTablet(BuildContext context) {
+    return MediaQuery.of(context).size.shortestSide >= 900;
+  }
+
+  static double getResponsiveWidth(BuildContext context, double mobileWidth) {
+    if (isLargeTablet(context)) {
+      return mobileWidth * 1.8;
+    } else if (isTablet(context)) {
+      return mobileWidth * 1.4;
+    }
+    return mobileWidth;
+  }
+
+  static double getResponsiveHeight(BuildContext context, double mobileHeight) {
+    if (isLargeTablet(context)) {
+      return mobileHeight * 1.6;
+    } else if (isTablet(context)) {
+      return mobileHeight * 1.3;
+    }
+    return mobileHeight;
+  }
+
+  static double getResponsiveFontSize(BuildContext context, double mobileFontSize) {
+    if (isLargeTablet(context)) {
+      return mobileFontSize * 1.5;
+    } else if (isTablet(context)) {
+      return mobileFontSize * 1.2;
+    }
+    return mobileFontSize;
+  }
+
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onPressed,
       child: Padding(
-        padding: EdgeInsets.symmetric(vertical: Responsive.height(12)),
+        padding: EdgeInsets.symmetric(vertical: ActionButton.getResponsiveHeight(context, 12)),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: color, size: Responsive.fontSize(20)),
-            SizedBox(width: Responsive.width(8)),
+            Icon(
+              icon,
+              color: color,
+              size: ActionButton.getResponsiveFontSize(context, 20),
+            ),
+            SizedBox(width: ActionButton.getResponsiveWidth(context, 8)),
             Text(
               text,
               style: GoogleFonts.poppins(
                 color: color,
-                fontSize: Responsive.fontSize(10),
+                fontSize: ActionButton.getResponsiveFontSize(context, 10),
               ),
             ),
           ],
@@ -934,43 +2056,77 @@ class CommentsBottomSheet extends StatelessWidget {
     required this.scrollController,
   }) : super(key: key);
 
+  // Static responsive helper methods for CommentsBottomSheet
+  static bool isTablet(BuildContext context) {
+    return MediaQuery.of(context).size.shortestSide >= 600;
+  }
+
+  static bool isLargeTablet(BuildContext context) {
+    return MediaQuery.of(context).size.shortestSide >= 900;
+  }
+
+  static double getResponsivePadding(BuildContext context, double mobilePadding) {
+    if (isLargeTablet(context)) {
+      return mobilePadding * 1.8;
+    } else if (isTablet(context)) {
+      return mobilePadding * 1.4;
+    }
+    return mobilePadding;
+  }
+
+  static double getResponsiveFontSize(BuildContext context, double mobileFontSize) {
+    if (isLargeTablet(context)) {
+      return mobileFontSize * 1.5;
+    } else if (isTablet(context)) {
+      return mobileFontSize * 1.2;
+    }
+    return mobileFontSize;
+  }
+
+  static EdgeInsets getResponsiveAllPadding(BuildContext context, double mobilePadding) {
+    return EdgeInsets.all(getResponsivePadding(context, mobilePadding));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius:
-            BorderRadius.vertical(top: Radius.circular(Responsive.radius(20))),
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(CommentsBottomSheet.getResponsivePadding(context, 20)),
+        ),
       ),
       child: Column(
         children: [
           // Header
           Padding(
-            padding: Responsive.allPadding(16),
+            padding: CommentsBottomSheet.getResponsiveAllPadding(context, 16),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
                   AppLocalizations.of(context)!.comments,
                   style: GoogleFonts.poppins(
-                    fontSize: Responsive.fontSize(18),
+                    fontSize: CommentsBottomSheet.getResponsiveFontSize(context, 18),
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 IconButton(
-                  icon: Icon(Icons.close, size: Responsive.fontSize(24)),
+                  icon: Icon(
+                    Icons.close,
+                    size: CommentsBottomSheet.getResponsiveFontSize(context, 24),
+                  ),
                   onPressed: () => Navigator.pop(context),
                 ),
               ],
             ),
           ),
           const Divider(height: 1),
-
           // Comments List
           Expanded(
             child: ListView.builder(
               controller: scrollController,
-              padding: Responsive.allPadding(16),
+              padding: CommentsBottomSheet.getResponsiveAllPadding(context, 16),
               itemCount: comments.length,
               itemBuilder: (context, index) {
                 final comment = comments[index];
@@ -992,27 +2148,76 @@ class CommentTile extends StatelessWidget {
     required this.comment,
   }) : super(key: key);
 
+  // Static responsive helper methods for CommentTile
+  static bool isTablet(BuildContext context) {
+    return MediaQuery.of(context).size.shortestSide >= 600;
+  }
+
+  static bool isLargeTablet(BuildContext context) {
+    return MediaQuery.of(context).size.shortestSide >= 900;
+  }
+
+  static double getResponsiveWidth(BuildContext context, double mobileWidth) {
+    if (isLargeTablet(context)) {
+      return mobileWidth * 1.8;
+    } else if (isTablet(context)) {
+      return mobileWidth * 1.4;
+    }
+    return mobileWidth;
+  }
+
+  static double getResponsiveHeight(BuildContext context, double mobileHeight) {
+    if (isLargeTablet(context)) {
+      return mobileHeight * 1.6;
+    } else if (isTablet(context)) {
+      return mobileHeight * 1.3;
+    }
+    return mobileHeight;
+  }
+
+  static double getResponsiveFontSize(BuildContext context, double mobileFontSize) {
+    if (isLargeTablet(context)) {
+      return mobileFontSize * 1.5;
+    } else if (isTablet(context)) {
+      return mobileFontSize * 1.2;
+    }
+    return mobileFontSize;
+  }
+
+  static double getResponsivePadding(BuildContext context, double mobilePadding) {
+    if (isLargeTablet(context)) {
+      return mobilePadding * 1.8;
+    } else if (isTablet(context)) {
+      return mobilePadding * 1.4;
+    }
+    return mobilePadding;
+  }
+
+  static EdgeInsets getResponsiveAllPadding(BuildContext context, double mobilePadding) {
+    return EdgeInsets.all(getResponsivePadding(context, mobilePadding));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(bottom: Responsive.height(16)),
+      padding: EdgeInsets.only(bottom: CommentTile.getResponsiveHeight(context, 16)),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ClipOval(
             child: Image.asset(
               comment.avatar,
-              width: Responsive.width(32),
-              height: Responsive.height(32),
+              width: CommentTile.getResponsiveWidth(context, 32),
+              height: CommentTile.getResponsiveHeight(context, 32),
             ),
           ),
-          SizedBox(width: Responsive.width(8)),
+          SizedBox(width: CommentTile.getResponsiveWidth(context, 8)),
           Expanded(
             child: Container(
-              padding: Responsive.allPadding(12),
+              padding: CommentTile.getResponsiveAllPadding(context, 12),
               decoration: BoxDecoration(
                 color: Colors.grey[100],
-                borderRadius: BorderRadius.circular(Responsive.radius(12)),
+                borderRadius: BorderRadius.circular(CommentTile.getResponsivePadding(context, 12)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -1024,45 +2229,46 @@ class CommentTile extends StatelessWidget {
                         comment.author,
                         style: GoogleFonts.poppins(
                           fontWeight: FontWeight.bold,
-                          fontSize: Responsive.fontSize(14),
+                          fontSize: CommentTile.getResponsiveFontSize(context, 14),
                         ),
                       ),
                       Text(
                         comment.time,
                         style: GoogleFonts.poppins(
-                          fontSize: Responsive.fontSize(12),
+                          fontSize: CommentTile.getResponsiveFontSize(context, 12),
                           color: Colors.grey,
                         ),
                       ),
                     ],
                   ),
-                  SizedBox(height: Responsive.height(4)),
+                  SizedBox(height: CommentTile.getResponsiveHeight(context, 4)),
                   Text(
                     comment.content,
-                    style:
-                        GoogleFonts.poppins(fontSize: Responsive.fontSize(14)),
+                    style: GoogleFonts.poppins(
+                      fontSize: CommentTile.getResponsiveFontSize(context, 14),
+                    ),
                   ),
-                  SizedBox(height: Responsive.height(8)),
+                  SizedBox(height: CommentTile.getResponsiveHeight(context, 8)),
                   Row(
                     children: [
                       Icon(
                         Icons.thumb_up_outlined,
-                        size: Responsive.fontSize(12),
+                        size: CommentTile.getResponsiveFontSize(context, 12),
                         color: Colors.grey,
                       ),
-                      SizedBox(width: Responsive.width(4)),
+                      SizedBox(width: CommentTile.getResponsiveWidth(context, 4)),
                       Text(
                         '${comment.likes}',
                         style: GoogleFonts.poppins(
-                          fontSize: Responsive.fontSize(12),
+                          fontSize: CommentTile.getResponsiveFontSize(context, 12),
                           color: Colors.grey,
                         ),
                       ),
-                      SizedBox(width: Responsive.width(16)),
+                      SizedBox(width: CommentTile.getResponsiveWidth(context, 16)),
                       Text(
                         AppLocalizations.of(context)!.reply,
                         style: GoogleFonts.poppins(
-                          fontSize: Responsive.fontSize(12),
+                          fontSize: CommentTile.getResponsiveFontSize(context, 12),
                           color: Colors.grey,
                         ),
                       ),

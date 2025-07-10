@@ -46,13 +46,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
       return;
     }
 
-    // Validate gender is selected using ValueNotifier
-    if (_selectedGenderNotifier.value == null) {
-      setState(() {
-        _errorMessage = 'Please select a gender';
-      });
-      return;
-    }
+    // // Validate gender is selected using ValueNotifier
+    // if (_selectedGenderNotifier.value == null) {
+    //   setState(() {
+    //     _errorMessage = 'Please select a gender';
+    //   });
+    //   return;
+    // }
 
     setState(() {
       _isLoading = true;
@@ -64,7 +64,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
       _authController.updateSignUpData(
         name: _nameController.text,
         phone: _phoneController.text,
-        gender: _selectedGenderNotifier.value, // Use ValueNotifier value
+        // gender: _selectedGenderNotifier.value, // Use ValueNotifier value
+        gender: "Other",
         password: _passwordController.text,
         imageFile: _profileImage,
       );
@@ -85,7 +86,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               email: _emailController.text,
               name: _nameController.text,
               gender: _selectedGenderNotifier.value.toString(), // Use ValueNotifier value
-              phone: _phoneController.text,
+              phone: "00000000000",
               password: _passwordController.text,
               file: _profileImage!,
             ),
@@ -238,18 +239,18 @@ class _SignUpScreenState extends State<SignUpScreen> {
           border: InputBorder.none,
         ),
         SizedBox(height: 8.h),
-        CustomTextField(
-          hintText: 'Phone',
-          fillColor: Colors.grey.shade100,
-          filled: true,
-          controller: _phoneController,
-          hintStyle: GoogleFonts.poppins(color: hintextcolor, fontSize: 12.sp),
-          validator: (value) => value?.isEmpty ?? true ? 'Required' : null,
-          keyboardType: TextInputType.phone,
-        ),
-        SizedBox(height: 8.h),
+        // CustomTextField(
+        //   hintText: 'Phone',
+        //   fillColor: Colors.grey.shade100,
+        //   filled: true,
+        //   controller: _phoneController,
+        //   hintStyle: GoogleFonts.poppins(color: hintextcolor, fontSize: 12.sp),
+        //   validator: (value) => value?.isEmpty ?? true ? 'Required' : null,
+        //   keyboardType: TextInputType.phone,
+        // ),
+        // SizedBox(height: 8.h),
         // Use your custom gender selector
-        _buildCustomGenderSelector(),
+        // _buildCustomGenderSelector(),
         SizedBox(height: 8.h),
         CustomTextField(
           hintText: 'Password',

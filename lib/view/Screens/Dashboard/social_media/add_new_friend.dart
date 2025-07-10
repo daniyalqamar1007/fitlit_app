@@ -594,7 +594,7 @@ class _AddFriendsPageState extends State<AddFriendsPage> {
                       child: user.profilePhoto?.isNotEmpty == true
                           ? CachedNetworkImage(
                         imageUrl: user.profilePhoto!,
-                        fit: BoxFit.cover,
+                        fit: BoxFit.contain,
                         placeholder: (context, url) => Container(
                           color: Colors.grey[200],
                         ),
