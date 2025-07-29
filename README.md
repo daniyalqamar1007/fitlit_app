@@ -1,8 +1,5 @@
 # fitlip_app
-
-A new Flutter project by Muhammad Saifullah Don
-
-
+by daniyal qamar
 ## Getting Started
 
 This project is a starting point for a Flutter application.
