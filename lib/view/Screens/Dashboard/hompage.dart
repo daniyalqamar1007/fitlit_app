@@ -494,13 +494,16 @@ class _WardrobeScreenState extends State<WardrobeScreen>
       // Show swipe feedback
       _showSwipeDirection(category, direction);
 
-      // Use fast avatar generation (5-30 seconds vs 3+ minutes!)
-      await _avatarController.generateFastAvatar(
+      // Use optimized avatar generation (5-30 seconds vs 3+ minutes!)
+      // Automatically optimizes for mobile fitness app use case
+      await _avatarController.generateOptimizedAvatar(
         shirtColor: '#FF6B6B', // Map shirt ID to color
         pantColor: '#4ECDC4',  // Map pant ID to color
         shoeColor: '#45B7D1',  // Map shoe ID to color
         skinTone: '#FFDBAC',
         hairColor: '#8B4513',
+        qualityPreset: 'fitness_optimized', // Optimized for fitness app
+        useCase: 'workout', // Optimized for workout scenarios
       );
 
       // Listen for avatar URL from new system
