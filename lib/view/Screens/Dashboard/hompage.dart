@@ -3504,7 +3504,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
     );
   }
 
-  Widget _buildCalendarSection(WardrobeController controller) {
+  Widget _buildCalendarSection() {
     final loc = AppLocalizations.of(context)!;
 
     return Column(
