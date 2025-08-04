@@ -1,0 +1,10 @@
+{
+  "name": "fitlip-app-preview",
+  "version": "1.0.0",
+  "description": "Flutter app preview - showing project structure and assets",
+  "scripts": {
+    "dev": "python3 -m http.server 3000",
+    "start": "python3 -m http.server 3000"
+  },
+  "dependencies": {}
+}
