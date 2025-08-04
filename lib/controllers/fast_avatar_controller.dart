@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import '../services/readyplayer_service.dart';
+import '../services/optimized_avatar_service.dart';
 
 enum FastAvatarStatus { initial, loading, success, error }
 
@@ -12,9 +13,11 @@ class FastAvatarController {
   final ValueNotifier<String> errorNotifier = ValueNotifier<String>('');
   final ValueNotifier<String?> avatarIdNotifier = ValueNotifier<String?>(null);
 
-  /// 🚀 INSTANT Avatar Generation (vs 3+ minutes with current system)
-  /// Generates avatar in seconds, not minutes!
-  Future<void> generateFastAvatar({
+  /// 🚀 INSTANT Optimized Avatar Generation (vs 3+ minutes with current system)
+  /// Generates avatar in seconds with quality/performance optimization!
+  Future<void> generateOptimizedAvatar({
+    String qualityPreset = 'high',
+    String useCase = 'social',
     String? shirtColor,
     String? pantColor,
     String? shoeColor,
