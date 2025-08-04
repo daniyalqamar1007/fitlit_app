@@ -5,7 +5,9 @@ import 'package:flutter/foundation.dart';
 class ReadyPlayerService {
   late final Dio _dio;
   static const String baseUrl = 'https://api.readyplayer.me';
-  static const String subdomain = 'demo'; // Replace with your subdomain
+  static const String subdomain = 'fitlit-m9mpgi'; // Your actual subdomain
+  static const String appId = '6890ffb61b77a56e0877c8a1';
+  static const String orgId = '6890ffb4eaf2300dca0d1914';
   
   ReadyPlayerService() {
     _dio = Dio(BaseOptions(
@@ -15,7 +17,7 @@ class ReadyPlayerService {
       sendTimeout: const Duration(seconds: 10),
       headers: {
         'Content-Type': 'application/json',
-        'X-API-Key': 'YOUR_API_KEY', // Add your ReadyPlayer.me API key
+        'Authorization': 'Bearer sk_live_DkdcXoDUgw8t-WRGWPPLGBbqaQKvcmXf7tls',
       },
     ));
   }
@@ -32,8 +34,8 @@ class ReadyPlayerService {
       
       final avatarId = await _createAvatar(customization: customization);
       
-      // Generate the avatar URL instantly
-      final avatarUrl = '$baseUrl/v1/avatars/$avatarId.glb';
+      // Generate the avatar URL instantly - using your subdomain
+      final avatarUrl = 'https://$subdomain.readyplayer.me/avatar/$avatarId.glb';
       
       print('✅ Avatar generated instantly: $avatarUrl');
       return avatarUrl;
