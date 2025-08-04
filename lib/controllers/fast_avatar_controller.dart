@@ -25,13 +25,14 @@ class FastAvatarController {
     String? hairColor,
     String? hairStyle,
     bool? glasses,
+    bool optimizeForDevice = true,
   }) async {
     try {
       statusNotifier.value = FastAvatarStatus.loading;
       errorNotifier.value = '';
-      
-      // ⚡ This takes SECONDS vs 3+ MINUTES with current system
-      final avatarUrl = await _readyPlayerService.createCustomizedAvatar(
+
+      // ⚡ Create avatar with ReadyPlayer.me
+      final baseAvatarUrl = await _readyPlayerService.createCustomizedAvatar(
         shirtColor: shirtColor,
         pantColor: pantColor,
         shoeColor: shoeColor,
@@ -41,15 +42,128 @@ class FastAvatarController {
         glasses: glasses,
       );
 
-      avatarUrlNotifier.value = avatarUrl;
+      // 🎯 Extract avatar ID and optimize URL
+      final avatarId = _extractAvatarId(baseAvatarUrl);
+      if (avatarId != null) {
+        final optimizedUrl = OptimizedAvatarService.generateUseCaseOptimizedUrl(
+          avatarId: avatarId,
+          useCase: useCase,
+        );
+
+        avatarUrlNotifier.value = optimizedUrl;
+        avatarIdNotifier.value = avatarId;
+
+        print('✅ OPTIMIZED: Avatar generated and optimized for $useCase use case!');
+        print('🎯 Quality preset: $qualityPreset');
+        print('⚡ Optimized URL: $optimizedUrl');
+      } else {
+        avatarUrlNotifier.value = baseAvatarUrl;
+        print('✅ FAST: Avatar generated (optimization unavailable)');
+      }
+
       statusNotifier.value = FastAvatarStatus.success;
-      
-      print('✅ FAST: Avatar generated in seconds!');
-      
+
     } catch (e) {
       statusNotifier.value = FastAvatarStatus.error;
       errorNotifier.value = e.toString();
-      print('❌ Fast avatar generation failed: $e');
+      print('❌ Optimized avatar generation failed: $e');
+    }
+  }
+
+  /// 🔧 Legacy method for backward compatibility
+  Future<void> generateFastAvatar({
+    String? shirtColor,
+    String? pantColor,
+    String? shoeColor,
+    String? skinTone,
+    String? hairColor,
+    String? hairStyle,
+    bool? glasses,
+  }) async {
+    return generateOptimizedAvatar(
+      shirtColor: shirtColor,
+      pantColor: pantColor,
+      shoeColor: shoeColor,
+      skinTone: skinTone,
+      hairColor: hairColor,
+      hairStyle: hairStyle,
+      glasses: glasses,
+      qualityPreset: 'high',
+      useCase: 'social',
+    );
+  }
+
+  /// 📱 Device-optimized avatar generation
+  Future<void> generateDeviceOptimizedAvatar({
+    String? shirtColor,
+    String? pantColor,
+    String? shoeColor,
+    String? skinTone,
+    String? hairColor,
+    String? hairStyle,
+    bool? glasses,
+    String deviceType = 'mobile',
+    String connectionSpeed = 'fast',
+    bool isLowEndDevice = false,
+  }) async {
+    try {
+      statusNotifier.value = FastAvatarStatus.loading;
+      errorNotifier.value = '';
+
+      final baseAvatarUrl = await _readyPlayerService.createCustomizedAvatar(
+        shirtColor: shirtColor,
+        pantColor: pantColor,
+        shoeColor: shoeColor,
+        skinTone: skinTone,
+        hairColor: hairColor,
+        hairStyle: hairStyle,
+        glasses: glasses,
+      );
+
+      final avatarId = _extractAvatarId(baseAvatarUrl);
+      if (avatarId != null) {
+        final optimizedUrl = OptimizedAvatarService.generateDeviceOptimizedUrl(
+          avatarId: avatarId,
+          deviceType: deviceType,
+          connectionSpeed: connectionSpeed,
+          isLowEndDevice: isLowEndDevice,
+        );
+
+        avatarUrlNotifier.value = optimizedUrl;
+        avatarIdNotifier.value = avatarId;
+
+        print('✅ DEVICE OPTIMIZED: Avatar optimized for $deviceType device');
+      } else {
+        avatarUrlNotifier.value = baseAvatarUrl;
+      }
+
+      statusNotifier.value = FastAvatarStatus.success;
+
+    } catch (e) {
+      statusNotifier.value = FastAvatarStatus.error;
+      errorNotifier.value = e.toString();
+      print('❌ Device optimized avatar generation failed: $e');
+    }
+  }
+
+  /// 🎯 Helper to extract avatar ID from ReadyPlayer.me URL
+  String? _extractAvatarId(String avatarUrl) {
+    try {
+      final uri = Uri.parse(avatarUrl);
+      final pathSegments = uri.pathSegments;
+
+      // Look for avatar ID in path like /v1/avatars/{id}.glb
+      for (int i = 0; i < pathSegments.length; i++) {
+        if (pathSegments[i] == 'avatars' && i + 1 < pathSegments.length) {
+          final avatarFile = pathSegments[i + 1];
+          return avatarFile.replaceAll('.glb', '').replaceAll('.gltf', '');
+        }
+      }
+
+      return null;
+    } catch (e) {
+      print('❌ Failed to extract avatar ID: $e');
+      return null;
     }
   }
 
