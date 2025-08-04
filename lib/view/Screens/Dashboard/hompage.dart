@@ -17,6 +17,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../controllers/fast_avatar_controller.dart';
+import '../../../services/fast_swiping_service.dart';
 import '../../../controllers/background_image_controller.dart';
 import '../../../controllers/profile_controller.dart';
 import '../../../controllers/wardrobe_controller.dart';
@@ -384,30 +385,40 @@ class _WardrobeScreenState extends State<WardrobeScreen>
     return null;
   }
 
-  void _handleShirtSwipe(String direction) {
+  // ⚡ Optimized fast shirt swiping
+  void _handleShirtSwipe(String direction) async {
     final shirts = _wardrobeController.shirtsNotifier.value;
     if (shirts.isEmpty) {
       showAppSnackBar(context, 'No shirts available in your wardrobe',
           backgroundColor: appcolor);
-
       return;
     }
 
-    int newIndex = _currentShirtIndex;
+    // Use optimized fast swiping service
+    final result = await FastSwipingService.handleSmartSwipe(
+      category: 'shirt',
+      direction: direction == 'next' ? 'right' : 'left',
+      items: shirts,
+      currentIndex: _currentShirtIndex,
+      avatarController: _avatarController,
+      currentIds: {
+        'shirt': selectedShirtId,
+        'pant': selectedPantId,
+        'shoe': selectedShoeId,
+        'accessory': selectedAccessoryId,
+      },
+      preloadNext: true,
+    );
 
-    if (direction == 'next') {
-      newIndex = (_currentShirtIndex + 1) % shirts.length;
-    } else if (direction == 'previous') {
-      newIndex = (_currentShirtIndex - 1 + shirts.length) % shirts.length;
-    }
-
-    if (newIndex != _currentShirtIndex) {
+    if (result.success && result.newIndex != null) {
       setState(() {
-        _currentShirtIndex = newIndex;
-        selectedShirtId = shirts[newIndex].id;
+        _currentShirtIndex = result.newIndex!;
+        selectedShirtId = result.selectedItem!.id;
+        if (result.avatarUrl != null) {
+          _avatarUrl = result.avatarUrl;
+          profileImage = result.avatarUrl;
+        }
       });
-
-      _generateAvatarFromSwipe('shirt', direction);
       _animateItemChange('shirt');
     }
   }
