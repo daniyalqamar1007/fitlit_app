@@ -423,30 +423,40 @@ class _WardrobeScreenState extends State<WardrobeScreen>
     }
   }
 
-  void _handlePantSwipe(String direction) {
+  // ⚡ Optimized fast pant swiping
+  void _handlePantSwipe(String direction) async {
     final pants = _wardrobeController.pantsNotifier.value;
     if (pants.isEmpty) {
       showAppSnackBar(context, 'No pants available in your wardrobe',
           backgroundColor: appcolor);
-
       return;
     }
 
-    int newIndex = _currentPantIndex;
+    // Use optimized fast swiping service
+    final result = await FastSwipingService.handleSmartSwipe(
+      category: 'pant',
+      direction: direction == 'next' ? 'right' : 'left',
+      items: pants,
+      currentIndex: _currentPantIndex,
+      avatarController: _avatarController,
+      currentIds: {
+        'shirt': selectedShirtId,
+        'pant': selectedPantId,
+        'shoe': selectedShoeId,
+        'accessory': selectedAccessoryId,
+      },
+      preloadNext: true,
+    );
 
-    if (direction == 'next') {
-      newIndex = (_currentPantIndex + 1) % pants.length;
-    } else if (direction == 'previous') {
-      newIndex = (_currentPantIndex - 1 + pants.length) % pants.length;
-    }
-
-    if (newIndex != _currentPantIndex) {
+    if (result.success && result.newIndex != null) {
       setState(() {
-        _currentPantIndex = newIndex;
-        selectedPantId = pants[newIndex].id;
+        _currentPantIndex = result.newIndex!;
+        selectedPantId = result.selectedItem!.id;
+        if (result.avatarUrl != null) {
+          _avatarUrl = result.avatarUrl;
+          profileImage = result.avatarUrl;
+        }
       });
-
-      _generateAvatarFromSwipe('pant', direction);
       _animateItemChange('pant');
     }
   }
