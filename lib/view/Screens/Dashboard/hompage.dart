@@ -18,7 +18,7 @@ import 'package:table_calendar/table_calendar.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../controllers/fast_avatar_controller.dart';
 import '../../../services/fast_swiping_service.dart';
-import '../../../controllers/background_image_controller.dart';
+import '../../../services/fast_background_service.dart';
 import '../../../controllers/profile_controller.dart';
 import '../../../controllers/wardrobe_controller.dart';
 import '../../../controllers/outfit_controller.dart';
