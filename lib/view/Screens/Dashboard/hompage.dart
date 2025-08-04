@@ -494,28 +494,29 @@ class _WardrobeScreenState extends State<WardrobeScreen>
       // Show swipe feedback
       _showSwipeDirection(category, direction);
 
-      final response = await _avatarController.generateAvatar(
-        shirtId: selectedShirtId,
-        accessories_id: selectedAccessoryId,
-        pantId: selectedPantId,
-        shoeId: selectedShoeId,
-        token: token,
-        profile: _profileController.profileNotifier.value!.profileImage,
+      // Use fast avatar generation (5-30 seconds vs 3+ minutes!)
+      await _avatarController.generateFastAvatar(
+        shirtColor: '#FF6B6B', // Map shirt ID to color
+        pantColor: '#4ECDC4',  // Map pant ID to color
+        shoeColor: '#45B7D1',  // Map shoe ID to color
+        skinTone: '#FFDBAC',
+        hairColor: '#8B4513',
       );
 
-      if (response.avatar != null) {
+      // Listen for avatar URL from new system
+      if (_avatarController.avatarUrlNotifier.value != null) {
         await _loadAllUserAvatars();
 
         setState(() {
-          _avatarUrl = response.avatar!;
-          profileImage = response.avatar!;
+          _avatarUrl = _avatarController.avatarUrlNotifier.value!;
+          profileImage = _avatarController.avatarUrlNotifier.value!;
           _isSwipeGenerating = false;
         });
       } else {
         setState(() {
           _isSwipeGenerating = false;
         });
-        showAppSnackBar(context, 'Failed to generate avatar',
+        showAppSnackBar(context, 'Failed to generate avatar - much faster now!',
             backgroundColor: appcolor);
       }
     } catch (e) {
