@@ -16,7 +16,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:image_picker/image_picker.dart';
-import '../../../controllers/avatar_controller.dart';
+import '../../../controllers/fast_avatar_controller.dart';
 import '../../../controllers/background_image_controller.dart';
 import '../../../controllers/profile_controller.dart';
 import '../../../controllers/wardrobe_controller.dart';
@@ -51,7 +51,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
   DateTime _focusedDay = DateTime.now();
   WardrobeController controller = WardrobeController();
   DateTime? _selectedDay;
-  final AvatarController _avatarController = AvatarController();
+  final FastAvatarController _avatarController = FastAvatarController();
   bool _isGeneratingAvatar = false;
   final ImagePicker _picker = ImagePicker();
   String? _avatarUrl;
@@ -322,7 +322,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
     if (mounted) {
       setState(() {
         _isGeneratingAvatar = _avatarController.statusNotifier.value ==
-            AvatarGenerationStatus.loading;
+            FastAvatarStatus.loading;
       });
     }
   }
