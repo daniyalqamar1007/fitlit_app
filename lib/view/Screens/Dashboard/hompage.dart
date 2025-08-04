@@ -49,14 +49,13 @@ class _WardrobeScreenState extends State<WardrobeScreen>
       ValueNotifier<UserProfileModel?>(null);
   final ProfileController _profileController = ProfileController();
   DateTime _focusedDay = DateTime.now();
-  WardrobeController controller = WardrobeController();
   DateTime? _selectedDay;
   final FastAvatarController _avatarController = FastAvatarController();
   bool _isGeneratingAvatar = false;
   final ImagePicker _picker = ImagePicker();
   String? _avatarUrl;
 
-
+  // Optimized avatar URLs for faster loading
   final List<String> avatarUrls = [
     'https://fitlit-assets.s3.us-east-2.amazonaws.com/wardrobe/1747930630870-image.png',
     'https://fitlit-assets.s3.us-east-2.amazonaws.com/wardrobe/1747934549164-image.png',
@@ -67,24 +66,27 @@ class _WardrobeScreenState extends State<WardrobeScreen>
   ];
 
   int currentIndexx = 0;
-  String? staticurl="https://fitlit-assets.s3.us-east-2.amazonaws.com/wardrobe/1747930630870-image.png";
+  String? staticurl = "https://fitlit-assets.s3.us-east-2.amazonaws.com/wardrobe/1747930630870-image.png";
   bool _isLoadingg = false;
 
+  // Fast navigation methods
   void _goToNext() {
     setState(() {
       currentIndexx = (currentIndexx + 1) % avatarUrls.length;
-      staticurl=avatarUrls[currentIndexx];
+      staticurl = avatarUrls[currentIndexx];
     });
   }
 
   void _goToPrevious() {
     setState(() {
       currentIndexx = (currentIndexx - 1 + avatarUrls.length) % avatarUrls.length;
-      staticurl=avatarUrls[currentIndexx];
+      staticurl = avatarUrls[currentIndexx];
     });
   }
+
   SharedPreferences? _prefs;
 
+  // Fast swiping state
   int _currentShirtIndex = 0;
   int _currentPantIndex = 0;
   int _currentShoeIndex = 0;
@@ -95,6 +97,8 @@ class _WardrobeScreenState extends State<WardrobeScreen>
   int _currentAvatarIndex = 0;
   String outfitMessage = "";
   String? currenturl;
+
+  // Single wardrobe controller instance (fixed duplication)
   final WardrobeController _wardrobeController = WardrobeController();
   final OutfitController _outfitController = OutfitController();
   AnimationController? _avatarAnimationController;
