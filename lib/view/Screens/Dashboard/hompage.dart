@@ -461,31 +461,41 @@ class _WardrobeScreenState extends State<WardrobeScreen>
     }
   }
 
-  void _handleShoeSwipe(String direction) {
+  // ⚡ Optimized fast shoe swiping
+  void _handleShoeSwipe(String direction) async {
     final shoes = _wardrobeController.shoesNotifier.value;
     if (shoes.isEmpty) {
       showAppSnackBar(context, 'No shoes available in your wardrobe',
           backgroundColor: appcolor);
-
       return;
     }
 
-    int newIndex = _currentShoeIndex;
+    // Use optimized fast swiping service
+    final result = await FastSwipingService.handleSmartSwipe(
+      category: 'shoe',
+      direction: direction == 'next' ? 'right' : 'left',
+      items: shoes,
+      currentIndex: _currentShoeIndex,
+      avatarController: _avatarController,
+      currentIds: {
+        'shirt': selectedShirtId,
+        'pant': selectedPantId,
+        'shoe': selectedShoeId,
+        'accessory': selectedAccessoryId,
+      },
+      preloadNext: true,
+    );
 
-    if (direction == 'next') {
-      newIndex = (_currentShoeIndex + 1) % shoes.length;
-    } else if (direction == 'previous') {
-      newIndex = (_currentShoeIndex - 1 + shoes.length) % shoes.length;
-    }
-
-    if (newIndex != _currentShoeIndex) {
+    if (result.success && result.newIndex != null) {
       setState(() {
-        _currentShoeIndex = newIndex;
-        selectedShoeId = shoes[newIndex].id;
+        _currentShoeIndex = result.newIndex!;
+        selectedShoeId = result.selectedItem!.id;
+        if (result.avatarUrl != null) {
+          _avatarUrl = result.avatarUrl;
+          profileImage = result.avatarUrl;
+        }
       });
-
-      _generateAvatarFromSwipe('shoes', direction);
-      _animateItemChange('shoes');
+      _animateItemChange('shoe');
     }
   }
 
