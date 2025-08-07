@@ -272,6 +272,9 @@ class PerformanceMeasurement {
   PerformanceMeasurement(this._operation, [this._metadata = const {}])
       : _startTime = DateTime.now();
 
+  /// Public getter for measurement start time
+  DateTime get startTime => _startTime;
+
   /// End measurement and record the result
   void end({bool success = true}) {
     final duration = DateTime.now().difference(_startTime).inMilliseconds;

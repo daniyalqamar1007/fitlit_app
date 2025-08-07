@@ -141,20 +141,20 @@ class InstantAvatarService {
       onProgress?.call(1.0);
       measurement.end();
       
-      return AvatarResult(
-        success: true,
-        avatarUrl: optimizedUrls['primary']!,
-        avatarId: avatarId,
-        generationTime: measurement._startTime.millisecondsSinceEpoch,
-        optimizedUrls: optimizedUrls,
-      );
+            return AvatarResult(
+         success: true,
+         avatarUrl: optimizedUrls['primary']!,
+         avatarId: avatarId,
+         generationTime: measurement.startTime.millisecondsSinceEpoch,
+         optimizedUrls: optimizedUrls,
+       );
       
     } catch (e) {
       measurement.end();
       return AvatarResult(
         success: false,
         error: e.toString(),
-        generationTime: measurement._startTime.millisecondsSinceEpoch,
+        generationTime: measurement.startTime.millisecondsSinceEpoch,
       );
     }
   }
@@ -193,7 +193,7 @@ class InstantAvatarService {
         success: true,
         avatarUrl: optimizedUrls['primary']!,
         avatarId: finalAvatar.id,
-        generationTime: measurement._startTime.millisecondsSinceEpoch,
+        generationTime: measurement.startTime.millisecondsSinceEpoch,
         optimizedUrls: optimizedUrls,
         fromPhoto: true,
       );
@@ -203,7 +203,7 @@ class InstantAvatarService {
       return AvatarResult(
         success: false,
         error: e.toString(),
-        generationTime: measurement._startTime.millisecondsSinceEpoch,
+        generationTime: measurement.startTime.millisecondsSinceEpoch,
       );
     }
   }
