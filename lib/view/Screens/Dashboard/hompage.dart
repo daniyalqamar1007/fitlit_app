@@ -120,8 +120,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
   String? selectedShirtId;
   String? selectedPantId;
   String? selectedShoeId;
-  final BackgroundImageController _backgroundImageController =
-      BackgroundImageController();
+  final FastBackgroundService _backgroundService = FastBackgroundService();
   String? selectedAccessoryId;
   List<BackgroundImageModel> _apiBackgrounds = [];
   bool _isLoadingBackgrounds = false;
@@ -295,12 +294,12 @@ class _WardrobeScreenState extends State<WardrobeScreen>
     try {
       // Implement this method to get your auth token
       if (token != null) {
-        final success = await _backgroundImageController.getAllBackgroundImages(
+        final success = await _backgroundService.getAllBackgroundImages(
             token: token!);
         if (success) {
           setState(() {
             _apiBackgrounds =
-                _backgroundImageController.backgroundImagesNotifier.value;
+                _backgroundService.backgroundImagesNotifier.value;
           });
           print("teh first ");
           print(_apiBackgrounds.length);
@@ -1345,7 +1344,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
     _outfitController.dispose();
     _avatarController.statusNotifier.removeListener(_handleAvatarStatusChange);
     _avatarController.dispose();
-    _backgroundImageController.dispose();
+    _backgroundService.dispose();
 
     super.dispose();
   }
@@ -1393,7 +1392,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                 ),
                 Padding(
                   padding: Responsive.allPadding(16.0),
-                  child: _buildCalendarSection(controller),
+                  child: _buildCalendarSection(),
                 ),
                 SizedBox(
                   height: Responsive.height(40),

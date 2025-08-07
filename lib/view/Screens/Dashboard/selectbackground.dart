@@ -13,7 +13,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
-import '../../../controllers/background_image_controller.dart';
+import '../../../services/fast_background_service.dart';
 import '../../../controllers/outfit_controller.dart';
 import '../../../controllers/wardrobe_controller.dart';
 import '../../../model/background_image_model.dart';
@@ -46,7 +46,7 @@ class _BackgroundSelectionSheetState extends State<BackgroundSelectionSheet>
   List<BackgroundImageModel> _apiBackgrounds = [];
   bool _isLoadingBackgrounds = false;  bool _isGeneratingFromImage = false;
 
-  final BackgroundImageController _backgroundImageController = BackgroundImageController();
+  final FastBackgroundService _backgroundService = FastBackgroundService();
 // Update your initState method
   @override
   void initState() {
@@ -66,12 +66,15 @@ class _BackgroundSelectionSheetState extends State<BackgroundSelectionSheet>
     try {
      // Implement this method to get your auth token
       if (token != null) {
-        final success = await _backgroundImageController.getAllBackgroundImages(token: token!);
-        if (success) {
-          setState(() {
-            _apiBackgrounds = _backgroundImageController.backgroundImagesNotifier.value;
-          });
-        }
+        // Replace with fast service collections as a fallback
+        final collections = _backgroundService.getAllBackgroundCollections();
+        setState(() {
+          _apiBackgrounds = [
+            ...collections['fitness']!.map((url) => BackgroundImageModel(id: url, imageUrl: url, status: true)),
+            ...collections['outdoor']!.map((url) => BackgroundImageModel(id: url, imageUrl: url, status: true)),
+            ...collections['fashion']!.map((url) => BackgroundImageModel(id: url, imageUrl: url, status: true)),
+          ];
+        });
       }
     } catch (e) {
       print("Error loading background images: $e");
@@ -119,7 +122,7 @@ class _BackgroundSelectionSheetState extends State<BackgroundSelectionSheet>
   void dispose() {
     _tabController.dispose();
     _uploadProgressTimer?.cancel();
-    _backgroundImageController.dispose();
+    _backgroundService.dispose(); // Dispose the service
     super.dispose();
   }
   Future<void> _pickImageFromCamera(BuildContext context) async {
@@ -168,7 +171,7 @@ print(image?.path);
     });
 
     try {
-      final success = await _backgroundImageController.generateFromImage(
+      final success = await _backgroundService.generateFromImage(
         token: token!,
         imageFile: imageFile,
       );
@@ -186,7 +189,7 @@ print(image?.path);
         Navigator.pop(context);
         if (mounted) Navigator.pop(context);
       } else {
-        final error = _backgroundImageController.errorNotifier.value;
+        final error = _backgroundService.errorNotifier.value;
         _showErrorSnackBar(error ?? "Failed to generate the Background!");
       }
     } catch (e) {
@@ -210,7 +213,7 @@ print(image?.path);
     }
 
     try {
-      final success = await _backgroundImageController.changeImageStatus(
+      final success = await _backgroundService.changeImageStatus(
         token: token!,
         backgroundImageId: background.id,
       );
@@ -233,7 +236,7 @@ print(image?.path);
           Navigator.pop(context);
 
       } else {
-        final error = _backgroundImageController.errorNotifier.value;
+        final error = _backgroundService.errorNotifier.value;
         _showErrorSnackBar(error ?? "Failed to change background");
       }
     } catch (e) {
@@ -820,7 +823,7 @@ print(image?.path);
     });
 
     try {
-      final success = await _backgroundImageController.generateFromPrompt(
+      final success = await _backgroundService.generateFromPrompt(
         token: token!,
         prompt: _generatePrompt,
       );
@@ -833,7 +836,7 @@ print(image?.path);
 
 
       } else {
-        final error = _backgroundImageController.errorNotifier.value;
+        final error = _backgroundService.errorNotifier.value;
         _showErrorSnackBar(error ?? "Failed to generate background");
       }
     } catch (e) {
@@ -1049,7 +1052,7 @@ print(image?.path);
           bottom: Responsive.height(10),
           right: Responsive.width(150),
           child: ValueListenableBuilder<bool>(
-            valueListenable: _backgroundImageController.generateFromImageLoadingNotifier,
+            valueListenable: _backgroundService.generateFromImageLoadingNotifier,
             builder: (context, isLoading, _) {
               return Container(
                 width: Responsive.width(60),

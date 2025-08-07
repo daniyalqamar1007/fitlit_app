@@ -236,7 +236,6 @@ class InstantAvatarService {
         'gender': config.gender ?? 'male',
         'outfitId': config.outfitId,
       },
-      cacheFor: const Duration(minutes: 30), // Cache avatar base
     );
     
     if (response.statusCode == 200 || response.statusCode == 201) {
