@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:dio/dio.dart';
-import 'package:http/http.dart' as https;
+import 'package:http/http.dart' as http_client;
 import 'package:fitlip_app/view/Utils/globle_variable/globle.dart';
 
 import '../model/profile_model.dart';
@@ -12,7 +12,7 @@ class ProfileService {
   Future<UserProfileModel> getUserProfile() async {
     try {
 
-      final response = await https.get(
+      final response = await http_client.get(
         Uri.parse('$baseUrl/user/profile'),
         headers: {
           'Authorization': 'Bearer $token',
@@ -36,7 +36,7 @@ class ProfileService {
       }
     } on FormatException catch (e) {
       throw Exception('Invalid JSON format: ${e.message}');
-    } on https.ClientException catch (e) {
+    } on http_client.ClientException catch (e) {
       throw Exception('Network error: ${e.message}');
     } catch (e) {
       throw Exception('Unexpected error: $e');

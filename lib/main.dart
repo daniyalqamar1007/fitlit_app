@@ -13,6 +13,7 @@ import 'utils/performance_monitoring.dart';
 import 'utils/memory_optimization.dart';
 import 'utils/network_optimization.dart';
 import 'utils/image_optimization.dart';
+import 'utils/deployment_verification.dart';
 
 final themeController = ThemeController();
 
@@ -21,6 +22,11 @@ Future<void> main() async {
 
   // Initialize optimization systems
   await _initializeOptimizations();
+
+  // Run deployment verification in debug mode
+  if (const bool.fromEnvironment('dart.vm.product') == false) {
+    await _runDeploymentVerification();
+  }
 
   SharedPreferences prefs = await SharedPreferences.getInstance();
   String? languageCode = prefs.getString('language_code') ?? 'en';
@@ -38,7 +44,7 @@ Future<void> _initializeOptimizations() async {
     MemoryOptimization.startMemoryMonitoring();
     
     // Initialize network optimization
-    NetworkOptimization().initialize();
+    await NetworkOptimization().initialize();
     
     // Schedule image cache cleanup
     MemoryOptimization.scheduleImageCacheCleanup();
@@ -46,6 +52,22 @@ Future<void> _initializeOptimizations() async {
     debugPrint('✅ All optimization systems initialized');
   } catch (e) {
     debugPrint('❌ Error initializing optimizations: $e');
+  }
+}
+
+/// Run deployment verification in debug mode
+Future<void> _runDeploymentVerification() async {
+  try {
+    debugPrint('🔍 Running deployment verification...');
+    final isReady = await DeploymentVerification.quickDeploymentCheck();
+    
+    if (isReady) {
+      debugPrint('✅ App ready for deployment');
+    } else {
+      debugPrint('❌ App needs fixes before deployment');
+    }
+  } catch (e) {
+    debugPrint('⚠️ Deployment verification error: $e');
   }
 }
 

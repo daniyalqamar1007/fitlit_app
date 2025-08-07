@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 import '../utils/image_optimization.dart';
+import '../utils/memory_optimization.dart';
 
 /// 🖼️ Optimized Image Widget
 /// Replaces standard Image widgets with performance-optimized versions
@@ -234,6 +236,3 @@ class AvatarImageWidget extends StatelessWidget {
     );
   }
 }
-
-// Add visibility detector dependency if not present
-import 'package:visibility_detector/visibility_detector.dart';

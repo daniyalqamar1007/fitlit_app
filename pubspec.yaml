@@ -1,8 +1,8 @@
 name: fitlip_app
-description: "A new Flutter project."
+description: "FitLip - AI-powered avatar creation and clothing try-on app with optimized performance."
 publish_to: 'none'
 
-version: 1.0.0+1
+version: 1.0.1+2
 
 environment:
   sdk: ^3.6.0
@@ -35,6 +35,7 @@ dependencies:
   flutter_screenutil: ^5.9.0
   curved_navigation_bar: ^1.0.3  # Review: consider standard navigation
   loading_animation_widget: ^1.2.0+4  # Review: use built-in indicators
+  visibility_detector: ^0.4.0+2  # For lazy loading optimization
   
   # Storage and preferences
   shared_preferences: ^2.2.2

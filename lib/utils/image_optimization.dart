@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'dart:ui' as ui;
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 /// 🖼️ Image Optimization Utility
 /// Provides comprehensive image optimization including:
@@ -226,8 +227,6 @@ class ImagePerformanceMonitor {
 }
 
 /// Custom cache manager with size limits
-import 'package:flutter_cache_manager/flutter_cache_manager.dart';
-
 class OptimizedCacheManager extends CacheManager with ImageCacheManager {
   static const key = 'optimizedCache';
   
