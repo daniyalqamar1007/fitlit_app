@@ -91,6 +91,8 @@ class _WardrobeScreenState extends State<WardrobeScreen>
   int _currentShirtIndex = 0;
   int _currentPantIndex = 0;
   int _currentShoeIndex = 0;
+  int _currentGlassesIndex = 0;
+  int _currentCapIndex = 0;
   bool _isSwipeGenerating = false;
 
   String? userProfileImage;
@@ -496,6 +498,86 @@ class _WardrobeScreenState extends State<WardrobeScreen>
         }
       });
       _animateItemChange('shoe');
+    }
+  }
+
+  // ⚡ Optimized fast glasses swiping (accessories filtered by subCategory)
+  void _handleGlassesSwipe(String direction) async {
+    final allAccessories = _wardrobeController.accessoriesNotifier.value;
+    final glasses = allAccessories
+        .where((w) => (w.subCategory.toLowerCase() == 'glasses' || w.subCategory.toLowerCase() == 'spectacles'))
+        .toList();
+    if (glasses.isEmpty) {
+      showAppSnackBar(context, 'No glasses available in your wardrobe',
+          backgroundColor: appcolor);
+      return;
+    }
+
+    final result = await FastSwipingService.handleSmartSwipe(
+      category: 'accessory',
+      direction: direction == 'next' ? 'right' : 'left',
+      items: glasses,
+      currentIndex: _currentGlassesIndex,
+      avatarController: _avatarController,
+      currentIds: {
+        'shirt': selectedShirtId,
+        'pant': selectedPantId,
+        'shoe': selectedShoeId,
+        'accessory': selectedAccessoryId,
+      },
+      preloadNext: true,
+    );
+
+    if (result.success && result.newIndex != null) {
+      setState(() {
+        _currentGlassesIndex = result.newIndex!;
+        selectedAccessoryId = result.selectedItem!.id;
+        if (result.avatarUrl != null) {
+          _avatarUrl = result.avatarUrl;
+          profileImage = result.avatarUrl;
+        }
+      });
+      _animateItemChange('accessory');
+    }
+  }
+
+  // ⚡ Optimized fast cap swiping (accessories filtered by subCategory)
+  void _handleCapSwipe(String direction) async {
+    final allAccessories = _wardrobeController.accessoriesNotifier.value;
+    final caps = allAccessories
+        .where((w) => (w.subCategory.toLowerCase() == 'cap' || w.subCategory.toLowerCase() == 'hat'))
+        .toList();
+    if (caps.isEmpty) {
+      showAppSnackBar(context, 'No caps available in your wardrobe',
+          backgroundColor: appcolor);
+      return;
+    }
+
+    final result = await FastSwipingService.handleSmartSwipe(
+      category: 'accessory',
+      direction: direction == 'next' ? 'right' : 'left',
+      items: caps,
+      currentIndex: _currentCapIndex,
+      avatarController: _avatarController,
+      currentIds: {
+        'shirt': selectedShirtId,
+        'pant': selectedPantId,
+        'shoe': selectedShoeId,
+        'accessory': selectedAccessoryId,
+      },
+      preloadNext: true,
+    );
+
+    if (result.success && result.newIndex != null) {
+      setState(() {
+        _currentCapIndex = result.newIndex!;
+        selectedAccessoryId = result.selectedItem!.id;
+        if (result.avatarUrl != null) {
+          _avatarUrl = result.avatarUrl;
+          profileImage = result.avatarUrl;
+        }
+      });
+      _animateItemChange('accessory');
     }
   }
 
@@ -2299,6 +2381,12 @@ class _WardrobeScreenState extends State<WardrobeScreen>
       case 'shoes':
         _handleShoeSwipe(direction);
         break;
+      case 'glasses':
+        _handleGlassesSwipe(direction);
+        break;
+      case 'cap':
+        _handleCapSwipe(direction);
+        break;
     }
   }
   void _handleSwipe(DragEndDetails details) {
@@ -2418,226 +2506,66 @@ class _WardrobeScreenState extends State<WardrobeScreen>
               ),
             ),
           ),
-          //
-          //
-          //
-          // // Current index indicator
-          // Positioned(
-          //   bottom: 20,
-          //   child: Container(
-          //     padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          //     decoration: BoxDecoration(
-          //       color: Colors.black54,
-          //       borderRadius: BorderRadius.circular(20),
-          //     ),
-          //     child: Text(
-          //       '${currentIndexx + 1} / ${avatarUrls.length}',
-          //       style: TextStyle(
-          //         color: Colors.white,
-          //         fontSize: 12,
-          //         fontWeight: FontWeight.w500,
-          //       ),
-          //     ),
-          //   ),
-          // ),
+          // Overlay swipe regions mapped to body parts
+          // Head region (swipe to change cap)
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            height: 350 * 0.18,
+            child: GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onPanEnd: (details) => _handleRegionSwipe('cap', details),
+            ),
+          ),
+          // Eyes region (swipe to change glasses)
+          Positioned(
+            top: 350 * 0.18,
+            left: 0,
+            right: 0,
+            height: 350 * 0.08,
+            child: GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onPanEnd: (details) => _handleRegionSwipe('glasses', details),
+            ),
+          ),
+          // Chest/torso region (swipe to change shirt)
+          Positioned(
+            top: 350 * 0.26,
+            left: 0,
+            right: 0,
+            height: 350 * 0.30,
+            child: GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onPanEnd: (details) => _handleRegionSwipe('shirt', details),
+            ),
+          ),
+          // Legs region (swipe to change pant)
+          Positioned(
+            top: 350 * 0.56,
+            left: 0,
+            right: 0,
+            height: 350 * 0.20,
+            child: GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onPanEnd: (details) => _handleRegionSwipe('pant', details),
+            ),
+          ),
+          // Feet region (swipe to change shoes)
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: 350 * 0.14,
+            child: GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onPanEnd: (details) => _handleRegionSwipe('shoes', details),
+            ),
+          ),
         ],
       ),
     );
   }
-
-  // Widget _buildAvatarColumn() {
-  //   return ValueListenableBuilder<UserProfileModel?>(
-  //     valueListenable: _profileController.profileNotifier,
-  //     builder: (context, userProfile, child) {
-  //       final currentAvatarImage = _avatarUrl?.isNotEmpty == true
-  //           ? _avatarUrl
-  //           : _getCurrentAvatarImage(userProfile);
-  //
-  //       if (currentAvatarImage != null && currentAvatarImage.isNotEmpty) {
-  //         profileImage = currentAvatarImage;
-  //       }
-  //
-  //       final isImageValid =
-  //           currentAvatarImage != null && currentAvatarImage.isNotEmpty;
-  //
-  //       return Container(
-  //         alignment: Alignment.center,
-  //         child: Stack(
-  //           alignment: Alignment.center,
-  //           children: [
-  //             // Avatar image with region-specific gesture detection
-  //             Container(
-  //               width: Responsive.width(350),
-  //               height: Responsive.height(350),
-  //               child: Stack(
-  //                 children: [
-  //                   // Main avatar image
-  //                   AnimatedSwitcher(
-  //                     duration: const Duration(milliseconds: 500),
-  //                     transitionBuilder: (child, animation) {
-  //                       return ScaleTransition(
-  //                         scale: animation,
-  //                         child: FadeTransition(
-  //                           opacity: animation,
-  //                           child: child,
-  //                         ),
-  //                       );
-  //                     },
-  //                     child: (_isLoading || !isImageValid || _isSwipeGenerating)
-  //                         ? Center(
-  //                             key: const ValueKey('loading'),
-  //                             child: Column(
-  //                               mainAxisSize: MainAxisSize.min,
-  //                               children: [],
-  //                             ),
-  //                           )
-  //                         : ClipRRect(
-  //                             borderRadius: BorderRadius.circular(10),
-  //                             child: Image.network(
-  //                               currentAvatarImage,
-  //                               key: ValueKey(currentAvatarImage),
-  //                               fit: BoxFit.cover,
-  //                               width: double.infinity,
-  //                               height: double.infinity,
-  //                               loadingBuilder:
-  //                                   (context, child, loadingProgress) {
-  //                                 if (loadingProgress == null) return child;
-  //                                 return Center(
-  //                                   child:
-  //                                       LoadingAnimationWidget.fourRotatingDots(
-  //                                           color: appcolor, size: 30),
-  //                                 );
-  //                               },
-  //                               errorBuilder: (context, error, stackTrace) {
-  //                                 return Center(
-  //                                   child: Icon(
-  //                                     Icons.error,
-  //                                     color: Colors.grey,
-  //                                     size: 50,
-  //                                   ),
-  //                                 );
-  //                               },
-  //                             ),
-  //                           ),
-  //                   ),
-  //
-  //                   // Invisible overlay regions for swipe detection
-  //                   if (isImageValid &&
-  //                       !_isSwipeGenerating &&
-  //                       !_isGeneratingAvatar) ...[
-  //                     // Shirt region (top 40% of image)
-  //                     Positioned(
-  //                       top: 0,
-  //                       left: 0,
-  //                       right: 0,
-  //                       height: Responsive.height(350) * 0.6, // 40% for shirt
-  //                       child: GestureDetector(
-  //                         onPanEnd: (details) =>
-  //                             _handleRegionSwipe('shirt', details),
-  //                         child: Container(
-  //                           decoration: BoxDecoration(
-  //                               // Uncomment for debugging - shows region boundaries
-  //                               // color: Colors.red.withOpacity(0.2),
-  //                               // border: Border.all(color: Colors.red, width: 2),
-  //                               ),
-  //                           child: Center(
-  //                             child: _isSwipeGenerating
-  //                                 ? Container()
-  //                                 : Container(),
-  //                           ),
-  //                         ),
-  //                       ),
-  //                     ),
-  //
-  //                     // Pants region (middle 35% of image)
-  //                     Positioned(
-  //                       top: Responsive.height(350) * 0.6, // Start after shirt
-  //                       left: 0,
-  //                       right: 0,
-  //                       height: Responsive.height(350) * 0.3, // 35% for pants
-  //                       child: GestureDetector(
-  //                         onPanEnd: (details) =>
-  //                             _handleRegionSwipe('pant', details),
-  //                         child: Container(
-  //                           decoration: BoxDecoration(
-  //                               // Uncomment for debugging
-  //                               // color: Colors.blue.withOpacity(0.2),
-  //                               // border: Border.all(color: Colors.blue, width: 2),
-  //                               ),
-  //                           child: Center(
-  //                             child: _isSwipeGenerating
-  //                                 ? Container()
-  //                                 : Container(),
-  //                           ),
-  //                         ),
-  //                       ),
-  //                     ),
-  //
-  //                     // Shoes region (bottom 25% of image)
-  //                     Positioned(
-  //                       top: Responsive.height(350) * 0.9, // Start after pants
-  //                       left: 0,
-  //                       right: 0,
-  //                       bottom: 0,
-  //                       child: GestureDetector(
-  //                         onPanEnd: (details) =>
-  //                             _handleRegionSwipe('shoes', details),
-  //                         child: Container(
-  //                           decoration: BoxDecoration(
-  //                               // Uncomment for debugging
-  //                               // color: Colors.green.withOpacity(0.2),
-  //                               // border: Border.all(color: Colors.green, width: 2),
-  //                               ),
-  //                           child: Center(
-  //                             child: _isSwipeGenerating
-  //                                 ? Container()
-  //                                 : Container(
-  //
-  //                                     // ),
-  //                                     ),
-  //                           ),
-  //                         ),
-  //                       ),
-  //                     ),
-  //                   ],
-  //                 ],
-  //               ),
-  //             ),
-  //
-  //             // Loading overlay when generating
-  //             if (_isSwipeGenerating || _isGeneratingAvatar)
-  //               Container(
-  //                 width: Responsive.width(350),
-  //                 height: Responsive.height(350),
-  //                 decoration: BoxDecoration(
-  //                   color: Colors.transparent,
-  //                   borderRadius: BorderRadius.circular(10),
-  //                 ),
-  //                 child: Center(
-  //                   child: Column(
-  //                     mainAxisSize: MainAxisSize.min,
-  //                     children: [
-  //                       LoadingAnimationWidget.fourRotatingDots(
-  //                           color: appcolor, size: 20),
-  //                       SizedBox(height: 15),
-  //                       Text(
-  //                         'Generating Avatar...',
-  //                         style: GoogleFonts.poppins(
-  //                           color: appcolor,
-  //                           fontSize: 14,
-  //                           fontWeight: FontWeight.w500,
-  //                         ),
-  //                       ),
-  //                     ],
-  //                   ),
-  //                 ),
-  //               ),
-  //           ],
-  //         ),
-  //       );
-  //     },
-  //   );
-  // }
 
   Widget _buildThirdColumn() {
     final localizations = AppLocalizations.of(context)!;
@@ -2701,69 +2629,6 @@ class _WardrobeScreenState extends State<WardrobeScreen>
       ],
     );
   }
-  // Widget _buildThirdColumn() {
-  //   final localizations = AppLocalizations.of(context)!;
-  //   return Column(
-  //     crossAxisAlignment: CrossAxisAlignment.start,
-  //     mainAxisAlignment: MainAxisAlignment.start,
-  //     children: [
-  //       Row(
-  //         mainAxisAlignment: MainAxisAlignment.end,
-  //         children: [
-  //           GestureDetector(
-  //             onTap: _isGeneratingAvatar
-  //                 ? null
-  //                 : () async {
-  //               _showAnimatedCategoryDialog(context);
-  //             //  _generateAvatar(context);
-  //             }, // Call the generate avatar method
-  //             child: Container(
-  //               padding: EdgeInsets.symmetric(
-  //                   horizontal: Responsive.width(4),
-  //                   vertical: Responsive.height(5)),
-  //               height: Responsive.height(30),
-  //               decoration: BoxDecoration(
-  //                 color: appcolor.withOpacity(0.7),
-  //                 borderRadius: BorderRadius.circular(Responsive.radius(30)),
-  //               ),
-  //               child: Row(
-  //                 children: [
-  //                   if (_isGeneratingAvatar)
-  //                     SizedBox(
-  //                       width: 14,
-  //                       height: 14,
-  //                       child: LoadingAnimationWidget.fourRotatingDots(
-  //                           color:Colors.white,size:20
-  //                       ),
-  //                     )
-  //                   else
-  //                     Icon(
-  //                       Icons.file_upload_outlined,
-  //                       color: Colors.white,
-  //                       size: Responsive.fontSize(14),
-  //                       weight: 10,
-  //                     ),
-  //                   SizedBox(width: 2),
-  //                   Text(
-  //                     _isGeneratingAvatar
-  //                         ? localizations.uploadingItem
-  //                         : localizations.upload,
-  //                     style: GoogleFonts.poppins(
-  //                         color: Colors.white,
-  //                         fontWeight: FontWeight.bold,
-  //                         fontSize: Responsive.fontSize(8)),
-  //                   ),
-  //                 ],
-  //               ),
-  //             ),
-  //           ),
-  //         ],
-  //       ),
-  //       SizedBox(height: 10),
-  //       _buildUploadProgressButton(),
-  //     ],
-  //   );
-  // }
 
   void _showAnimatedCategoryDialog(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
