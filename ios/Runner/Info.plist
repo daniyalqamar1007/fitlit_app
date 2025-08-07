@@ -3,11 +3,32 @@
 <plist version="1.0">
 <dict>
     <key>NSCameraUsageDescription</key>
-    <string>We need camera access to take your profile photo.</string>
+    <string>FitLip needs camera access to take photos for avatar creation and clothing uploads.</string>
     <key>NSPhotoLibraryUsageDescription</key>
-    <string>We need photo library access to select profile photos.</string>
+    <string>FitLip needs photo library access to select images for avatar creation and clothing uploads.</string>
     <key>NSMicrophoneUsageDescription</key>
-    <string>We need microphone access for video recording (if applicable).</string>
+    <string>FitLip may need microphone access for video features (if applicable).</string>
+    <key>NSAppTransportSecurity</key>
+    <dict>
+        <key>NSAllowsArbitraryLoads</key>
+        <true/>
+        <key>NSExceptionDomains</key>
+        <dict>
+            <key>readyplayer.me</key>
+            <dict>
+                <key>NSExceptionAllowsInsecureHTTPLoads</key>
+                <true/>
+                <key>NSExceptionMinimumTLSVersion</key>
+                <string>TLSv1.0</string>
+                <key>NSExceptionRequiresForwardSecrecy</key>
+                <false/>
+            </dict>
+        </dict>
+    </dict>
+    <key>NSInternetUsageDescription</key>
+    <string>FitLip requires internet access for avatar generation and clothing uploads.</string>
+    <key>NSFileProviderDomainUsageDescription</key>
+    <string>FitLip needs file access for image processing and caching.</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>

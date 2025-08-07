@@ -8,14 +8,67 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'controllers/themecontroller.dart';
+// Import optimization utilities
+import 'utils/performance_monitoring.dart';
+import 'utils/memory_optimization.dart';
+import 'utils/network_optimization.dart';
+import 'utils/image_optimization.dart';
+import 'utils/deployment_verification.dart';
+
 final themeController = ThemeController();
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize optimization systems
+  await _initializeOptimizations();
+
+  // Run deployment verification in debug mode
+  if (const bool.fromEnvironment('dart.vm.product') == false) {
+    await _runDeploymentVerification();
+  }
 
   SharedPreferences prefs = await SharedPreferences.getInstance();
   String? languageCode = prefs.getString('language_code') ?? 'en';
 
   runApp(MyApp(locale: Locale(languageCode)));
+}
+
+/// Initialize all optimization systems
+Future<void> _initializeOptimizations() async {
+  try {
+    // Start performance monitoring
+    PerformanceMonitor().startMonitoring();
+    
+    // Start memory monitoring
+    MemoryOptimization.startMemoryMonitoring();
+    
+    // Initialize network optimization
+    await NetworkOptimization().initialize();
+    
+    // Schedule image cache cleanup
+    MemoryOptimization.scheduleImageCacheCleanup();
+    
+    debugPrint('✅ All optimization systems initialized');
+  } catch (e) {
+    debugPrint('❌ Error initializing optimizations: $e');
+  }
+}
+
+/// Run deployment verification in debug mode
+Future<void> _runDeploymentVerification() async {
+  try {
+    debugPrint('🔍 Running deployment verification...');
+    final isReady = await DeploymentVerification.quickDeploymentCheck();
+    
+    if (isReady) {
+      debugPrint('✅ App ready for deployment');
+    } else {
+      debugPrint('❌ App needs fixes before deployment');
+    }
+  } catch (e) {
+    debugPrint('⚠️ Deployment verification error: $e');
+  }
 }
 
 class MyApp extends StatefulWidget {
@@ -33,10 +86,16 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   late Locale _locale;
+  
   @override
   void initState() {
     super.initState();
     _locale = widget.locale;
+    
+    // Preload critical images
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ImageOptimization.preloadCriticalImages(context);
+    });
   }
 
   void setLocale(Locale newLocale) {
@@ -44,6 +103,7 @@ class _MyAppState extends State<MyApp> {
       _locale = newLocale;
     });
   }
+  
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(
@@ -100,5 +160,14 @@ class _MyAppState extends State<MyApp> {
         );
       },
     );
+  }
+  
+  @override
+  void dispose() {
+    // Clean up optimization systems on app disposal
+    PerformanceMonitor().stopMonitoring();
+    MemoryOptimization.stopMemoryMonitoring();
+    MemoryOptimization.disposeAll();
+    super.dispose();
   }
 }

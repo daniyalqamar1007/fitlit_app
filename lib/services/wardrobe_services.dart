@@ -11,9 +11,7 @@ import '../model/wardrobe_model.dart';
 import '../view/Utils/globle_variable/globle.dart';
 
 import 'dart:typed_data' as typed_data;
-import 'package:http/http.dart' as http;
 import 'package:image/image.dart' as img;
-import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 
 class WardrobeService {
