@@ -28,6 +28,7 @@ dependencies:
   
   # Networking - using dio only, removed duplicate http
   dio: ^5.4.0
+  http: ^1.1.0
   
   # UI components
   table_calendar: ^3.0.9  # Review: consider custom date picker
