@@ -8,14 +8,45 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'controllers/themecontroller.dart';
+// Import optimization utilities
+import 'utils/performance_monitoring.dart';
+import 'utils/memory_optimization.dart';
+import 'utils/network_optimization.dart';
+import 'utils/image_optimization.dart';
+
 final themeController = ThemeController();
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize optimization systems
+  await _initializeOptimizations();
 
   SharedPreferences prefs = await SharedPreferences.getInstance();
   String? languageCode = prefs.getString('language_code') ?? 'en';
 
   runApp(MyApp(locale: Locale(languageCode)));
+}
+
+/// Initialize all optimization systems
+Future<void> _initializeOptimizations() async {
+  try {
+    // Start performance monitoring
+    PerformanceMonitor().startMonitoring();
+    
+    // Start memory monitoring
+    MemoryOptimization.startMemoryMonitoring();
+    
+    // Initialize network optimization
+    NetworkOptimization().initialize();
+    
+    // Schedule image cache cleanup
+    MemoryOptimization.scheduleImageCacheCleanup();
+    
+    debugPrint('✅ All optimization systems initialized');
+  } catch (e) {
+    debugPrint('❌ Error initializing optimizations: $e');
+  }
 }
 
 class MyApp extends StatefulWidget {
@@ -33,10 +64,16 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   late Locale _locale;
+  
   @override
   void initState() {
     super.initState();
     _locale = widget.locale;
+    
+    // Preload critical images
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ImageOptimization.preloadCriticalImages(context);
+    });
   }
 
   void setLocale(Locale newLocale) {
@@ -44,6 +81,7 @@ class _MyAppState extends State<MyApp> {
       _locale = newLocale;
     });
   }
+  
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(
@@ -100,5 +138,14 @@ class _MyAppState extends State<MyApp> {
         );
       },
     );
+  }
+  
+  @override
+  void dispose() {
+    // Clean up optimization systems on app disposal
+    PerformanceMonitor().stopMonitoring();
+    MemoryOptimization.stopMemoryMonitoring();
+    MemoryOptimization.disposeAll();
+    super.dispose();
   }
 }

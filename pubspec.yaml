@@ -15,42 +15,60 @@ dependencies:
   flutter_localizations:
     sdk: flutter
 
-  intl:
+  intl: ^0.19.0
   cupertino_icons: ^1.0.8
-  cached_network_image:
-  google_fonts:
-  image_picker:
-  dio:
-  table_calendar:
-  shared_preferences:
-  otp_text_field:
-  flutter_screenutil:
-  curved_navigation_bar:
-  flutter_dotenv:
-  path_provider:
-  path:
-  http_parser:
-  image:
-  http:
-  loading_animation_widget:
-  connectivity_plus:
-  internet_connection_checker:
-  package_info_plus:
-  share_plus:
   
-  url_launcher:
-  font_awesome_flutter:
+  # Image handling and caching
+  cached_network_image: ^3.3.0
+  image_picker: ^1.0.4
+  image: ^4.1.3  # Keep if image manipulation is needed, review later
+  
+  # Fonts - consider bundling specific fonts instead
+  google_fonts: ^6.1.0  # Review: bundle specific fonts for smaller size
+  
+  # Networking - using dio only, removed duplicate http
+  dio: ^5.4.0
+  
+  # UI components
+  table_calendar: ^3.0.9  # Review: consider custom date picker
+  otp_text_field: ^1.1.3  # Review: consider custom implementation
+  flutter_screenutil: ^5.9.0
+  curved_navigation_bar: ^1.0.3  # Review: consider standard navigation
+  loading_animation_widget: ^1.2.0+4  # Review: use built-in indicators
+  
+  # Storage and preferences
+  shared_preferences: ^2.2.2
+  path_provider: ^2.1.1
+  path: ^1.8.3
+  
+  # Environment and configuration
+  flutter_dotenv: ^5.1.0
+  
+  # HTTP parsing
+  http_parser: ^4.0.2
+  
+  # Connectivity - using connectivity_plus only, removed duplicate
+  connectivity_plus: ^5.0.2
+  # Removed: internet_connection_checker (duplicate functionality)
+  
+  # App information and sharing
+  package_info_plus: ^5.0.1
+  share_plus: ^7.2.1
+  url_launcher: ^6.2.1
+  
+  # Icons - consider reducing to specific icons only
+  font_awesome_flutter: ^10.6.0  # Review: use only needed icons
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
-  flutter_launcher_icons:
+  flutter_launcher_icons: ^0.13.1
 
 flutter:
-
   uses-material-design: true
 
-  # Assets
+  # Assets - consider image optimization
   assets:
     - assets/Images/
     - assets/Icons/
