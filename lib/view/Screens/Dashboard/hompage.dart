@@ -3417,13 +3417,13 @@ class _WardrobeScreenState extends State<WardrobeScreen>
         ),
         SizedBox(height: Responsive.height(8)),
         ValueListenableBuilder<DateTime>(
-          valueListenable: controller.selectedDayNotifier,
+          valueListenable: _wardrobeController.selectedDayNotifier,
           builder: (context, DateTime selectedDay, _) {
             return ValueListenableBuilder<DateTime>(
-              valueListenable: controller.focusedDayNotifier,
+              valueListenable: _wardrobeController.focusedDayNotifier,
               builder: (context, DateTime focusedDay, _) {
                 return ValueListenableBuilder<CalendarFormat>(
-                  valueListenable: controller.calendarFormatNotifier,
+                  valueListenable: _wardrobeController.calendarFormatNotifier,
                   builder: (context, CalendarFormat calendarFormat, _) {
                     return ValueListenableBuilder<List<AvatarData>>(
                       valueListenable: _outfitController.avatarDatesNotifier,
@@ -3457,8 +3457,8 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                             calendarFormat: calendarFormat,
                             selectedDayPredicate: (day) => isSameDay(selectedDay, day),
                             onDaySelected: (selectedDay, focusedDay) {
-                              controller.selectedDayNotifier.value = selectedDay;
-                              controller.focusedDayNotifier.value = focusedDay;
+                              _wardrobeController.selectedDayNotifier.value = selectedDay;
+                              _wardrobeController.focusedDayNotifier.value = focusedDay;
                               setState(() {
                                 _selectedDay = selectedDay;
                                 _focusedDay = focusedDay;
