@@ -219,7 +219,6 @@ class _OptimizedWardrobeService extends FastWardrobeService {
           category: category,
           subCategory: subCategory,
           imageUrl: result.data?['imageUrl'] ?? '',
-          avatarUrl: avatarUrl,
           createdAt: DateTime.now(),
         );
       } else {
@@ -289,7 +288,6 @@ class _OptimizedWardrobeService extends FastWardrobeService {
             category: originalItem['category'],
             subCategory: originalItem['subCategory'],
             imageUrl: result.data?['imageUrl'] ?? '',
-            avatarUrl: originalItem['avatarUrl'] ?? '',
             createdAt: DateTime.now(),
           ));
         }

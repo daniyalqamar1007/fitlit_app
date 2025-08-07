@@ -305,7 +305,7 @@ class FastWardrobeService {
   Exception _handleUploadError(dynamic error) {
     if (error is DioException) {
       switch (error.type) {
-        case DioExceptionType.connectTimeout:
+        case DioExceptionType.connectionTimeout:
           return Exception('Connection timeout - please check your internet connection');
         case DioExceptionType.sendTimeout:
           return Exception('Upload timeout - please try with a smaller image');

@@ -51,8 +51,8 @@ class ImageOptimization {
     required String imageUrl,
     required String useCase,
     required BuildContext context,
-    Widget? placeholder,
-    Widget? errorWidget,
+    Widget Function(BuildContext, String)? placeholder,
+    Widget Function(BuildContext, String, dynamic)? errorWidget,
     BoxFit? fit,
     double? width,
     double? height,
@@ -70,7 +70,7 @@ class ImageOptimization {
       maxWidthDiskCache: config['width'],
       maxHeightDiskCache: config['height'],
       placeholder: placeholder ??
-          (context, url) => Container(
+          (BuildContext context, String url) => Container(
                 width: width ?? config['width']?.toDouble(),
                 height: height ?? config['height']?.toDouble(),
                 color: Colors.grey[200],
@@ -79,7 +79,7 @@ class ImageOptimization {
                 ),
               ),
       errorWidget: errorWidget ??
-          (context, url, error) => Container(
+          (BuildContext context, String url, dynamic error) => Container(
                 width: width ?? config['width']?.toDouble(),
                 height: height ?? config['height']?.toDouble(),
                 color: Colors.grey[300],

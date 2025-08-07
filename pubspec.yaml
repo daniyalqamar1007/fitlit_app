@@ -50,6 +50,7 @@ dependencies:
   
   # Connectivity - using connectivity_plus only, removed duplicate
   connectivity_plus: ^5.0.2
+  internet_connection_checker: ^1.0.0+1
   # Removed: internet_connection_checker (duplicate functionality)
   
   # App information and sharing

@@ -88,14 +88,14 @@ class OptimizedUploadService {
       
       measurement.end();
       
-      final result = UploadResult(
-        success: true,
-        uploadId: uploadId,
-        data: response.data,
-        originalSize: await imageFile.length(),
-        optimizedSize: await optimizedFile.length(),
-        uploadTime: measurement._startTime,
-      );
+             final result = UploadResult(
+         success: true,
+         uploadId: uploadId,
+         data: response.data,
+         originalSize: await imageFile.length(),
+         optimizedSize: await optimizedFile.length(),
+         uploadTime: measurement.startTime,
+       );
       
       _activeUploads.remove(uploadId);
       return result;
@@ -109,7 +109,7 @@ class OptimizedUploadService {
         success: false,
         uploadId: uploadId,
         error: e.toString(),
-        uploadTime: measurement._startTime,
+        uploadTime: measurement.startTime,
       );
     }
   }
