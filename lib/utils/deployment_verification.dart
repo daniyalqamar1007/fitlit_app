@@ -278,7 +278,7 @@ class DeploymentVerification {
       try {
         final service = InstantAvatarService();
         await service.generateAvatarInstant(
-          config: const AvatarConfig(gender: 'male'),
+          config: AvatarConfig(gender: 'male'),
         );
       } catch (e) {
         // Expected without network

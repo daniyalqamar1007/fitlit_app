@@ -3,7 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 bool first_time = true;
 
-final String baseUrl = "https://wittywardrobe.store/aims-service5";
+final String baseUrl = "http://3.236.54.211:3099";
 // final String baseUrl = "https://nnl056zh-3099.inc1.devtunnels.ms";
 ValueNotifier<bool?> isNewImageSelected = ValueNotifier<bool?>(false);
 String? token;

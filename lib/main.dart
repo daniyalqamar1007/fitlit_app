@@ -1,13 +1,12 @@
 import 'package:fitlip_app/routes/App_routes.dart';
 import 'package:fitlip_app/view/Screens/Splash_screen/Splash_screen.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart'; // generated file
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 import 'controllers/themecontroller.dart';
+import 'l10n/app_localizations.dart';
 // Import optimization utilities
 import 'utils/performance_monitoring.dart';
 import 'utils/memory_optimization.dart';
@@ -19,6 +18,7 @@ final themeController = ThemeController();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await EasyLocalization.ensureInitialized();
 
   // Initialize optimization systems
   await _initializeOptimizations();
@@ -28,10 +28,14 @@ Future<void> main() async {
     await _runDeploymentVerification();
   }
 
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  String? languageCode = prefs.getString('language_code') ?? 'en';
-
-  runApp(MyApp(locale: Locale(languageCode)));
+  runApp(
+    EasyLocalization(
+      supportedLocales: const [Locale('en'), Locale('es')],
+      path: 'assets/translations',
+      fallbackLocale: const Locale('en'),
+      child: const MyApp(),
+    ),
+  );
 }
 
 /// Initialize all optimization systems
@@ -44,7 +48,7 @@ Future<void> _initializeOptimizations() async {
     MemoryOptimization.startMemoryMonitoring();
     
     // Initialize network optimization
-    await NetworkOptimization().initialize();
+    NetworkOptimization().initialize();
     
     // Schedule image cache cleanup
     MemoryOptimization.scheduleImageCacheCleanup();
@@ -72,35 +76,20 @@ Future<void> _runDeploymentVerification() async {
 }
 
 class MyApp extends StatefulWidget {
-  final Locale locale;
-
-  const MyApp({super.key, required this.locale});
+  const MyApp({super.key});
 
   @override
   State<MyApp> createState() => _MyAppState();
-  static void setLocale(BuildContext context, Locale newLocale) {
-    _MyAppState? state = context.findAncestorStateOfType<_MyAppState>();
-    state?.setLocale(newLocale);
-  }
 }
 
 class _MyAppState extends State<MyApp> {
-  late Locale _locale;
-  
   @override
   void initState() {
     super.initState();
-    _locale = widget.locale;
     
     // Preload critical images
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ImageOptimization.preloadCriticalImages(context);
-    });
-  }
-
-  void setLocale(Locale newLocale) {
-    setState(() {
-      _locale = newLocale;
     });
   }
   
@@ -115,17 +104,15 @@ class _MyAppState extends State<MyApp> {
             return MaterialApp(
               debugShowCheckedModeBanner: false,
               title: 'FitLip App',
-              locale: _locale,
-              supportedLocales: const [
-                Locale('en'),
-                Locale('es'),
-              ],
-              localizationsDelegates: const [
-                AppLocalizations.delegate,
+              localizationsDelegates: [
+                const AppLocalizationsDelegate(),
                 GlobalMaterialLocalizations.delegate,
                 GlobalWidgetsLocalizations.delegate,
                 GlobalCupertinoLocalizations.delegate,
+                ...context.localizationDelegates,
               ],
+              supportedLocales: context.supportedLocales,
+              locale: context.locale,
               theme: ThemeData(
                 useMaterial3: true,
                 brightness: Brightness.light,

@@ -22,6 +22,7 @@ import '../../../services/fast_background_service.dart';
 import '../../../controllers/profile_controller.dart';
 import '../../../controllers/wardrobe_controller.dart';
 import '../../../controllers/outfit_controller.dart';
+import '../../../controllers/background_image_controller.dart';
 import '../../../main.dart';
 import '../../../model/background_image_model.dart';
 import '../../../model/outfit_model.dart';
@@ -30,7 +31,7 @@ import '../../../model/wardrobe_model.dart';
 import '../../../services/upload_isolate_service.dart';
 import '../../Utils/Colors.dart';
 import 'dart:io';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../../../l10n/app_localizations.dart';
 import 'package:http/http.dart' as http;
 import '../../Utils/connection.dart';
 import '../../Utils/globle_variable/globle.dart';
@@ -404,10 +405,10 @@ class _WardrobeScreenState extends State<WardrobeScreen>
       currentIndex: _currentShirtIndex,
       avatarController: _avatarController,
       currentIds: {
-        'shirt': selectedShirtId,
-        'pant': selectedPantId,
-        'shoe': selectedShoeId,
-        'accessory': selectedAccessoryId,
+        'shirt': selectedShirtId ?? '',
+        'pant': selectedPantId ?? '',
+        'shoe': selectedShoeId ?? '',
+        'accessory': selectedAccessoryId ?? '',
       },
       preloadNext: true,
     );
@@ -442,10 +443,10 @@ class _WardrobeScreenState extends State<WardrobeScreen>
       currentIndex: _currentPantIndex,
       avatarController: _avatarController,
       currentIds: {
-        'shirt': selectedShirtId,
-        'pant': selectedPantId,
-        'shoe': selectedShoeId,
-        'accessory': selectedAccessoryId,
+        'shirt': selectedShirtId ?? '',
+        'pant': selectedPantId ?? '',
+        'shoe': selectedShoeId ?? '',
+        'accessory': selectedAccessoryId ?? '',
       },
       preloadNext: true,
     );
@@ -480,10 +481,10 @@ class _WardrobeScreenState extends State<WardrobeScreen>
       currentIndex: _currentShoeIndex,
       avatarController: _avatarController,
       currentIds: {
-        'shirt': selectedShirtId,
-        'pant': selectedPantId,
-        'shoe': selectedShoeId,
-        'accessory': selectedAccessoryId,
+        'shirt': selectedShirtId ?? '',
+        'pant': selectedPantId ?? '',
+        'shoe': selectedShoeId ?? '',
+        'accessory': selectedAccessoryId ?? '',
       },
       preloadNext: true,
     );
@@ -520,10 +521,10 @@ class _WardrobeScreenState extends State<WardrobeScreen>
       currentIndex: _currentGlassesIndex,
       avatarController: _avatarController,
       currentIds: {
-        'shirt': selectedShirtId,
-        'pant': selectedPantId,
-        'shoe': selectedShoeId,
-        'accessory': selectedAccessoryId,
+        'shirt': selectedShirtId ?? '',
+        'pant': selectedPantId ?? '',
+        'shoe': selectedShoeId ?? '',
+        'accessory': selectedAccessoryId ?? '',
       },
       preloadNext: true,
     );
@@ -560,10 +561,10 @@ class _WardrobeScreenState extends State<WardrobeScreen>
       currentIndex: _currentCapIndex,
       avatarController: _avatarController,
       currentIds: {
-        'shirt': selectedShirtId,
-        'pant': selectedPantId,
-        'shoe': selectedShoeId,
-        'accessory': selectedAccessoryId,
+        'shirt': selectedShirtId ?? '',
+        'pant': selectedPantId ?? '',
+        'shoe': selectedShoeId ?? '',
+        'accessory': selectedAccessoryId ?? '',
       },
       preloadNext: true,
     );
@@ -1393,7 +1394,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
                 ),
                 Padding(
                   padding: Responsive.allPadding(16.0),
-                  child: _buildCalendarSection(controller),
+                  child: _buildCalendarSection(),
                 ),
                 SizedBox(
                   height: Responsive.height(40),
@@ -2951,7 +2952,7 @@ class _WardrobeScreenState extends State<WardrobeScreen>
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text(loc.error(error)),
+            title: Text(loc.error('Camera Error')),
             content: Text(loc.failedToOpenCamera(e.toString())),
             actions: [
               TextButton(

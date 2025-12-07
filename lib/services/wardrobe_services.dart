@@ -131,7 +131,7 @@ class WardrobeService {
     }
   }
   final Dio _dio = Dio(BaseOptions(
-    baseUrl: 'https://wittywardrobe.store/aims-service5',
+    baseUrl: 'http://3.236.54.211:3099',
     connectTimeout: const Duration(seconds: 360),
     receiveTimeout: const Duration(seconds: 360),
     headers: {

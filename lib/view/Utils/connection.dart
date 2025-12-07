@@ -8,7 +8,7 @@ import '../../routes/App_routes.dart';
 
 Future<bool> checkInternetAndShowDialog(BuildContext context) async {
   var connectivityResult = await Connectivity().checkConnectivity();
-  bool isConnected = await InternetConnectionChecker.instance.hasConnection;
+  bool isConnected = await InternetConnectionChecker().hasConnection;
   if (connectivityResult == ConnectivityResult.none || !isConnected) {
     showDialog(
 

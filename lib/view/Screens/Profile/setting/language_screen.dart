@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../../../../main.dart';
 import '../../../../routes/App_routes.dart';
 import '../../../Utils/Colors.dart';
@@ -62,15 +62,16 @@ class _LanguageScreenState extends State<LanguageScreen> {
     await prefs.setString('language_code', code);
 
     // Dynamically change the app language
-    MyApp.setLocale(context, Locale(code));
+    if (mounted) {
+      await context.setLocale(Locale(code));
+    }
 
     setState(() => isLoading = false);
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(AppLocalizations.of(context)!
-              .languageChangedTo(selectedLanguage)),
+          content: Text('languageChangedSuccessfully'.tr()),
           backgroundColor: Colors.green,
         ),
       );
@@ -184,7 +185,7 @@ class _LanguageScreenState extends State<LanguageScreen> {
         leading: BackButton(color: appcolor),
         centerTitle: true,
         title: Text(
-          AppLocalizations.of(context)!.language,
+          'language'.tr(),
           style: GoogleFonts.playfairDisplay(
             fontWeight: FontWeight.bold,
             color: appcolor,
@@ -218,7 +219,7 @@ class _LanguageScreenState extends State<LanguageScreen> {
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          AppLocalizations.of(context)!.chooseLanguage,
+                          'chooseLanguage'.tr(),
                           style: GoogleFonts.playfairDisplay(
                             fontSize: 22,
                             fontWeight: FontWeight.bold,
@@ -241,7 +242,7 @@ class _LanguageScreenState extends State<LanguageScreen> {
                   const SizedBox(height: 32),
 
                   Text(
-                    AppLocalizations.of(context)!.availableLanguages,
+                    'availableLanguages'.tr(),
                     style: GoogleFonts.poppins(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
@@ -293,7 +294,7 @@ class _LanguageScreenState extends State<LanguageScreen> {
                         ),
                       )
                     : Text(
-                        AppLocalizations.of(context)!.saveLanguage,
+                        'saveLanguage'.tr(),
                         style: GoogleFonts.poppins(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,

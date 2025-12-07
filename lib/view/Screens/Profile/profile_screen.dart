@@ -7,7 +7,7 @@ import 'package:fitlip_app/view/Utils/Constants.dart';
 import 'package:flutter/material.dart';
 import 'package:fitlip_app/controllers/profile_controller.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../../../l10n/app_localizations.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import '../../../model/profile_model.dart';
 import '../../Utils/Colors.dart';

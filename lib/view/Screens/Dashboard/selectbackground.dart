@@ -10,7 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../../../l10n/app_localizations.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 import '../../../controllers/background_image_controller.dart';
@@ -170,7 +170,7 @@ print(image?.path);
     try {
       final success = await _backgroundImageController.generateFromImage(
         token: token!,
-        imageFile: imageFile,
+        imageFile: imageFile.path,
       );
       print(success);
 
@@ -212,7 +212,8 @@ print(image?.path);
     try {
       final success = await _backgroundImageController.changeImageStatus(
         token: token!,
-        backgroundImageId: background.id,
+        imageId: background.id,
+        status: 'active',
       );
 
       // Check if widget is still mounted before using context

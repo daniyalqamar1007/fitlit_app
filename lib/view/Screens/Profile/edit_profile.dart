@@ -13,7 +13,7 @@ import '../../../model/profile_model.dart';
 import '../../Utils/Colors.dart';
 import '../../Utils/globle_variable/globle.dart';
 import 'package:image/image.dart' as img;
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../../../l10n/app_localizations.dart';
 
 import '../../Widgets/custom_message.dart';
 

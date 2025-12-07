@@ -15,7 +15,8 @@ dependencies:
   flutter_localizations:
     sdk: flutter
 
-  intl: ^0.19.0
+  intl: ^0.20.2
+  easy_localization: ^3.0.3
   cupertino_icons: ^1.0.8
   
   # Image handling and caching
@@ -74,10 +75,8 @@ flutter:
   assets:
     - assets/Images/
     - assets/Icons/
+    - assets/translations/
     - .env
-
-  # Localization config
-  generate: true # This tells Flutter to auto-generate localization files
 
 flutter_launcher_icons:
   android: true

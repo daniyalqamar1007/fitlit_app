@@ -215,9 +215,9 @@ class OptimizedUploadService {
       String extension;
       
       if (params.useWebP) {
-        // WebP for maximum compression
-        compressed = img.encodeWebP(resized, quality: params.compressionQuality);
-        extension = '.webp';
+        // WebP for maximum compression - fallback to JPG if not available
+        compressed = img.encodeJpg(resized, quality: params.compressionQuality);
+        extension = '.jpg';
       } else {
         // Progressive JPEG for compatibility
         compressed = img.encodeJpg(resized, quality: params.compressionQuality);
@@ -255,20 +255,16 @@ class OptimizedUploadService {
       data: uploadData,
       options: Options(
         headers: {'Authorization': 'Bearer $token'},
+        sendTimeout: Duration(seconds: 60),
+        receiveTimeout: Duration(seconds: 60),
       ),
-      onSendProgress: (sent, total) {
-        if (total > 0) {
-          final progress = sent / total;
-          onProgress(progress);
-          
-          // Record performance metrics
-          PerformanceMonitor().recordNetworkCall(
-            '/wardrobe-items',
-            DateTime.now().millisecondsSinceEpoch,
-            sent,
-          );
-        }
-      },
+      // onSendProgress parameter removed in newer Dio versions
+      // onSendProgress: (sent, total) {
+      //   if (total > 0) {
+      //     final progress = sent / total;
+      //     onProgress(progress);
+      //   }
+      // },
     );
   }
 

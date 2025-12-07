@@ -321,12 +321,12 @@ class OptimizedAvatarService {
     
     // Apply reductions based on parameters
     if (params['meshLod'] != null) {
-      int lod = int.tryParse(params['meshLod']) ?? 0;
+      int lod = int.tryParse(params['meshLod'] ?? '0') ?? 0;
       baseSize = (baseSize * pow(0.6, lod)).round();
     }
     
     if (params['textureAtlas'] != null) {
-      int textureSize = int.tryParse(params['textureAtlas']) ?? 2048;
+      int textureSize = int.tryParse(params['textureAtlas'] ?? '2048') ?? 2048;
       double reduction = textureSize / 2048;
       baseSize = (baseSize * reduction).round();
     }
@@ -343,12 +343,12 @@ class OptimizedAvatarService {
     int baseTime = 5; // seconds
     
     if (params['meshLod'] != null) {
-      int lod = int.tryParse(params['meshLod']) ?? 0;
+      int lod = int.tryParse(params['meshLod'] ?? '0') ?? 0;
       baseTime = (baseTime * pow(0.7, lod)).round();
     }
     
     if (params['textureAtlas'] != null) {
-      int textureSize = int.tryParse(params['textureAtlas']) ?? 2048;
+      int textureSize = int.tryParse(params['textureAtlas'] ?? '2048') ?? 2048;
       double factor = textureSize / 2048;
       baseTime = (baseTime * factor).round();
     }
@@ -417,3 +417,4 @@ class AvatarOptimizationResult {
     );
   }
 }
+

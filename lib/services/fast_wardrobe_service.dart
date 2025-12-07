@@ -43,7 +43,7 @@ class FastWardrobeService {
       // 2. Optimize image for fast upload
       final optimizedImage = await _optimizeImageForUpload(
         imageFile, 
-        optimization: optimization,
+        optimization: optimization ?? 'balanced',
       );
 
       // 3. Create optimized form data
@@ -181,7 +181,7 @@ class FastWardrobeService {
         imageFile: item['imageFile'],
         avatarUrl: item['avatarUrl'],
         token: token,
-        optimization: optimization,
+        optimization: optimization ?? 'balanced',
       ));
 
       final results = await Future.wait(uploadTasks);
@@ -387,3 +387,4 @@ class FastUploadResult {
            '(${(compressionRatio * 100).toInt()}% reduction)';
   }
 }
+
