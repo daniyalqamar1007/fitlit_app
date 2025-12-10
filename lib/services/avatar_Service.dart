@@ -1,14 +1,13 @@
 import 'dart:convert';
 import 'package:dio/dio.dart';
 import '../model/avatar_model.dart';
-import '../view/Utils/globle_variable/globle.dart';
 
 class AvatarService {
   late final Dio _dio;
 
   AvatarService() {
     _dio = Dio(BaseOptions(
-      baseUrl: 'https://wittywardrobe.store/aims-service5',
+      baseUrl: 'http://3.236.54.211:3099',
       connectTimeout: const Duration(minutes: 3), // 3 minutes connection timeout
       receiveTimeout: const Duration(minutes: 3), // 3 minutes receive timeout
       sendTimeout: const Duration(minutes: 3), // 3 minutes send timeout

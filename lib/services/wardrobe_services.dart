@@ -133,7 +133,7 @@ class WardrobeService {
     }
   }
   final Dio _dio = Dio(BaseOptions(
-    baseUrl: 'https://wittywardrobe.store/aims-service5',
+    baseUrl: 'http://3.236.54.211:3099',
     connectTimeout: const Duration(seconds: 360),
     receiveTimeout: const Duration(seconds: 360),
     headers: {
@@ -198,12 +198,12 @@ class WardrobeService {
 
       // Debug FormData contents
       print("=== FormData Contents ===");
-      formData.fields.forEach((field) {
+      for (var field in formData.fields) {
         print("Field: ${field.key} = ${field.value}");
-      });
-      formData.files.forEach((file) {
+      }
+      for (var file in formData.files) {
         print("File: ${file.key} = ${file.value.filename} (${file.value.contentType})");
-      });
+      }
       print("========================");
 
       // Send request with proper options
@@ -365,7 +365,7 @@ class WardrobeService {
 
       // Create a new file path with .png extension
       final directory = await getTemporaryDirectory();
-      String fileName = path.basenameWithoutExtension(inputFile.path) + '.png';
+      String fileName = '${path.basenameWithoutExtension(inputFile.path)}.png';
       final pngFilePath = path.join(directory.path, fileName);
 
       // Write the converted PNG file

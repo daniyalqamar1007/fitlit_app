@@ -3,11 +3,10 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import '../model/background_image_model.dart';
-import '../view/Utils/globle_variable/globle.dart';
 
 class BackgroundImageService {
 
-  static const String baseUrl = 'https://wittywardrobe.store/aims-service5';
+  static const String baseUrl = 'http://3.236.54.211:3099';
 
 
   // Timeout duration for requests

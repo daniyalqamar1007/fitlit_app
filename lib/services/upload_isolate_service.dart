@@ -104,7 +104,7 @@ class UploadIsolateService {
 
       // Create Dio instance
       final dio = Dio(BaseOptions(
-        baseUrl: "https://wittywardrobe.store/aims-service5", // Replace with your actual base URL
+        baseUrl: "http://3.236.54.211:3099",
         connectTimeout: const Duration(seconds: 30),
         receiveTimeout: const Duration(seconds: 300),
         sendTimeout: const Duration(seconds: 300),
